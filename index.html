@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  متابعة كأس العالم 2026 — نسخة الإنترنت (تسجيل دخول + حفظ سحابي)
+  عدّل فقط السطرين التاليين في الأسفل داخل <script> :
+     const SUPABASE_URL  = "ضع_رابط_مشروعك_هنا";
+     const SUPABASE_KEY  = "ضع_المفتاح_العام_هنا";
+  ولا تلمس أي شيء آخر.
+  ============================================================
+-->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متابعة كأس العالم 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--bg:#0a0e13;--card:#131c26;--card2:#0f1620;--ink:#eef3f6;--muted:#8a99a5;
+    --gold:#d8b35e;--gold-bright:#f5d98c;--green:#1ea874;--green-soft:rgba(30,168,116,.14);
+    --line:rgba(255,255,255,.08);--dim:rgba(255,255,255,.04);--red:#c75c5c;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:radial-gradient(900px 500px at 100% -5%,rgba(216,179,94,.10),transparent 60%),
+    radial-gradient(800px 500px at 0% 5%,rgba(30,168,116,.10),transparent 55%),var(--bg);
+    color:var(--ink);font-family:'Tajawal',sans-serif;line-height:1.6;min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px 60px}
+  /* LOGIN */
+  #login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+  .lcard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 24px;max-width:380px;width:100%;text-align:center}
+  .lcard .y{font-family:'Bebas Neue';letter-spacing:3px;font-size:2.6rem;background:linear-gradient(180deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lcard h2{font-family:'Reem Kufi';font-size:1.2rem;margin:6px 0 4px}
+  .lcard p{color:var(--muted);font-size:.85rem;margin-bottom:20px}
+  .lcard input{width:100%;height:46px;background:var(--card2);border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:'Tajawal';font-size:1rem;padding:0 14px;margin-bottom:11px;text-align:right}
+  .lcard input:focus{outline:none;border-color:var(--gold)}
+  .lcard button{width:100%;height:46px;border:none;border-radius:11px;cursor:pointer;font-family:'Reem Kufi';
+    font-size:1rem;font-weight:700;color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold))}
+  .lmsg{margin-top:12px;font-size:.83rem;min-height:20px;color:var(--muted)}
+  /* TOP BAR */
+  .topbar{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px 0 4px;font-size:.82rem;color:var(--muted)}
+  .topbar .logout{font-family:'Reem Kufi';font-size:.8rem;padding:6px 14px;border-radius:10px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  header{padding:18px 0 14px;text-align:center}
+  .kicker{font-family:'Reem Kufi';color:var(--gold);font-size:.85rem;border:1px solid rgba(216,179,94,.35);
+    display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(216,179,94,.06)}
+  h1{font-family:'Reem Kufi';font-weight:700;font-size:clamp(1.8rem,6vw,2.8rem);margin:14px 0 2px}
+  h1 .y{font-family:'Bebas Neue';letter-spacing:3px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:.9rem}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 18px;position:sticky;top:0;
+    background:linear-gradient(180deg,var(--bg) 72%,transparent);padding:10px 0;z-index:50}
+  .tab{font-family:'Reem Kufi';font-size:.92rem;padding:9px 18px;border-radius:12px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--muted);transition:.2s}
+  .tab.on{color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:transparent;font-weight:700}
+  .view{display:none}.view.on{display:block;animation:fin .35s ease}
+  @keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .gcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:18px}
+  .gh{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .gh .let{font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold);background:rgba(216,179,94,.12);border:1px solid rgba(216,179,94,.3);border-radius:10px;padding:1px 13px;letter-spacing:1px}
+  .gh h3{font-family:'Reem Kufi';font-size:1.05rem}
+  .md{font-size:.74rem;color:var(--muted);margin:10px 2px 2px;font-family:'Reem Kufi'}
+  .match{display:flex;align-items:center;gap:8px;padding:8px 6px;border-radius:10px}
+  .match+.match{border-top:1px solid var(--dim)}
+  .side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+  .side.away{flex-direction:row-reverse;text-align:left}
+  .side .fl{font-size:1.05rem;flex:none}
+  .side .nm{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .score{display:flex;align-items:center;gap:5px;flex:none}
+  .score input{width:38px;height:34px;text-align:center;font-family:'Bebas Neue';font-size:1.2rem;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--ink)}
+  .score input:focus{outline:none;border-color:var(--gold)}
+  .score .dash{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem}
+  th,td{padding:8px 5px;text-align:center}
+  th{font-family:'Reem Kufi';font-weight:500;color:var(--muted);font-size:.72rem;border-bottom:1px solid var(--line)}
+  td{border-bottom:1px solid var(--dim)}
+  .tname{text-align:right;white-space:nowrap}
+  tr.p1 td{background:rgba(30,168,116,.10)}tr.p2 td{background:rgba(30,168,116,.06)}tr.p3 td{background:rgba(216,179,94,.06)}
+  .pts{font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold)}
+  .posdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:5px}
+  .d-q{background:var(--green)}.d-t{background:var(--gold)}
+  .qbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+  .qbox h3{font-family:'Reem Kufi';font-size:1.05rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .qbox .hint{color:var(--muted);font-size:.8rem;margin-bottom:12px}
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .qt{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:.86rem}
+  .qt .lt{font-family:'Bebas Neue';color:var(--gold);font-size:.95rem;margin-inline-start:auto}
+  .banner{background:rgba(216,179,94,.08);border:1px solid rgba(216,179,94,.3);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:.86rem;color:#e9d6a8}
+  .banner b{color:var(--gold-bright)}
+  .ko-round{margin-bottom:20px}
+  .ko-round h3{font-family:'Reem Kufi';font-size:1rem;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:9px}
+  .ko-round h3 .b{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}
+  .kmatch{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin-bottom:9px}
+  .kmeta{font-size:.7rem;color:var(--muted);margin-bottom:7px;font-family:'Reem Kufi'}
+  .krow{display:flex;align-items:center;gap:8px}
+  .kside{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+  .kside.away{flex-direction:row-reverse;text-align:left}
+  .kside .fl{font-size:1.05rem;flex:none}
+  .kside .nm{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kside.ph .nm{color:var(--muted);font-style:italic;font-size:.82rem}
+  .kside.win .nm{color:var(--green);font-weight:700}
+  .score.ko input{width:42px}
+  .pen{display:none;margin-top:8px;align-items:center;gap:8px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+  .pen.show{display:flex}
+  .pen button{font-family:'Tajawal';font-size:.78rem;padding:4px 12px;border-radius:8px;cursor:pointer;background:var(--card2);border:1px solid var(--line);color:var(--ink)}
+  .pen button.win{background:var(--green-soft);border-color:var(--green);color:#bff0db}
+  .ko-final .kmatch{border-color:rgba(216,179,94,.5);background:linear-gradient(180deg,rgba(216,179,94,.08),var(--card))}
+  .bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 20px}
+  .btn{font-family:'Reem Kufi';font-size:.85rem;padding:9px 18px;border-radius:11px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink);transition:.2s}
+  .btn:hover{border-color:var(--gold)}
+  .btn.danger{color:var(--red);border-color:rgba(199,92,92,.4)}
+  .save-note{text-align:center;color:var(--muted);font-size:.78rem;margin-bottom:12px;min-height:18px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin:0 2px 14px}
+  .legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  footer{text-align:center;color:var(--muted);font-size:.76rem;padding-top:18px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<!-- شاشة الدخول -->
+<div id="login">
+  <div class="lcard">
+    <div class="y">2026</div>
+    <h2>متابعة كأس العالم</h2>
+    <p>سجّل دخولك لحفظ نتائجك بشكل خاص</p>
+    <input id="email" type="email" inputmode="email" placeholder="البريد الإلكتروني" autocomplete="email">
+    <input id="pass" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+    <button id="authBtn">دخول / إنشاء حساب</button>
+    <div class="lmsg" id="lmsg"></div>
+  </div>
+</div>
+
+<!-- التطبيق -->
+<div id="app" style="display:none">
+<div class="wrap">
+  <div class="topbar">
+    <span id="userEmail"></span>
+    <span class="logout" id="logoutBtn">تسجيل خروج</span>
+  </div>
+  <header>
+    <span class="kicker">ملف المتابعة الخاص بك</span>
+    <h1>متابعة كأس العالم <span class="y">2026</span></h1>
+    <p class="sub">أدخل نتائج المجموعات فقط — وكل شيء بعدها يتحدّث ويتأهل تلقائياً</p>
+  </header>
+  <div class="tabs">
+    <div class="tab on" data-v="groups">المجموعات</div>
+    <div class="tab" data-v="quals">المتأهلون</div>
+    <div class="tab" data-v="ko">الأدوار الإقصائية</div>
+  </div>
+  <div class="save-note" id="saveNote"></div>
+  <div class="view on" id="v-groups">
+    <div class="legend">
+      <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
+      <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
+    </div>
+    <div id="groupsHost"></div>
+  </div>
+  <div class="view" id="v-quals">
+    <div class="qbox"><h3>✅ المتأهلون المباشرون</h3><p class="hint">أول وثاني كل مجموعة (24 منتخب). يتحدّث تلقائياً.</p><div class="qgrid" id="directHost"></div></div>
+    <div class="qbox"><h3>🥉 ترتيب المراكز الثالثة</h3><p class="hint">أفضل 8 منتخبات ثالثة تتأهل (بالأخضر). الترتيب: النقاط ← الفارق ← الأهداف المسجّلة.</p><div id="thirdsHost"></div></div>
+  </div>
+  <div class="view" id="v-ko"><div id="koBanner"></div><div id="koHost"></div></div>
+  <div class="bar">
+    <button class="btn" id="printBtn">طباعة / حفظ PDF</button>
+    <button class="btn danger" id="clearBtn">Clear — مسح كل النتائج</button>
+  </div>
+  <footer>ملف شخصي · 11 يونيو – 19 يوليو 2026 · النتائج تُحفظ تلقائياً في حسابك</footer>
+</div>
+</div>
+
+<script>
+/* ============================================================
+   عدّل هذين السطرين فقط:
+   ============================================================ */
+const SUPABASE_URL = "ضع_رابط_مشروعك_هنا";
+const SUPABASE_KEY = "ضع_المفتاح_العام_هنا";
+/* ============================================================ */
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let user = null;
+
+/* ---------- DATA ---------- */
+const T={MEX:["المكسيك","🇲🇽"],KOR:["كوريا الجنوبية","🇰🇷"],RSA:["جنوب أفريقيا","🇿🇦"],CZE:["التشيك","🇨🇿"],
+CAN:["كندا","🇨🇦"],SUI:["سويسرا","🇨🇭"],QAT:["قطر","🇶🇦"],BIH:["البوسنة","🇧🇦"],
+BRA:["البرازيل","🇧🇷"],MAR:["المغرب","🇲🇦"],SCO:["اسكتلندا","🏴󠁧󠁢󠁳󠁣󠁴󠁿"],HAI:["هايتي","🇭🇹"],
+USA:["أمريكا","🇺🇸"],AUS:["أستراليا","🇦🇺"],PAR:["باراغواي","🇵🇾"],TUR:["تركيا","🇹🇷"],
+GER:["ألمانيا","🇩🇪"],ECU:["الإكوادور","🇪🇨"],CIV:["كوت ديفوار","🇨🇮"],CUW:["كوراساو","🇨🇼"],
+NED:["هولندا","🇳🇱"],JPN:["اليابان","🇯🇵"],TUN:["تونس","🇹🇳"],SWE:["السويد","🇸🇪"],
+BEL:["بلجيكا","🇧🇪"],IRN:["إيران","🇮🇷"],EGY:["مصر","🇪🇬"],NZL:["نيوزيلندا","🇳🇿"],
+ESP:["إسبانيا","🇪🇸"],CPV:["الرأس الأخضر","🇨🇻"],KSA:["السعودية","🇸🇦"],URU:["أوروغواي","🇺🇾"],
+FRA:["فرنسا","🇫🇷"],SEN:["السنغال","🇸🇳"],IRQ:["العراق","🇮🇶"],NOR:["النرويج","🇳🇴"],
+ARG:["الأرجنتين","🇦🇷"],ALG:["الجزائر","🇩🇿"],AUT:["النمسا","🇦🇹"],JOR:["الأردن","🇯🇴"],
+POR:["البرتغال","🇵🇹"],COD:["الكونغو","🇨🇩"],UZB:["أوزبكستان","🇺🇿"],COL:["كولومبيا","🇨🇴"],
+ENG:["إنجلترا","🏴󠁧󠁢󠁥󠁮󠁧󠁿"],CRO:["كرواتيا","🇭🇷"],GHA:["غانا","🇬🇭"],PAN:["بنما","🇵🇦"]};
+const GROUPS={A:["MEX","RSA","KOR","CZE"],B:["CAN","SUI","QAT","BIH"],C:["BRA","MAR","SCO","HAI"],
+D:["USA","PAR","AUS","TUR"],E:["GER","ECU","CIV","CUW"],F:["NED","JPN","TUN","SWE"],
+G:["BEL","EGY","IRN","NZL"],H:["ESP","URU","KSA","CPV"],I:["FRA","NOR","SEN","IRQ"],
+J:["ARG","AUT","ALG","JOR"],K:["POR","COL","COD","UZB"],L:["ENG","CRO","GHA","PAN"]};
+const RR=[[[0,1],[2,3]],[[0,2],[3,1]],[[3,0],[1,2]]];
+const CLUS={74:["A","B","C","D","F"],77:["C","D","F","G","H"],79:["C","E","F","H","I"],
+80:["E","H","I","J","K"],81:["B","E","F","I","J"],82:["A","E","H","I","J"],
+85:["E","F","G","I","J"],87:["D","E","I","J","L"]};
+const MATCH={
+73:{a:{t:'R',g:'A'},b:{t:'R',g:'B'}},74:{a:{t:'W',g:'E'},b:{t:'3',m:74}},
+75:{a:{t:'W',g:'F'},b:{t:'R',g:'C'}},76:{a:{t:'W',g:'C'},b:{t:'R',g:'F'}},
+77:{a:{t:'W',g:'I'},b:{t:'3',m:77}},78:{a:{t:'R',g:'E'},b:{t:'R',g:'I'}},
+79:{a:{t:'W',g:'A'},b:{t:'3',m:79}},80:{a:{t:'W',g:'L'},b:{t:'3',m:80}},
+81:{a:{t:'W',g:'D'},b:{t:'3',m:81}},82:{a:{t:'W',g:'G'},b:{t:'3',m:82}},
+83:{a:{t:'R',g:'K'},b:{t:'R',g:'L'}},84:{a:{t:'W',g:'H'},b:{t:'R',g:'J'}},
+85:{a:{t:'W',g:'B'},b:{t:'3',m:85}},86:{a:{t:'W',g:'J'},b:{t:'R',g:'H'}},
+87:{a:{t:'W',g:'K'},b:{t:'3',m:87}},88:{a:{t:'R',g:'D'},b:{t:'R',g:'G'}},
+89:{a:{t:'WM',m:74},b:{t:'WM',m:77}},90:{a:{t:'WM',m:73},b:{t:'WM',m:75}},
+91:{a:{t:'WM',m:76},b:{t:'WM',m:78}},92:{a:{t:'WM',m:79},b:{t:'WM',m:80}},
+93:{a:{t:'WM',m:83},b:{t:'WM',m:84}},94:{a:{t:'WM',m:81},b:{t:'WM',m:82}},
+95:{a:{t:'WM',m:86},b:{t:'WM',m:88}},96:{a:{t:'WM',m:85},b:{t:'WM',m:87}},
+97:{a:{t:'WM',m:89},b:{t:'WM',m:90}},98:{a:{t:'WM',m:93},b:{t:'WM',m:94}},
+99:{a:{t:'WM',m:91},b:{t:'WM',m:92}},100:{a:{t:'WM',m:95},b:{t:'WM',m:96}},
+101:{a:{t:'WM',m:97},b:{t:'WM',m:98}},102:{a:{t:'WM',m:99},b:{t:'WM',m:100}},
+103:{a:{t:'LM',m:101},b:{t:'LM',m:102}},104:{a:{t:'WM',m:101},b:{t:'WM',m:102}}};
+const ROUNDS=[
+{title:"دور الـ32 (ثمن النهائي الأول)",letter:"32",ms:[73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88]},
+{title:"دور الـ16 (ثمن النهائي)",letter:"16",ms:[89,90,91,92,93,94,95,96]},
+{title:"دور الـ8 (ربع النهائي)",letter:"8",ms:[97,98,99,100]},
+{title:"دور الـ4 (نصف النهائي)",letter:"4",ms:[101,102]},
+{title:"تحديد المركز الثالث",letter:"3·4",ms:[103]},
+{title:"النهائي",letter:"🏆",ms:[104]}];
+
+/* ---------- STATE + CLOUD STORAGE ---------- */
+let state={g:{},ko:{}}; let saveTimer=null;
+async function loadState(){state={g:{},ko:{}};
+  try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
+    if(data&&data.data)state=data.data;}catch(e){}
+  if(!state.g)state.g={};if(!state.ko)state.ko={};}
+async function saveState(){setNote("جارٍ الحفظ…");
+  try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
+    if(error)throw error;setNote("تم الحفظ ✓");}
+  catch(e){setNote("تعذّر الحفظ: "+(e.message||""));}}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,600);}
+function setNote(t){const n=document.getElementById("saveNote");if(!n)return;n.textContent=t;
+  if(t.includes("✓"))setTimeout(()=>{if(n.textContent===t)n.textContent="";},1500);}
+const nm=k=>T[k][0],fl=k=>T[k][1],mid=(g,r,m)=>g+"_"+r+"_"+m;
+
+/* ---------- STANDINGS ---------- */
+function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];
+    if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const A=teams[pair[0]],B=teams[pair[1]],hs=+res.h,as=+res.a;
+      st[A].gf+=hs;st[A].ga+=as;st[B].gf+=as;st[B].ga+=hs;st[A].p++;st[B].p++;
+      if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
+      else{st[A].d++;st[B].d++;st[A].pts++;st[B].pts++;}}}));
+  return teams.map(k=>st[k]).sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
+function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>{const r=state.g[mid(g,ri,mi)];
+  return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}));}
+function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
+function enteredCount(){let c=0;Object.keys(GROUPS).forEach(g=>RR.forEach((round,ri)=>round.forEach((pair,mi)=>{
+  const r=state.g[mid(g,ri,mi)];if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)c++;})));return c;}
+
+/* ---------- GROUPS ---------- */
+function renderGroups(){const host=document.getElementById("groupsHost");host.innerHTML="";
+  Object.keys(GROUPS).forEach(g=>{const teams=GROUPS[g];const card=document.createElement("div");card.className="gcard";
+    let h=`<div class="gh"><span class="let">${g}</span><h3>المجموعة ${g}</h3></div>`;
+    RR.forEach((round,ri)=>{h+=`<div class="md">الجولة ${ri+1}</div>`;
+      round.forEach((pair,mi)=>{const id=mid(g,ri,mi),A=teams[pair[0]],B=teams[pair[1]],r=state.g[id]||{};
+        h+=`<div class="match"><div class="side"><span class="fl">${fl(A)}</span><span class="nm">${nm(A)}</span></div>
+        <div class="score"><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="h" value="${r.h??""}">
+        <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="a" value="${r.a??""}"></div>
+        <div class="side away"><span class="fl">${fl(B)}</span><span class="nm">${nm(B)}</span></div></div>`;});});
+    h+=`<table id="tbl_${g}"></table>`;card.innerHTML=h;host.appendChild(card);renderTable(g);});
+  host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
+    const id=e.target.dataset.id,s=e.target.dataset.s;if(!state.g[id])state.g[id]={h:"",a:""};
+    state.g[id][s]=e.target.value;renderTable(id.split("_")[0]);updateKO();updateBanner();queueSave();}));}
+function renderTable(g){const arr=standings(g),tbl=document.getElementById("tbl_"+g);if(!tbl)return;
+  let h=`<tr><th class="tname">المنتخب</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>+/−</th><th>نقاط</th></tr>`;
+  arr.forEach((s,i)=>{const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
+    const dot=i<2?'<span class="posdot d-q"></span>':i===2?'<span class="posdot d-t"></span>':'';
+    h+=`<tr class="${cls}"><td class="tname">${fl(s.k)} ${nm(s.k)}${dot}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+    <td>${s.gf}</td><td>${s.ga}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td class="pts">${s.pts}</td></tr>`;});
+  tbl.innerHTML=h;}
+
+/* ---------- QUALIFIERS ---------- */
+function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
+  return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
+function renderQuals(){const direct=document.getElementById("directHost");direct.innerHTML="";
+  Object.keys(GROUPS).forEach(g=>{const arr=standings(g);[0,1].forEach(i=>{const s=arr[i];
+    const d=document.createElement("div");d.className="qt";
+    d.innerHTML=`<span>${fl(s.k)}</span><span>${nm(s.k)}</span><span class="lt">${g}${i+1}</span>`;direct.appendChild(d);});});
+  const th=rankedThirds(),host=document.getElementById("thirdsHost");
+  let h=`<table><tr><th>#</th><th class="tname">المنتخب</th><th>المج</th><th>نقاط</th><th>+/−</th><th>له</th><th>الحالة</th></tr>`;
+  th.forEach((s,i)=>{const adv=i<8;h+=`<tr class="${adv?'p3':''}"><td class="pts">${i+1}</td><td class="tname">${fl(s.k)} ${nm(s.k)}</td>
+    <td>${s.g}</td><td class="pts">${s.pts}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td>${s.gf}</td>
+    <td style="color:${adv?'var(--green)':'var(--red)'}">${adv?'متأهل':'خارج'}</td></tr>`;});
+  h+=`</table>`;host.innerHTML=h;}
+
+/* ---------- KNOCKOUT ---------- */
+function thirdsAssignment(){if(!allGroupsDone())return null;
+  const th=rankedThirds().slice(0,8).map(o=>o.g);const ms=Object.keys(CLUS).map(Number);const used={};const out={};
+  function bt(i){if(i===ms.length)return true;const m=ms[i];
+    for(const g of CLUS[m]){if(th.includes(g)&&!used[g]){used[g]=1;out[m]=g;if(bt(i+1))return true;delete used[g];}}return false;}
+  return bt(0)?out:null;}
+function computeKO(){const winG={},runG={};
+  if(allGroupsDone())Object.keys(GROUPS).forEach(g=>{const a=standings(g);winG[g]=a[0].k;runG[g]=a[1].k;});
+  const asg=thirdsAssignment();const teamsOf={},winnerOf={},loserOf={};
+  function thirdTeam(g){return standings(g)[2].k;}
+  function resolve(slot){if(slot.t==='W')return winG[slot.g]||null;if(slot.t==='R')return runG[slot.g]||null;
+    if(slot.t==='3')return asg?thirdTeam(asg[slot.m]):null;if(slot.t==='WM')return winnerOf[slot.m]||null;
+    if(slot.t==='LM')return loserOf[slot.m]||null;return null;}
+  for(let m=73;m<=104;m++){const a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);teamsOf[m]={a,b};
+    const r=state.ko[m]||{};const have=a&&b&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;
+    if(have){if(+r.hs>+r.as){winnerOf[m]=a;loserOf[m]=b;}else if(+r.as>+r.hs){winnerOf[m]=b;loserOf[m]=a;}
+      else if(r.pen==='h'){winnerOf[m]=a;loserOf[m]=b;}else if(r.pen==='a'){winnerOf[m]=b;loserOf[m]=a;}}}
+  return {teamsOf,winnerOf};}
+function phText(slot){if(slot.t==='W')return"متصدّر "+slot.g;if(slot.t==='R')return"وصيف "+slot.g;
+  if(slot.t==='3')return"ثالث ("+CLUS[slot.m].join("/")+")";if(slot.t==='WM')return"الفائز م"+slot.m;
+  if(slot.t==='LM')return"خاسر م"+slot.m;return"";}
+function renderKO(){const host=document.getElementById("koHost");host.innerHTML="";
+  ROUNDS.forEach(R=>{const sec=document.createElement("div");sec.className="ko-round"+(R.letter==="🏆"?" ko-final":"");
+    sec.innerHTML=`<h3><span class="b">${R.letter}</span> ${R.title}</h3>`;
+    R.ms.forEach(m=>{const box=document.createElement("div");box.className="kmatch";box.id="km_"+m;const r=state.ko[m]||{};
+      box.innerHTML=`<div class="kmeta">مباراة ${m}</div><div class="krow">
+        <div class="kside" id="ksa_${m}"><span class="fl"></span><span class="nm"></span></div>
+        <div class="score ko"><input type="number" min="0" inputmode="numeric" data-m="${m}" data-s="hs" value="${r.hs??""}">
+        <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-m="${m}" data-s="as" value="${r.as??""}"></div>
+        <div class="kside away" id="ksb_${m}"><span class="fl"></span><span class="nm"></span></div></div>
+        <div class="pen" id="pen_${m}"><span>الترجيح:</span><button data-m="${m}" data-pw="h"></button><button data-m="${m}" data-pw="a"></button></div>`;
+      sec.appendChild(box);});host.appendChild(sec);});
+  host.querySelectorAll('input').forEach(inp=>inp.addEventListener("input",e=>{
+    const m=e.target.dataset.m,s=e.target.dataset.s;if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
+    state.ko[m][s]=e.target.value;updateKO();queueSave();}));
+  host.querySelectorAll('.pen button').forEach(b=>b.addEventListener("click",e=>{
+    const m=e.target.dataset.m;if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
+    state.ko[m].pen=(state.ko[m].pen===e.target.dataset.pw)?"":e.target.dataset.pw;updateKO();queueSave();}));
+  updateKO();}
+function setSide(elId,team,slot,winner){const el=document.getElementById(elId);if(!el)return;
+  const flS=el.querySelector(".fl"),nmS=el.querySelector(".nm");el.classList.remove("ph","win");
+  if(team){flS.textContent=fl(team);nmS.textContent=nm(team);if(winner===team)el.classList.add("win");}
+  else{flS.textContent="";nmS.textContent=phText(slot);el.classList.add("ph");}}
+function updateKO(){const {teamsOf,winnerOf}=computeKO();
+  for(let m=73;m<=104;m++){const t=teamsOf[m],w=winnerOf[m];
+    setSide("ksa_"+m,t.a,MATCH[m].a,w);setSide("ksb_"+m,t.b,MATCH[m].b,w);
+    const r=state.ko[m]||{};const pen=document.getElementById("pen_"+m);if(!pen)continue;
+    const both=t.a&&t.b&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;const draw=both&&(+r.hs===+r.as);
+    pen.classList.toggle("show",draw);const bts=pen.querySelectorAll("button");
+    bts[0].textContent=t.a?nm(t.a):"الأول";bts[1].textContent=t.b?nm(t.b):"الثاني";
+    bts[0].classList.toggle("win",r.pen==='h');bts[1].classList.toggle("win",r.pen==='a');
+    const inA=document.querySelector(`#km_${m} input[data-s="hs"]`),inB=document.querySelector(`#km_${m} input[data-s="as"]`);
+    if(inA&&document.activeElement!==inA)inA.value=r.hs??"";if(inB&&document.activeElement!==inB)inB.value=r.as??"";}}
+function updateBanner(){const b=document.getElementById("koBanner");if(!b)return;const c=enteredCount();
+  if(allGroupsDone())b.innerHTML=`<div class="banner">✅ اكتملت المجموعات. كل مباريات الأدوار الإقصائية انعبّأت تلقائياً — أدخل النتائج فقط وستتسلسل لوحدها حتى النهائي.</div>`;
+  else b.innerHTML=`<div class="banner">📋 أدخلت <b>${c}</b> من <b>72</b> مباراة مجموعات. تظهر فرق الأدوار الإقصائية تلقائياً بعد اكتمال جميع مباريات المجموعات.</div>`;}
+
+/* ---------- TABS / BUTTONS ---------- */
+function wireUI(){
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");document.getElementById("v-"+t.dataset.v).classList.add("on");
+    if(t.dataset.v==="quals")renderQuals();if(t.dataset.v==="ko"){updateKO();updateBanner();}}));
+  document.getElementById("clearBtn").addEventListener("click",async()=>{
+    if(confirm("مسح كل النتائج المُدخلة؟ لا يمكن التراجع.")){
+      state={g:{},ko:{}};await saveState();renderGroups();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
+  document.getElementById("printBtn").addEventListener("click",()=>window.print());
+  document.getElementById("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
+}
+
+/* ---------- AUTH ---------- */
+function showLogin(){document.getElementById("login").style.display="flex";document.getElementById("app").style.display="none";}
+async function onLogin(){
+  document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";
+  document.getElementById("userEmail").textContent=user.email;
+  await loadState();renderGroups();renderQuals();renderKO();updateBanner();}
+async function doAuth(){
+  const email=document.getElementById("email").value.trim();
+  const pass=document.getElementById("pass").value;
+  const msg=document.getElementById("lmsg");
+  if(!email||!pass){msg.textContent="اكتب البريد وكلمة المرور";return;}
+  msg.textContent="جارٍ الدخول…";
+  let res=await sb.auth.signInWithPassword({email,password:pass});
+  if(res.error){
+    const up=await sb.auth.signUp({email,password:pass});
+    if(up.error){msg.textContent=up.error.message;return;}
+    if(!up.data.session){msg.textContent="تم إنشاء الحساب. فعّل الدخول الفوري بإيقاف تأكيد البريد من إعدادات Supabase، أو افتح رابط التأكيد في بريدك.";return;}
+    res=up;
+  }
+  user=res.data.user;await onLogin();}
+document.getElementById("authBtn").addEventListener("click",doAuth);
+document.getElementById("pass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
+
+/* ---------- BOOT ---------- */
+(async()=>{
+  wireUI();
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){user=session.user;await onLogin();}else showLogin();
+})();
+</script>
+</body>
+</html>
