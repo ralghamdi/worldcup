@@ -34,7 +34,7 @@
   h1 .y{font-family:'Bebas Neue';letter-spacing:3px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{color:var(--muted);font-size:.9rem}
   .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 18px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 72%,transparent);padding:10px 0;z-index:50}
-  .tab{font-family:'Reem Kufi';font-size:.92rem;padding:9px 18px;border-radius:12px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--muted);transition:.2s}
+  .tab{font-family:'Reem Kufi';font-size:.9rem;padding:9px 16px;border-radius:12px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--muted);transition:.2s}
   .tab.on{color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:transparent;font-weight:700}
   .view{display:none}.view.on{display:block;animation:fin .35s ease}
   @keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -71,6 +71,12 @@
   .qt .lt{font-family:'Bebas Neue';color:var(--gold);font-size:.95rem;margin-inline-start:auto}
   .banner{background:rgba(216,179,94,.08);border:1px solid rgba(216,179,94,.3);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:.86rem;color:#e9d6a8}
   .banner b{color:var(--gold-bright)}
+  .day{margin:16px 2px 8px;font-family:'Reem Kufi';color:var(--gold);font-size:.92rem;display:flex;align-items:center;gap:10px}
+  .day .dl{flex:1;height:1px;background:var(--line)}
+  .smatch{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:7px}
+  .smid{font-family:'Bebas Neue';font-size:1.1rem;color:var(--ink);min-width:50px;text-align:center;flex:none}
+  .scap{text-align:center;font-size:.7rem;color:var(--muted)}
+  .scap b{color:var(--gold)}
   .ko-round{margin-bottom:20px}
   .ko-round h3{font-family:'Reem Kufi';font-size:1rem;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:9px}
   .ko-round h3 .b{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}
@@ -125,6 +131,7 @@
   </header>
   <div class="tabs">
     <div class="tab on" data-v="groups">المجموعات</div>
+    <div class="tab" data-v="sched">المباريات</div>
     <div class="tab" data-v="quals">المتأهلون</div>
     <div class="tab" data-v="ko">الأدوار الإقصائية</div>
   </div>
@@ -136,6 +143,10 @@
     </div>
     <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · المباريات مرتّبة حسب التاريخ</div>
     <div id="groupsHost"></div>
+  </div>
+  <div class="view" id="v-sched">
+    <div class="tznote">📅 جدول كل المباريات بتوقيت السعودية · يوم بيوم</div>
+    <div id="schedHost"></div>
   </div>
   <div class="view" id="v-quals">
     <div class="qbox"><h3>✅ المتأهلون المباشرون</h3><p class="hint">أول وثاني كل مجموعة (24 منتخب). يتحدّث تلقائياً.</p><div class="qgrid" id="directHost"></div></div>
@@ -240,8 +251,10 @@ const nm=k=>T[k][0],fl=k=>T[k][1],mid=(g,r,m)=>g+"_"+r+"_"+m;
 
 function matchesOf(g){const teams=GROUPS[g];const arr=[];
   RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const A=teams[pair[0]],B=teams[pair[1]];
-    arr.push({id:mid(g,ri,mi),A,B,tm:timeFor(A,B)});}));
+    arr.push({id:mid(g,ri,mi),g,A,B,tm:timeFor(A,B)});}));
   arr.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return arr;}
+function allGroupMatches(){const all=[];Object.keys(GROUPS).forEach(g=>matchesOf(g).forEach(M=>all.push(M)));
+  all.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return all;}
 
 function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
   RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];
@@ -275,6 +288,35 @@ function renderTable(g){const arr=standings(g),tbl=document.getElementById("tbl_
     h+=`<tr class="${cls}"><td class="tname">${fl(s.k)} ${nm(s.k)}${dot}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
     <td>${s.gf}</td><td>${s.ga}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td class="pts">${s.pts}</td></tr>`;});
   tbl.innerHTML=h;}
+
+function scoreText(r){if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)return (+r.h)+" − "+(+r.a);return "‒";}
+function renderSched(){const host=document.getElementById("schedHost");host.innerHTML="";
+  const all=allGroupMatches();let curDay="";
+  all.forEach(M=>{const dayK=M.tm?(M.tm.m+"_"+M.tm.d):"x";
+    if(dayK!==curDay){curDay=dayK;const dl=document.createElement("div");dl.className="day";
+      dl.innerHTML=`<span>${M.tm?(wdName(M.tm.m,M.tm.d)+" "+M.tm.d+" "+monName(M.tm.m)):""}</span><span class="dl"></span>`;
+      host.appendChild(dl);}
+    const r=state.g[M.id]||{};const box=document.createElement("div");box.className="smatch";
+    box.innerHTML=`<div class="mrow">
+      <div class="side"><span class="fl">${fl(M.A)}</span><span class="nm">${nm(M.A)}</span></div>
+      <div class="smid">${scoreText(r)}</div>
+      <div class="side away"><span class="fl">${fl(M.B)}</span><span class="nm">${nm(M.B)}</span></div></div>
+      <div class="scap"><b>المجموعة ${M.g}</b> · ${M.tm?M.tm.t:""}</div>`;
+    host.appendChild(box);});
+  const {teamsOf,winnerOf}=computeKO();
+  ROUNDS.forEach(R=>{const dl=document.createElement("div");dl.className="day";
+    dl.innerHTML=`<span>${R.letter==="🏆"?"🏆 النهائي":R.title}</span><span class="dl"></span><span style="font-size:.72rem;color:var(--muted);font-weight:400">${R.sub}</span>`;
+    host.appendChild(dl);
+    R.ms.forEach(m=>{const t=teamsOf[m],w=winnerOf[m];const r=state.ko[m]||{};
+      const na=t.a?(fl(t.a)+" "+nm(t.a)):phText(MATCH[m].a);
+      const nb=t.b?(fl(t.b)+" "+nm(t.b)):phText(MATCH[m].b);
+      const box=document.createElement("div");box.className="smatch";
+      box.innerHTML=`<div class="mrow">
+        <div class="side"><span class="nm" style="${w&&w===t.a?'color:var(--green);font-weight:700':''}">${na}</span></div>
+        <div class="smid">${scoreText({h:r.hs,a:r.as})}</div>
+        <div class="side away"><span class="nm" style="${w&&w===t.b?'color:var(--green);font-weight:700':''}">${nb}</span></div></div>
+        <div class="scap">مباراة ${m}</div>`;
+      host.appendChild(box);});});}
 
 function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
   return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
@@ -350,10 +392,12 @@ function wireUI(){
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
     document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
     t.classList.add("on");document.getElementById("v-"+t.dataset.v).classList.add("on");
-    if(t.dataset.v==="quals")renderQuals();if(t.dataset.v==="ko"){updateKO();updateBanner();}}));
+    if(t.dataset.v==="sched")renderSched();
+    if(t.dataset.v==="quals")renderQuals();
+    if(t.dataset.v==="ko"){updateKO();updateBanner();}}));
   document.getElementById("clearBtn").addEventListener("click",async()=>{
     if(confirm("مسح كل النتائج المُدخلة؟ لا يمكن التراجع.")){
-      state={g:{},ko:{}};await saveState();renderGroups();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
+      state={g:{},ko:{}};await saveState();renderGroups();renderSched();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
   document.getElementById("printBtn").addEventListener("click",()=>window.print());
   document.getElementById("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 }
