@@ -206,7 +206,7 @@ function wdName(m,d){const base=(m===6)?0:2;return AR_WD[(base+(d-1))%7];}
 function monName(m){return m===6?"يونيو":"يوليو";}
 function timeFor(a,b){return TIMES[a+"_"+b]||TIMES[b+"_"+a]||null;}
 function fmtTime(tm){return tm?(wdName(tm.m,tm.d)+" "+tm.d+" "+monName(tm.m)+" · "+tm.t):"";}
-function sortKey(tm){if(!tm)return 9999999;return tm.m*100000+tm.d*1000+parseInt(tm.t.replace(":",""),10);}
+function sortKey(tm){if(!tm)return 999999999;return tm.m*1000000+tm.d*10000+parseInt(tm.t.replace(":",""),10);}
 
 const CLUS={74:["A","B","C","D","F"],77:["C","D","F","G","H"],79:["C","E","F","H","I"],
 80:["E","H","I","J","K"],81:["B","E","F","I","J"],82:["A","E","H","I","J"],
