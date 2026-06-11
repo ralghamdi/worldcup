@@ -42,7 +42,6 @@
   .gh{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   .gh .let{font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold);background:rgba(216,179,94,.12);border:1px solid rgba(216,179,94,.3);border-radius:10px;padding:1px 13px;letter-spacing:1px}
   .gh h3{font-family:'Reem Kufi';font-size:1.05rem}
-  .md{font-size:.74rem;color:var(--muted);margin:10px 2px 2px;font-family:'Reem Kufi'}
   .match{display:flex;flex-direction:column;gap:5px;padding:9px 6px;border-radius:10px}
   .match+.match{border-top:1px solid var(--dim)}
   .mrow{display:flex;align-items:center;gap:8px}
@@ -135,7 +134,7 @@
       <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
       <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
     </div>
-    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST)</div>
+    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · المباريات مرتّبة حسب التاريخ</div>
     <div id="groupsHost"></div>
   </div>
   <div class="view" id="v-quals">
@@ -196,6 +195,7 @@ function wdName(m,d){const base=(m===6)?0:2;return AR_WD[(base+(d-1))%7];}
 function monName(m){return m===6?"يونيو":"يوليو";}
 function timeFor(a,b){return TIMES[a+"_"+b]||TIMES[b+"_"+a]||null;}
 function fmtTime(tm){return tm?(wdName(tm.m,tm.d)+" "+tm.d+" "+monName(tm.m)+" · "+tm.t):"";}
+function sortKey(tm){if(!tm)return 9999999;return tm.m*100000+tm.d*1000+parseInt(tm.t.replace(":",""),10);}
 
 const CLUS={74:["A","B","C","D","F"],77:["C","D","F","G","H"],79:["C","E","F","H","I"],
 80:["E","H","I","J","K"],81:["B","E","F","I","J"],82:["A","E","H","I","J"],
@@ -238,6 +238,11 @@ function setNote(t){const n=document.getElementById("saveNote");if(!n)return;n.t
   if(t.includes("✓"))setTimeout(()=>{if(n.textContent===t)n.textContent="";},1500);}
 const nm=k=>T[k][0],fl=k=>T[k][1],mid=(g,r,m)=>g+"_"+r+"_"+m;
 
+function matchesOf(g){const teams=GROUPS[g];const arr=[];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const A=teams[pair[0]],B=teams[pair[1]];
+    arr.push({id:mid(g,ri,mi),A,B,tm:timeFor(A,B)});}));
+  arr.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return arr;}
+
 function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
   RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];
     if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const A=teams[pair[0]],B=teams[pair[1]],hs=+res.h,as=+res.a;
@@ -250,17 +255,15 @@ function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
 function enteredCount(){let c=0;Object.keys(GROUPS).forEach(g=>RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const r=state.g[mid(g,ri,mi)];if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)c++;})));return c;}
 
 function renderGroups(){const host=document.getElementById("groupsHost");host.innerHTML="";
-  Object.keys(GROUPS).forEach(g=>{const teams=GROUPS[g];const card=document.createElement("div");card.className="gcard";
+  Object.keys(GROUPS).forEach(g=>{const card=document.createElement("div");card.className="gcard";
     let h=`<div class="gh"><span class="let">${g}</span><h3>المجموعة ${g}</h3></div>`;
-    RR.forEach((round,ri)=>{h+=`<div class="md">الجولة ${ri+1}</div>`;
-      round.forEach((pair,mi)=>{const id=mid(g,ri,mi),A=teams[pair[0]],B=teams[pair[1]],r=state.g[id]||{};
-        const tm=fmtTime(timeFor(A,B));
-        h+=`<div class="match"><div class="mrow">
-        <div class="side"><span class="fl">${fl(A)}</span><span class="nm">${nm(A)}</span></div>
-        <div class="score"><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="h" value="${r.h??""}">
-        <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="a" value="${r.a??""}"></div>
-        <div class="side away"><span class="fl">${fl(B)}</span><span class="nm">${nm(B)}</span></div></div>
-        <div class="mtime">⏱ ${tm}</div></div>`;});});
+    matchesOf(g).forEach(M=>{const r=state.g[M.id]||{};const tm=fmtTime(M.tm);
+      h+=`<div class="match"><div class="mrow">
+      <div class="side"><span class="fl">${fl(M.A)}</span><span class="nm">${nm(M.A)}</span></div>
+      <div class="score"><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-s="h" value="${r.h??""}">
+      <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-s="a" value="${r.a??""}"></div>
+      <div class="side away"><span class="fl">${fl(M.B)}</span><span class="nm">${nm(M.B)}</span></div></div>
+      <div class="mtime">⏱ ${tm}</div></div>`;});
     h+=`<table id="tbl_${g}"></table>`;card.innerHTML=h;host.appendChild(card);renderTable(g);});
   host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
     const id=e.target.dataset.id,s=e.target.dataset.s;if(!state.g[id])state.g[id]={h:"",a:""};
