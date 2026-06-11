@@ -1,13 +1,4 @@
 <!DOCTYPE html>
-<!--
-  ============================================================
-  متابعة كأس العالم 2026 — نسخة الإنترنت (تسجيل دخول + حفظ سحابي)
-  عدّل فقط السطرين التاليين في الأسفل داخل <script> :
-     const SUPABASE_URL  = "ضع_رابط_مشروعك_هنا";
-     const SUPABASE_KEY  = "ضع_المفتاح_العام_هنا";
-  ولا تلمس أي شيء آخر.
-  ============================================================
--->
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -26,30 +17,23 @@
     radial-gradient(800px 500px at 0% 5%,rgba(30,168,116,.10),transparent 55%),var(--bg);
     color:var(--ink);font-family:'Tajawal',sans-serif;line-height:1.6;min-height:100vh}
   .wrap{max-width:1080px;margin:0 auto;padding:0 16px 60px}
-  /* LOGIN */
   #login{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
   .lcard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 24px;max-width:380px;width:100%;text-align:center}
   .lcard .y{font-family:'Bebas Neue';letter-spacing:3px;font-size:2.6rem;background:linear-gradient(180deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   .lcard h2{font-family:'Reem Kufi';font-size:1.2rem;margin:6px 0 4px}
   .lcard p{color:var(--muted);font-size:.85rem;margin-bottom:20px}
-  .lcard input{width:100%;height:46px;background:var(--card2);border:1px solid var(--line);border-radius:11px;
-    color:var(--ink);font-family:'Tajawal';font-size:1rem;padding:0 14px;margin-bottom:11px;text-align:right}
+  .lcard input{width:100%;height:46px;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-family:'Tajawal';font-size:1rem;padding:0 14px;margin-bottom:11px;text-align:right}
   .lcard input:focus{outline:none;border-color:var(--gold)}
-  .lcard button{width:100%;height:46px;border:none;border-radius:11px;cursor:pointer;font-family:'Reem Kufi';
-    font-size:1rem;font-weight:700;color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold))}
+  .lcard button{width:100%;height:46px;border:none;border-radius:11px;cursor:pointer;font-family:'Reem Kufi';font-size:1rem;font-weight:700;color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold))}
   .lmsg{margin-top:12px;font-size:.83rem;min-height:20px;color:var(--muted)}
-  /* TOP BAR */
   .topbar{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px 0 4px;font-size:.82rem;color:var(--muted)}
-  .topbar .logout{font-family:'Reem Kufi';font-size:.8rem;padding:6px 14px;border-radius:10px;cursor:pointer;
-    background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  .topbar .logout{font-family:'Reem Kufi';font-size:.8rem;padding:6px 14px;border-radius:10px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink)}
   header{padding:18px 0 14px;text-align:center}
-  .kicker{font-family:'Reem Kufi';color:var(--gold);font-size:.85rem;border:1px solid rgba(216,179,94,.35);
-    display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(216,179,94,.06)}
+  .kicker{font-family:'Reem Kufi';color:var(--gold);font-size:.85rem;border:1px solid rgba(216,179,94,.35);display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(216,179,94,.06)}
   h1{font-family:'Reem Kufi';font-weight:700;font-size:clamp(1.8rem,6vw,2.8rem);margin:14px 0 2px}
   h1 .y{font-family:'Bebas Neue';letter-spacing:3px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{color:var(--muted);font-size:.9rem}
-  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 18px;position:sticky;top:0;
-    background:linear-gradient(180deg,var(--bg) 72%,transparent);padding:10px 0;z-index:50}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 18px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 72%,transparent);padding:10px 0;z-index:50}
   .tab{font-family:'Reem Kufi';font-size:.92rem;padding:9px 18px;border-radius:12px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--muted);transition:.2s}
   .tab.on{color:#1a140a;background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:transparent;font-weight:700}
   .view{display:none}.view.on{display:block;animation:fin .35s ease}
@@ -59,8 +43,10 @@
   .gh .let{font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold);background:rgba(216,179,94,.12);border:1px solid rgba(216,179,94,.3);border-radius:10px;padding:1px 13px;letter-spacing:1px}
   .gh h3{font-family:'Reem Kufi';font-size:1.05rem}
   .md{font-size:.74rem;color:var(--muted);margin:10px 2px 2px;font-family:'Reem Kufi'}
-  .match{display:flex;align-items:center;gap:8px;padding:8px 6px;border-radius:10px}
+  .match{display:flex;flex-direction:column;gap:5px;padding:9px 6px;border-radius:10px}
   .match+.match{border-top:1px solid var(--dim)}
+  .mrow{display:flex;align-items:center;gap:8px}
+  .mtime{text-align:center;font-size:.7rem;color:var(--muted)}
   .side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
   .side.away{flex-direction:row-reverse;text-align:left}
   .side .fl{font-size:1.05rem;flex:none}
@@ -89,6 +75,7 @@
   .ko-round{margin-bottom:20px}
   .ko-round h3{font-family:'Reem Kufi';font-size:1rem;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:9px}
   .ko-round h3 .b{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}
+  .ko-round h3 .rsub{font-family:'Tajawal';font-weight:400;font-size:.72rem;color:var(--muted);margin-inline-start:auto}
   .kmatch{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin-bottom:9px}
   .kmeta{font-size:.7rem;color:var(--muted);margin-bottom:7px;font-family:'Reem Kufi'}
   .krow{display:flex;align-items:center;gap:8px}
@@ -109,14 +96,14 @@
   .btn:hover{border-color:var(--gold)}
   .btn.danger{color:var(--red);border-color:rgba(199,92,92,.4)}
   .save-note{text-align:center;color:var(--muted);font-size:.78rem;margin-bottom:12px;min-height:18px}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin:0 2px 14px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin:0 2px 6px}
   .legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .tznote{font-size:.74rem;color:var(--gold);margin:0 2px 14px}
   footer{text-align:center;color:var(--muted);font-size:.76rem;padding-top:18px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
 
-<!-- شاشة الدخول -->
 <div id="login">
   <div class="lcard">
     <div class="y">2026</div>
@@ -129,13 +116,9 @@
   </div>
 </div>
 
-<!-- التطبيق -->
 <div id="app" style="display:none">
 <div class="wrap">
-  <div class="topbar">
-    <span id="userEmail"></span>
-    <span class="logout" id="logoutBtn">تسجيل خروج</span>
-  </div>
+  <div class="topbar"><span id="userEmail"></span><span class="logout" id="logoutBtn">تسجيل خروج</span></div>
   <header>
     <span class="kicker">ملف المتابعة الخاص بك</span>
     <h1>متابعة كأس العالم <span class="y">2026</span></h1>
@@ -152,6 +135,7 @@
       <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
       <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
     </div>
+    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST)</div>
     <div id="groupsHost"></div>
   </div>
   <div class="view" id="v-quals">
@@ -168,17 +152,14 @@
 </div>
 
 <script>
-/* ============================================================
-   عدّل هذين السطرين فقط:
-   ============================================================ */
+/* ===== عدّل هذين السطرين فقط ===== */
 const SUPABASE_URL = "https://rpmckviwjtbwkrexkxme.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671";
-/* ============================================================ */
+/* ================================ */
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let user = null;
 
-/* ---------- DATA ---------- */
 const T={MEX:["المكسيك","🇲🇽"],KOR:["كوريا الجنوبية","🇰🇷"],RSA:["جنوب أفريقيا","🇿🇦"],CZE:["التشيك","🇨🇿"],
 CAN:["كندا","🇨🇦"],SUI:["سويسرا","🇨🇭"],QAT:["قطر","🇶🇦"],BIH:["البوسنة","🇧🇦"],
 BRA:["البرازيل","🇧🇷"],MAR:["المغرب","🇲🇦"],SCO:["اسكتلندا","🏴󠁧󠁢󠁳󠁣󠁴󠁿"],HAI:["هايتي","🇭🇹"],
@@ -196,6 +177,26 @@ D:["USA","PAR","AUS","TUR"],E:["GER","ECU","CIV","CUW"],F:["NED","JPN","TUN","SW
 G:["BEL","EGY","IRN","NZL"],H:["ESP","URU","KSA","CPV"],I:["FRA","NOR","SEN","IRQ"],
 J:["ARG","AUT","ALG","JOR"],K:["POR","COL","COD","UZB"],L:["ENG","CRO","GHA","PAN"]};
 const RR=[[[0,1],[2,3]],[[0,2],[3,1]],[[3,0],[1,2]]];
+
+const TIMES={
+MEX_RSA:{m:6,d:11,t:"22:00"},KOR_CZE:{m:6,d:12,t:"05:00"},CZE_RSA:{m:6,d:18,t:"19:00"},MEX_KOR:{m:6,d:19,t:"04:00"},CZE_MEX:{m:6,d:25,t:"04:00"},RSA_KOR:{m:6,d:25,t:"04:00"},
+CAN_BIH:{m:6,d:12,t:"22:00"},QAT_SUI:{m:6,d:13,t:"22:00"},SUI_BIH:{m:6,d:18,t:"22:00"},CAN_QAT:{m:6,d:19,t:"01:00"},SUI_CAN:{m:6,d:24,t:"22:00"},BIH_QAT:{m:6,d:24,t:"22:00"},
+BRA_MAR:{m:6,d:14,t:"01:00"},HAI_SCO:{m:6,d:14,t:"04:00"},SCO_MAR:{m:6,d:20,t:"01:00"},BRA_HAI:{m:6,d:20,t:"03:30"},SCO_BRA:{m:6,d:25,t:"01:00"},MAR_HAI:{m:6,d:25,t:"01:00"},
+USA_PAR:{m:6,d:13,t:"04:00"},AUS_TUR:{m:6,d:14,t:"07:00"},USA_AUS:{m:6,d:19,t:"22:00"},TUR_PAR:{m:6,d:20,t:"06:00"},TUR_USA:{m:6,d:26,t:"05:00"},PAR_AUS:{m:6,d:26,t:"05:00"},
+GER_CUW:{m:6,d:14,t:"20:00"},CIV_ECU:{m:6,d:15,t:"02:00"},GER_CIV:{m:6,d:20,t:"23:00"},ECU_CUW:{m:6,d:21,t:"06:00"},ECU_GER:{m:6,d:25,t:"23:00"},CUW_CIV:{m:6,d:25,t:"23:00"},
+NED_JPN:{m:6,d:14,t:"23:00"},SWE_TUN:{m:6,d:15,t:"05:00"},NED_SWE:{m:6,d:20,t:"20:00"},TUN_JPN:{m:6,d:21,t:"07:00"},JPN_SWE:{m:6,d:26,t:"02:00"},TUN_NED:{m:6,d:26,t:"02:00"},
+BEL_EGY:{m:6,d:15,t:"22:00"},IRN_NZL:{m:6,d:16,t:"04:00"},BEL_IRN:{m:6,d:21,t:"22:00"},NZL_EGY:{m:6,d:22,t:"04:00"},EGY_IRN:{m:6,d:27,t:"06:00"},NZL_BEL:{m:6,d:27,t:"06:00"},
+ESP_CPV:{m:6,d:15,t:"19:00"},KSA_URU:{m:6,d:16,t:"01:00"},ESP_KSA:{m:6,d:21,t:"19:00"},URU_CPV:{m:6,d:22,t:"01:00"},CPV_KSA:{m:6,d:27,t:"03:00"},URU_ESP:{m:6,d:27,t:"03:00"},
+FRA_SEN:{m:6,d:16,t:"22:00"},IRQ_NOR:{m:6,d:17,t:"01:00"},FRA_IRQ:{m:6,d:23,t:"00:00"},NOR_SEN:{m:6,d:23,t:"03:00"},NOR_FRA:{m:6,d:26,t:"22:00"},SEN_IRQ:{m:6,d:26,t:"22:00"},
+ARG_ALG:{m:6,d:17,t:"04:00"},AUT_JOR:{m:6,d:17,t:"07:00"},ARG_AUT:{m:6,d:22,t:"20:00"},JOR_ALG:{m:6,d:23,t:"06:00"},ALG_AUT:{m:6,d:28,t:"05:00"},JOR_ARG:{m:6,d:28,t:"05:00"},
+POR_COD:{m:6,d:17,t:"20:00"},UZB_COL:{m:6,d:18,t:"05:00"},POR_UZB:{m:6,d:23,t:"20:00"},COL_COD:{m:6,d:24,t:"05:00"},COL_POR:{m:6,d:28,t:"02:30"},COD_UZB:{m:6,d:28,t:"02:30"},
+ENG_CRO:{m:6,d:17,t:"23:00"},GHA_PAN:{m:6,d:18,t:"02:00"},ENG_GHA:{m:6,d:23,t:"23:00"},PAN_CRO:{m:6,d:24,t:"02:00"},PAN_ENG:{m:6,d:28,t:"00:00"},CRO_GHA:{m:6,d:28,t:"00:00"}};
+const AR_WD=["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"];
+function wdName(m,d){const base=(m===6)?0:2;return AR_WD[(base+(d-1))%7];}
+function monName(m){return m===6?"يونيو":"يوليو";}
+function timeFor(a,b){return TIMES[a+"_"+b]||TIMES[b+"_"+a]||null;}
+function fmtTime(tm){return tm?(wdName(tm.m,tm.d)+" "+tm.d+" "+monName(tm.m)+" · "+tm.t):"";}
+
 const CLUS={74:["A","B","C","D","F"],77:["C","D","F","G","H"],79:["C","E","F","H","I"],
 80:["E","H","I","J","K"],81:["B","E","F","I","J"],82:["A","E","H","I","J"],
 85:["E","F","G","I","J"],87:["D","E","I","J","L"]};
@@ -217,14 +218,13 @@ const MATCH={
 101:{a:{t:'WM',m:97},b:{t:'WM',m:98}},102:{a:{t:'WM',m:99},b:{t:'WM',m:100}},
 103:{a:{t:'LM',m:101},b:{t:'LM',m:102}},104:{a:{t:'WM',m:101},b:{t:'WM',m:102}}};
 const ROUNDS=[
-{title:"دور الـ32 (ثمن النهائي الأول)",letter:"32",ms:[73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88]},
-{title:"دور الـ16 (ثمن النهائي)",letter:"16",ms:[89,90,91,92,93,94,95,96]},
-{title:"دور الـ8 (ربع النهائي)",letter:"8",ms:[97,98,99,100]},
-{title:"دور الـ4 (نصف النهائي)",letter:"4",ms:[101,102]},
-{title:"تحديد المركز الثالث",letter:"3·4",ms:[103]},
-{title:"النهائي",letter:"🏆",ms:[104]}];
+{title:"دور الـ32 (ثمن النهائي الأول)",letter:"32",sub:"28 يونيو – 3 يوليو",ms:[73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88]},
+{title:"دور الـ16 (ثمن النهائي)",letter:"16",sub:"4 – 7 يوليو",ms:[89,90,91,92,93,94,95,96]},
+{title:"دور الـ8 (ربع النهائي)",letter:"8",sub:"9 – 11 يوليو",ms:[97,98,99,100]},
+{title:"دور الـ4 (نصف النهائي)",letter:"4",sub:"14 – 15 يوليو",ms:[101,102]},
+{title:"تحديد المركز الثالث",letter:"3·4",sub:"18 يوليو",ms:[103]},
+{title:"النهائي",letter:"🏆",sub:"19 يوليو · 22:00",ms:[104]}];
 
-/* ---------- STATE + CLOUD STORAGE ---------- */
 let state={g:{},ko:{}}; let saveTimer=null;
 async function loadState(){state={g:{},ko:{}};
   try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
@@ -232,14 +232,12 @@ async function loadState(){state={g:{},ko:{}};
   if(!state.g)state.g={};if(!state.ko)state.ko={};}
 async function saveState(){setNote("جارٍ الحفظ…");
   try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
-    if(error)throw error;setNote("تم الحفظ ✓");}
-  catch(e){setNote("تعذّر الحفظ: "+(e.message||""));}}
+    if(error)throw error;setNote("تم الحفظ ✓");}catch(e){setNote("تعذّر الحفظ: "+(e.message||""));}}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,600);}
 function setNote(t){const n=document.getElementById("saveNote");if(!n)return;n.textContent=t;
   if(t.includes("✓"))setTimeout(()=>{if(n.textContent===t)n.textContent="";},1500);}
 const nm=k=>T[k][0],fl=k=>T[k][1],mid=(g,r,m)=>g+"_"+r+"_"+m;
 
-/* ---------- STANDINGS ---------- */
 function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
   RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];
     if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const A=teams[pair[0]],B=teams[pair[1]],hs=+res.h,as=+res.a;
@@ -247,22 +245,22 @@ function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={
       if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
       else{st[A].d++;st[B].d++;st[A].pts++;st[B].pts++;}}}));
   return teams.map(k=>st[k]).sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
-function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>{const r=state.g[mid(g,ri,mi)];
-  return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}));}
+function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>{const r=state.g[mid(g,ri,mi)];return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}));}
 function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
-function enteredCount(){let c=0;Object.keys(GROUPS).forEach(g=>RR.forEach((round,ri)=>round.forEach((pair,mi)=>{
-  const r=state.g[mid(g,ri,mi)];if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)c++;})));return c;}
+function enteredCount(){let c=0;Object.keys(GROUPS).forEach(g=>RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const r=state.g[mid(g,ri,mi)];if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)c++;})));return c;}
 
-/* ---------- GROUPS ---------- */
 function renderGroups(){const host=document.getElementById("groupsHost");host.innerHTML="";
   Object.keys(GROUPS).forEach(g=>{const teams=GROUPS[g];const card=document.createElement("div");card.className="gcard";
     let h=`<div class="gh"><span class="let">${g}</span><h3>المجموعة ${g}</h3></div>`;
     RR.forEach((round,ri)=>{h+=`<div class="md">الجولة ${ri+1}</div>`;
       round.forEach((pair,mi)=>{const id=mid(g,ri,mi),A=teams[pair[0]],B=teams[pair[1]],r=state.g[id]||{};
-        h+=`<div class="match"><div class="side"><span class="fl">${fl(A)}</span><span class="nm">${nm(A)}</span></div>
+        const tm=fmtTime(timeFor(A,B));
+        h+=`<div class="match"><div class="mrow">
+        <div class="side"><span class="fl">${fl(A)}</span><span class="nm">${nm(A)}</span></div>
         <div class="score"><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="h" value="${r.h??""}">
         <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-id="${id}" data-s="a" value="${r.a??""}"></div>
-        <div class="side away"><span class="fl">${fl(B)}</span><span class="nm">${nm(B)}</span></div></div>`;});});
+        <div class="side away"><span class="fl">${fl(B)}</span><span class="nm">${nm(B)}</span></div></div>
+        <div class="mtime">⏱ ${tm}</div></div>`;});});
     h+=`<table id="tbl_${g}"></table>`;card.innerHTML=h;host.appendChild(card);renderTable(g);});
   host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
     const id=e.target.dataset.id,s=e.target.dataset.s;if(!state.g[id])state.g[id]={h:"",a:""};
@@ -275,7 +273,6 @@ function renderTable(g){const arr=standings(g),tbl=document.getElementById("tbl_
     <td>${s.gf}</td><td>${s.ga}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td class="pts">${s.pts}</td></tr>`;});
   tbl.innerHTML=h;}
 
-/* ---------- QUALIFIERS ---------- */
 function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
   return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
 function renderQuals(){const direct=document.getElementById("directHost");direct.innerHTML="";
@@ -289,7 +286,6 @@ function renderQuals(){const direct=document.getElementById("directHost");direct
     <td style="color:${adv?'var(--green)':'var(--red)'}">${adv?'متأهل':'خارج'}</td></tr>`;});
   h+=`</table>`;host.innerHTML=h;}
 
-/* ---------- KNOCKOUT ---------- */
 function thirdsAssignment(){if(!allGroupsDone())return null;
   const th=rankedThirds().slice(0,8).map(o=>o.g);const ms=Object.keys(CLUS).map(Number);const used={};const out={};
   function bt(i){if(i===ms.length)return true;const m=ms[i];
@@ -312,7 +308,7 @@ function phText(slot){if(slot.t==='W')return"متصدّر "+slot.g;if(slot.t==='
   if(slot.t==='LM')return"خاسر م"+slot.m;return"";}
 function renderKO(){const host=document.getElementById("koHost");host.innerHTML="";
   ROUNDS.forEach(R=>{const sec=document.createElement("div");sec.className="ko-round"+(R.letter==="🏆"?" ko-final":"");
-    sec.innerHTML=`<h3><span class="b">${R.letter}</span> ${R.title}</h3>`;
+    sec.innerHTML=`<h3><span class="b">${R.letter}</span> ${R.title} <span class="rsub">${R.sub}</span></h3>`;
     R.ms.forEach(m=>{const box=document.createElement("div");box.className="kmatch";box.id="km_"+m;const r=state.ko[m]||{};
       box.innerHTML=`<div class="kmeta">مباراة ${m}</div><div class="krow">
         <div class="kside" id="ksa_${m}"><span class="fl"></span><span class="nm"></span></div>
@@ -344,9 +340,8 @@ function updateKO(){const {teamsOf,winnerOf}=computeKO();
     if(inA&&document.activeElement!==inA)inA.value=r.hs??"";if(inB&&document.activeElement!==inB)inB.value=r.as??"";}}
 function updateBanner(){const b=document.getElementById("koBanner");if(!b)return;const c=enteredCount();
   if(allGroupsDone())b.innerHTML=`<div class="banner">✅ اكتملت المجموعات. كل مباريات الأدوار الإقصائية انعبّأت تلقائياً — أدخل النتائج فقط وستتسلسل لوحدها حتى النهائي.</div>`;
-  else b.innerHTML=`<div class="banner">📋 أدخلت <b>${c}</b> من <b>72</b> مباراة مجموعات. تظهر فرق الأدوار الإقصائية تلقائياً بعد اكتمال جميع مباريات المجموعات.</div>`;}
+  else b.innerHTML=`<div class="banner">📋 أدخلت <b>${c}</b> من <b>72</b> مباراة مجموعات. تظهر فرق الأدوار الإقصائية تلقائياً بعد اكتمال جميع مباريات المجموعات. التواريخ بتوقيت السعودية.</div>`;}
 
-/* ---------- TABS / BUTTONS ---------- */
 function wireUI(){
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
@@ -359,36 +354,24 @@ function wireUI(){
   document.getElementById("printBtn").addEventListener("click",()=>window.print());
   document.getElementById("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 }
-
-/* ---------- AUTH ---------- */
 function showLogin(){document.getElementById("login").style.display="flex";document.getElementById("app").style.display="none";}
-async function onLogin(){
-  document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";
+async function onLogin(){document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";
   document.getElementById("userEmail").textContent=user.email;
   await loadState();renderGroups();renderQuals();renderKO();updateBanner();}
-async function doAuth(){
-  const email=document.getElementById("email").value.trim();
-  const pass=document.getElementById("pass").value;
-  const msg=document.getElementById("lmsg");
+async function doAuth(){const email=document.getElementById("email").value.trim();const pass=document.getElementById("pass").value;const msg=document.getElementById("lmsg");
   if(!email||!pass){msg.textContent="اكتب البريد وكلمة المرور";return;}
   msg.textContent="جارٍ الدخول…";
   let res=await sb.auth.signInWithPassword({email,password:pass});
-  if(res.error){
-    const up=await sb.auth.signUp({email,password:pass});
+  if(res.error){const up=await sb.auth.signUp({email,password:pass});
     if(up.error){msg.textContent=up.error.message;return;}
-    if(!up.data.session){msg.textContent="تم إنشاء الحساب. فعّل الدخول الفوري بإيقاف تأكيد البريد من إعدادات Supabase، أو افتح رابط التأكيد في بريدك.";return;}
-    res=up;
-  }
+    if(!up.data.session){msg.textContent="تم إنشاء الحساب. أوقف تأكيد البريد من إعدادات Supabase أو افتح رابط التأكيد في بريدك.";return;}
+    res=up;}
   user=res.data.user;await onLogin();}
 document.getElementById("authBtn").addEventListener("click",doAuth);
 document.getElementById("pass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
 
-/* ---------- BOOT ---------- */
-(async()=>{
-  wireUI();
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){user=session.user;await onLogin();}else showLogin();
-})();
+(async()=>{wireUI();const {data:{session}}=await sb.auth.getSession();
+  if(session){user=session.user;await onLogin();}else showLogin();})();
 </script>
 </body>
 </html>
