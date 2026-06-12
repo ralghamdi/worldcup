@@ -54,6 +54,13 @@
   .score input{width:38px;height:34px;text-align:center;font-family:'Bebas Neue';font-size:1.2rem;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--ink)}
   .score input:focus{outline:none;border-color:var(--gold)}
   .score .dash{color:var(--muted)}
+  .cardrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:2px}
+  .cteam{display:flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:4px 8px}
+  .cteam .ctl{font-size:.95rem;flex:none}
+  .ci{display:flex;align-items:center;gap:2px}
+  .ci .cyl{font-size:.72rem;opacity:.85}
+  .cardrow input{width:30px;height:26px;text-align:center;font-family:'Tajawal';font-size:.8rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink)}
+  .cardrow input:focus{outline:none;border-color:var(--gold)}
   table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem}
   th,td{padding:8px 5px;text-align:center}
   th{font-family:'Reem Kufi';font-weight:500;color:var(--muted);font-size:.72rem;border-bottom:1px solid var(--line)}
@@ -71,6 +78,7 @@
   .qt .lt{font-family:'Bebas Neue';color:var(--gold);font-size:.95rem;margin-inline-start:auto}
   .banner{background:rgba(216,179,94,.08);border:1px solid rgba(216,179,94,.3);border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:.86rem;color:#e9d6a8}
   .banner b{color:var(--gold-bright)}
+  /* schedule */
   .day{margin:16px 2px 8px;font-family:'Reem Kufi';color:var(--gold);font-size:.92rem;display:flex;align-items:center;gap:10px}
   .day .dl{flex:1;height:1px;background:var(--line)}
   .smatch{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:7px}
@@ -141,7 +149,7 @@
       <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
       <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
     </div>
-    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · المباريات مرتّبة حسب التاريخ</div>
+    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · المباريات مرتّبة حسب التاريخ · 🟨−1 🟥−4 🟨🟥−3 (نقاط اللعب النظيف)</div>
     <div id="groupsHost"></div>
   </div>
   <div class="view" id="v-sched">
@@ -150,7 +158,7 @@
   </div>
   <div class="view" id="v-quals">
     <div class="qbox"><h3>✅ المتأهلون المباشرون</h3><p class="hint">أول وثاني كل مجموعة (24 منتخب). يتحدّث تلقائياً.</p><div class="qgrid" id="directHost"></div></div>
-    <div class="qbox"><h3>🥉 ترتيب المراكز الثالثة</h3><p class="hint">أفضل 8 منتخبات ثالثة تتأهل (بالأخضر). الترتيب: النقاط ← الفارق ← الأهداف المسجّلة.</p><div id="thirdsHost"></div></div>
+    <div class="qbox"><h3>🥉 ترتيب المراكز الثالثة</h3><p class="hint">أفضل 8 منتخبات ثالثة تتأهل (بالأخضر). الترتيب: النقاط ← الفارق ← الأهداف ← اللعب النظيف.</p><div id="thirdsHost"></div></div>
   </div>
   <div class="view" id="v-ko"><div id="koBanner"></div><div id="koHost"></div></div>
   <div class="bar">
@@ -187,6 +195,10 @@ D:["USA","PAR","AUS","TUR"],E:["GER","ECU","CIV","CUW"],F:["NED","JPN","TUN","SW
 G:["BEL","EGY","IRN","NZL"],H:["ESP","URU","KSA","CPV"],I:["FRA","NOR","SEN","IRQ"],
 J:["ARG","AUT","ALG","JOR"],K:["POR","COL","COD","UZB"],L:["ENG","CRO","GHA","PAN"]};
 const RR=[[[0,1],[2,3]],[[0,2],[3,1]],[[3,0],[1,2]]];
+const RANK={MEX:14,RSA:60,KOR:25,CZE:39,CAN:30,BIH:64,QAT:57,SUI:19,BRA:6,MAR:7,HAI:83,SCO:42,
+USA:17,PAR:40,AUS:27,TUR:22,GER:10,CUW:82,CIV:33,ECU:23,NED:8,JPN:18,SWE:38,TUN:46,
+BEL:9,EGY:29,IRN:21,NZL:85,ESP:2,CPV:67,KSA:61,URU:16,FRA:3,SEN:15,IRQ:56,NOR:31,
+ARG:1,ALG:28,AUT:24,JOR:63,POR:5,COD:45,UZB:50,COL:13,ENG:4,CRO:11,GHA:73,PAN:34};
 
 const TIMES={
 MEX_RSA:{m:6,d:11,t:"22:00"},KOR_CZE:{m:6,d:12,t:"05:00"},CZE_RSA:{m:6,d:18,t:"19:00"},MEX_KOR:{m:6,d:19,t:"04:00"},CZE_MEX:{m:6,d:25,t:"04:00"},RSA_KOR:{m:6,d:25,t:"04:00"},
@@ -256,13 +268,41 @@ function matchesOf(g){const teams=GROUPS[g];const arr=[];
 function allGroupMatches(){const all=[];Object.keys(GROUPS).forEach(g=>matchesOf(g).forEach(M=>all.push(M)));
   all.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return all;}
 
-function standings(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
-  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];
-    if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const A=teams[pair[0]],B=teams[pair[1]],hs=+res.h,as=+res.a;
+function fpOf(y,r,yr){return -((+y||0)*1+(+r||0)*4+(+yr||0)*3);}
+function rawStats(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,fp:0});const played=[];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];const A=teams[pair[0]],B=teams[pair[1]];
+    if(res){st[A].fp+=fpOf(res.hy,res.hr,res.hyr);st[B].fp+=fpOf(res.ay,res.ar,res.ayr);}
+    if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const hs=+res.h,as=+res.a;played.push({A,B,hs,as});
       st[A].gf+=hs;st[A].ga+=as;st[B].gf+=as;st[B].ga+=hs;st[A].p++;st[B].p++;
       if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
       else{st[A].d++;st[B].d++;st[A].pts++;st[B].pts++;}}}));
-  return teams.map(k=>st[k]).sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
+  return {st,played};}
+function miniStats(played,subset){const m={};subset.forEach(k=>m[k]={pts:0,gd:0,gf:0});
+  played.forEach(p=>{if(subset.includes(p.A)&&subset.includes(p.B)){
+    m[p.A].gf+=p.hs;m[p.B].gf+=p.as;m[p.A].gd+=p.hs-p.as;m[p.B].gd+=p.as-p.hs;
+    if(p.hs>p.as)m[p.A].pts+=3;else if(p.as>p.hs)m[p.B].pts+=3;else{m[p.A].pts++;m[p.B].pts++;}}});
+  return m;}
+function rankOverall(subset,st){return subset.slice().sort((x,y)=>{const X=st[x],Y=st[y];
+  return (Y.gf-Y.ga)-(X.gf-X.ga)||Y.gf-X.gf||(Y.fp-X.fp)||((RANK[x]||999)-(RANK[y]||999));});}
+function rankTied(subset,ctx){if(subset.length===1)return subset.slice();
+  const m=miniStats(ctx.played,subset);
+  const sorted=subset.slice().sort((x,y)=>m[y].pts-m[x].pts||m[y].gd-m[x].gd||m[y].gf-m[x].gf);
+  const blocks=[];let cur=[sorted[0]];
+  for(let i=1;i<sorted.length;i++){const a=sorted[i-1],b=sorted[i];
+    if(m[a].pts===m[b].pts&&m[a].gd===m[b].gd&&m[a].gf===m[b].gf)cur.push(b);else{blocks.push(cur);cur=[b];}}
+  blocks.push(cur);let res=[];
+  for(const blk of blocks){
+    if(blk.length===1)res=res.concat(blk);
+    else if(blk.length===subset.length)res=res.concat(rankOverall(blk,ctx.st));
+    else res=res.concat(rankTied(blk,ctx));}
+  return res;}
+function standings(g){const ctx=rawStats(g);const st=ctx.st;
+  const byPts=Object.keys(st).sort((x,y)=>st[y].pts-st[x].pts);
+  const blocks=[];let cur=[byPts[0]];
+  for(let i=1;i<byPts.length;i++){if(st[byPts[i]].pts===st[byPts[i-1]].pts)cur.push(byPts[i]);else{blocks.push(cur);cur=[byPts[i]];}}
+  blocks.push(cur);let order=[];
+  for(const blk of blocks){if(blk.length===1)order=order.concat(blk);else order=order.concat(rankTied(blk,ctx));}
+  return order.map(k=>st[k]);}
 function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>{const r=state.g[mid(g,ri,mi)];return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}));}
 function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
 function enteredCount(){let c=0;Object.keys(GROUPS).forEach(g=>RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const r=state.g[mid(g,ri,mi)];if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)c++;})));return c;}
@@ -276,21 +316,37 @@ function renderGroups(){const host=document.getElementById("groupsHost");host.in
       <div class="score"><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-s="h" value="${r.h??""}">
       <span class="dash">−</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-s="a" value="${r.a??""}"></div>
       <div class="side away"><span class="fl">${fl(M.B)}</span><span class="nm">${nm(M.B)}</span></div></div>
-      <div class="mtime">⏱ ${tm}</div></div>`;});
+      <div class="mtime">⏱ ${tm}</div>
+      <div class="cardrow">
+        <div class="cteam"><span class="ctl">${fl(M.A)}</span>
+          <span class="ci"><span class="cyl">🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hy" value="${r.hy??""}"></span>
+          <span class="ci"><span class="cyl">🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hr" value="${r.hr??""}"></span>
+          <span class="ci"><span class="cyl">🟨🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hyr" value="${r.hyr??""}"></span>
+        </div>
+        <div class="cteam"><span class="ctl">${fl(M.B)}</span>
+          <span class="ci"><span class="cyl">🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ay" value="${r.ay??""}"></span>
+          <span class="ci"><span class="cyl">🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ar" value="${r.ar??""}"></span>
+          <span class="ci"><span class="cyl">🟨🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ayr" value="${r.ayr??""}"></span>
+        </div>
+      </div></div>`;});
     h+=`<table id="tbl_${g}"></table>`;card.innerHTML=h;host.appendChild(card);renderTable(g);});
   host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
-    const id=e.target.dataset.id,s=e.target.dataset.s;if(!state.g[id])state.g[id]={h:"",a:""};
-    state.g[id][s]=e.target.value;renderTable(id.split("_")[0]);updateKO();updateBanner();queueSave();}));}
+    const id=e.target.dataset.id;if(!state.g[id])state.g[id]={h:"",a:""};
+    if(e.target.dataset.c)state.g[id][e.target.dataset.c]=e.target.value;
+    else state.g[id][e.target.dataset.s]=e.target.value;
+    renderTable(id.split("_")[0]);updateKO();updateBanner();queueSave();}));}
 function renderTable(g){const arr=standings(g),tbl=document.getElementById("tbl_"+g);if(!tbl)return;
-  let h=`<tr><th class="tname">المنتخب</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>+/−</th><th>نقاط</th></tr>`;
+  let h=`<tr><th class="tname">المنتخب</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>+/−</th><th>نظيف</th><th>نقاط</th></tr>`;
   arr.forEach((s,i)=>{const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
     const dot=i<2?'<span class="posdot d-q"></span>':i===2?'<span class="posdot d-t"></span>':'';
     h+=`<tr class="${cls}"><td class="tname">${fl(s.k)} ${nm(s.k)}${dot}</td><td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
-    <td>${s.gf}</td><td>${s.ga}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td class="pts">${s.pts}</td></tr>`;});
+    <td>${s.gf}</td><td>${s.ga}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td>${s.fp}</td><td class="pts">${s.pts}</td></tr>`;});
   tbl.innerHTML=h;}
 
+/* ===== جدول المباريات (تاب جديد) ===== */
 function scoreText(r){if(r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null)return (+r.h)+" − "+(+r.a);return "‒";}
 function renderSched(){const host=document.getElementById("schedHost");host.innerHTML="";
+  /* مرحلة المجموعات يوم بيوم */
   const all=allGroupMatches();let curDay="";
   all.forEach(M=>{const dayK=M.tm?(M.tm.m+"_"+M.tm.d):"x";
     if(dayK!==curDay){curDay=dayK;const dl=document.createElement("div");dl.className="day";
@@ -303,6 +359,7 @@ function renderSched(){const host=document.getElementById("schedHost");host.inne
       <div class="side away"><span class="fl">${fl(M.B)}</span><span class="nm">${nm(M.B)}</span></div></div>
       <div class="scap"><b>المجموعة ${M.g}</b> · ${M.tm?M.tm.t:""}</div>`;
     host.appendChild(box);});
+  /* الأدوار الإقصائية حسب الدور */
   const {teamsOf,winnerOf}=computeKO();
   ROUNDS.forEach(R=>{const dl=document.createElement("div");dl.className="day";
     dl.innerHTML=`<span>${R.letter==="🏆"?"🏆 النهائي":R.title}</span><span class="dl"></span><span style="font-size:.72rem;color:var(--muted);font-weight:400">${R.sub}</span>`;
@@ -319,15 +376,15 @@ function renderSched(){const host=document.getElementById("schedHost");host.inne
       host.appendChild(box);});});}
 
 function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
-  return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||nm(x.k).localeCompare(nm(y.k)));}
+  return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||(y.fp-x.fp)||((RANK[x.k]||999)-(RANK[y.k]||999)));}
 function renderQuals(){const direct=document.getElementById("directHost");direct.innerHTML="";
   Object.keys(GROUPS).forEach(g=>{const arr=standings(g);[0,1].forEach(i=>{const s=arr[i];
     const d=document.createElement("div");d.className="qt";
     d.innerHTML=`<span>${fl(s.k)}</span><span>${nm(s.k)}</span><span class="lt">${g}${i+1}</span>`;direct.appendChild(d);});});
   const th=rankedThirds(),host=document.getElementById("thirdsHost");
-  let h=`<table><tr><th>#</th><th class="tname">المنتخب</th><th>المج</th><th>نقاط</th><th>+/−</th><th>له</th><th>الحالة</th></tr>`;
+  let h=`<table><tr><th>#</th><th class="tname">المنتخب</th><th>المج</th><th>نقاط</th><th>+/−</th><th>له</th><th>نظيف</th><th>الحالة</th></tr>`;
   th.forEach((s,i)=>{const adv=i<8;h+=`<tr class="${adv?'p3':''}"><td class="pts">${i+1}</td><td class="tname">${fl(s.k)} ${nm(s.k)}</td>
-    <td>${s.g}</td><td class="pts">${s.pts}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td>${s.gf}</td>
+    <td>${s.g}</td><td class="pts">${s.pts}</td><td>${(s.gf-s.ga>0?"+":"")+(s.gf-s.ga)}</td><td>${s.gf}</td><td>${s.fp}</td>
     <td style="color:${adv?'var(--green)':'var(--red)'}">${adv?'متأهل':'خارج'}</td></tr>`;});
   h+=`</table>`;host.innerHTML=h;}
 
