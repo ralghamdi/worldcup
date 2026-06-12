@@ -149,7 +149,7 @@
       <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
       <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
     </div>
-    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · المباريات مرتّبة حسب التاريخ · 🟨−1 🟥−4 🟨🟥−3 (نقاط اللعب النظيف)</div>
+    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · 🟨−1 · 🟨🟨−3 · 🟥−4 · 🟨🟥−5 (نقاط اللعب النظيف)</div>
     <div id="groupsHost"></div>
   </div>
   <div class="view" id="v-sched">
@@ -268,10 +268,10 @@ function matchesOf(g){const teams=GROUPS[g];const arr=[];
 function allGroupMatches(){const all=[];Object.keys(GROUPS).forEach(g=>matchesOf(g).forEach(M=>all.push(M)));
   all.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return all;}
 
-function fpOf(y,r,yr){return -((+y||0)*1+(+r||0)*4+(+yr||0)*3);}
+function fpOf(y,d,r,yr){return -((+y||0)*1+(+d||0)*3+(+r||0)*4+(+yr||0)*5);}
 function rawStats(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,fp:0});const played=[];
   RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];const A=teams[pair[0]],B=teams[pair[1]];
-    if(res){st[A].fp+=fpOf(res.hy,res.hr,res.hyr);st[B].fp+=fpOf(res.ay,res.ar,res.ayr);}
+    if(res){st[A].fp+=fpOf(res.hy,res.hd,res.hr,res.hyr);st[B].fp+=fpOf(res.ay,res.ad,res.ar,res.ayr);}
     if(res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null){const hs=+res.h,as=+res.a;played.push({A,B,hs,as});
       st[A].gf+=hs;st[A].ga+=as;st[B].gf+=as;st[B].ga+=hs;st[A].p++;st[B].p++;
       if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
@@ -320,11 +320,13 @@ function renderGroups(){const host=document.getElementById("groupsHost");host.in
       <div class="cardrow">
         <div class="cteam"><span class="ctl">${fl(M.A)}</span>
           <span class="ci"><span class="cyl">🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hy" value="${r.hy??""}"></span>
+          <span class="ci"><span class="cyl">🟨🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hd" value="${r.hd??""}"></span>
           <span class="ci"><span class="cyl">🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hr" value="${r.hr??""}"></span>
           <span class="ci"><span class="cyl">🟨🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="hyr" value="${r.hyr??""}"></span>
         </div>
         <div class="cteam"><span class="ctl">${fl(M.B)}</span>
           <span class="ci"><span class="cyl">🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ay" value="${r.ay??""}"></span>
+          <span class="ci"><span class="cyl">🟨🟨</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ad" value="${r.ad??""}"></span>
           <span class="ci"><span class="cyl">🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ar" value="${r.ar??""}"></span>
           <span class="ci"><span class="cyl">🟨🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ayr" value="${r.ayr??""}"></span>
         </div>
