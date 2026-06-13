@@ -146,6 +146,61 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .legend span{display:flex;align-items:center;gap:5px}
 .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
 
+/* منتخبي */
+.team-pick{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.team-pick label{font-family:'Cairo';font-weight:700;font-size:13px;color:var(--muted);display:block;margin-bottom:8px}
+.team-pick select{width:100%;padding:13px 14px;border-radius:11px;background:var(--bg-3);border:1.5px solid var(--line);
+  color:var(--text);font-family:'Tajawal';font-size:15px;font-weight:700;cursor:pointer}
+.team-pick select:focus{outline:none;border-color:var(--gold)}
+.tcard{background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.tcard.q{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.tcard .tricolor{position:absolute;top:0;left:0}
+.tcard-flag{font-size:54px;margin-top:6px}
+.tcard-name{font-family:'Cairo';font-weight:900;font-size:22px;margin-top:4px}
+.tcard-grp{color:var(--muted);font-size:13px;margin-top:2px}
+.tcard-stats{display:flex;justify-content:center;gap:18px;margin-top:14px}
+.tcard-stat{display:flex;flex-direction:column;gap:2px}
+.tcard-stat .v{font-family:'Anton';font-size:24px;color:var(--gold-bright)}
+.tcard-stat .l{font-size:11px;color:var(--muted)}
+.tcard-badge{display:inline-block;margin-top:14px;padding:7px 18px;border-radius:99px;font-family:'Cairo';font-weight:800;font-size:13px}
+.badge-q{background:rgba(47,191,113,.15);color:var(--ok);border:1px solid var(--ok)}
+.badge-t{background:rgba(212,169,60,.15);color:var(--gold-bright);border:1px solid var(--gold)}
+.badge-out{background:rgba(224,83,61,.13);color:var(--bad);border:1px solid var(--bad)}
+.path-title{font-family:'Cairo';font-weight:900;font-size:16px;margin:18px 2px 12px;display:flex;align-items:center;gap:8px}
+.note-box{background:var(--bg-2);border:1px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.note-box b{color:var(--gold-bright)}
+.kstep{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative}
+.kstep.won{border-color:rgba(47,191,113,.5)}
+.kstep.lost{border-color:rgba(224,83,61,.4);opacity:.85}
+.kstep.final{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,169,60,.08),var(--bg-2))}
+.kstep-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.kstep-badge{font-family:'Anton';font-size:14px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:7px;padding:1px 9px;min-width:34px;text-align:center}
+.kstep-round{font-family:'Cairo';font-weight:700;font-size:13px}
+.kstep-mn{font-size:11px;color:var(--muted-2);margin-inline-start:auto}
+.kstep-row{display:flex;align-items:center;gap:8px}
+.kstep-side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+.kstep-side.away{flex-direction:row-reverse;text-align:left}
+.kstep-side .fl{font-size:22px;flex:none}
+.kstep-side .nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kstep-side .nm.slot{color:var(--muted);font-style:italic;font-weight:500;font-size:12px}
+.kstep-side .nm.me{color:var(--gold-bright)}
+.kstep-score{display:flex;align-items:center;gap:5px;flex:none}
+.kstep-score input{width:38px;height:38px;text-align:center;font-family:'Anton';font-size:18px;background:var(--bg-3);
+  border:1.5px solid var(--line);border-radius:9px;color:var(--text);-moz-appearance:textfield;appearance:textfield;padding:0}
+.kstep-score input::-webkit-outer-spin-button,.kstep-score input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.kstep-score input:focus{outline:none;border-color:var(--gold)}
+.kstep-score input:disabled{opacity:.4;cursor:not-allowed}
+.kstep-dash{color:var(--muted-2);font-family:'Anton'}
+.kstep-pen{display:none;margin-top:9px;gap:7px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.kstep-pen.show{display:flex}
+.kstep-pen button{font-family:'Tajawal';font-weight:700;font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer;background:var(--bg-3);border:1px solid var(--line);color:var(--text)}
+.kstep-pen button.on{background:rgba(47,191,113,.15);border-color:var(--ok);color:var(--ok)}
+.kstep-result{margin-top:9px;font-family:'Cairo';font-weight:700;font-size:12px;text-align:center}
+.kstep-result.win{color:var(--ok)}.kstep-result.out{color:var(--bad)}
+.champ-banner{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1405;border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.champ-banner .big{font-family:'Cairo';font-weight:900;font-size:20px}
+.champ-banner .sub{font-size:13px;margin-top:4px;font-weight:700}
+
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-26{font-family:'Anton';font-size:70px;color:var(--line);line-height:1}
@@ -268,7 +323,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="page" id="page-matches"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">المباريات والنتائج</div><div class="empty-text">توقّعك مقابل النتيجة الحقيقية لكل مباراة.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
   <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
   <div class="page" id="page-points"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">نقاطي</div><div class="empty-text">نقاطك وخريطتك الحرارية ولحظاتك البارزة.</div><div class="empty-badge">قريباً</div></div></div>
-  <div class="page" id="page-myteam"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">منتخبي</div><div class="empty-text">اختر منتخبك وشوف طريقه للنهائي.</div><div class="empty-badge">قريباً</div></div></div>
+  <div class="page" id="page-myteam">
+    <div class="team-pick">
+      <label>اختر منتخبك</label>
+      <select id="teamSelect" onchange="onTeamChange()"></select>
+    </div>
+    <div id="myteamHost"></div>
+  </div>
 </div>
 
 <div class="save-pill" id="savePill"></div>
@@ -369,6 +430,65 @@ function standings(g){const ctx=rawStats(g);const st=ctx.st;
   for(const blk of blocks){if(blk.length===1)order=order.concat(blk);else order=order.concat(rankTied(blk,ctx));}
   return order.map(k=>st[k]);}
 function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>filled(state.g[mid(g,ri,mi)])));}
+function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
+function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
+  return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||((RANK[x.k]||999)-(RANK[y.k]||999)));}
+
+/* ===== محرّك الأدوار الإقصائية ===== */
+const CLUS={74:["A","B","C","D","F"],77:["C","D","F","G","H"],79:["C","E","F","H","I"],
+80:["E","H","I","J","K"],81:["B","E","F","I","J"],82:["A","E","H","I","J"],
+85:["E","F","G","I","J"],87:["D","E","I","J","L"]};
+const MATCH={
+73:{a:{t:'R',g:'A'},b:{t:'R',g:'B'}},74:{a:{t:'W',g:'E'},b:{t:'3',m:74}},
+75:{a:{t:'W',g:'F'},b:{t:'R',g:'C'}},76:{a:{t:'W',g:'C'},b:{t:'R',g:'F'}},
+77:{a:{t:'W',g:'I'},b:{t:'3',m:77}},78:{a:{t:'R',g:'E'},b:{t:'R',g:'I'}},
+79:{a:{t:'W',g:'A'},b:{t:'3',m:79}},80:{a:{t:'W',g:'L'},b:{t:'3',m:80}},
+81:{a:{t:'W',g:'D'},b:{t:'3',m:81}},82:{a:{t:'W',g:'G'},b:{t:'3',m:82}},
+83:{a:{t:'R',g:'K'},b:{t:'R',g:'L'}},84:{a:{t:'W',g:'H'},b:{t:'R',g:'J'}},
+85:{a:{t:'W',g:'B'},b:{t:'3',m:85}},86:{a:{t:'W',g:'J'},b:{t:'R',g:'H'}},
+87:{a:{t:'W',g:'K'},b:{t:'3',m:87}},88:{a:{t:'R',g:'D'},b:{t:'R',g:'G'}},
+89:{a:{t:'WM',m:74},b:{t:'WM',m:77}},90:{a:{t:'WM',m:73},b:{t:'WM',m:75}},
+91:{a:{t:'WM',m:76},b:{t:'WM',m:78}},92:{a:{t:'WM',m:79},b:{t:'WM',m:80}},
+93:{a:{t:'WM',m:83},b:{t:'WM',m:84}},94:{a:{t:'WM',m:81},b:{t:'WM',m:82}},
+95:{a:{t:'WM',m:86},b:{t:'WM',m:88}},96:{a:{t:'WM',m:85},b:{t:'WM',m:87}},
+97:{a:{t:'WM',m:89},b:{t:'WM',m:90}},98:{a:{t:'WM',m:93},b:{t:'WM',m:94}},
+99:{a:{t:'WM',m:91},b:{t:'WM',m:92}},100:{a:{t:'WM',m:95},b:{t:'WM',m:96}},
+101:{a:{t:'WM',m:97},b:{t:'WM',m:98}},102:{a:{t:'WM',m:99},b:{t:'WM',m:100}},
+103:{a:{t:'LM',m:101},b:{t:'LM',m:102}},104:{a:{t:'WM',m:101},b:{t:'WM',m:102}}};
+function roundOf(m){return m<=88?'دور الـ32':m<=96?'دور الـ16':m<=100?'ربع النهائي':m<=102?'نصف النهائي':m===103?'تحديد المركز الثالث':'النهائي';}
+function roundShort(m){return m<=88?'32':m<=96?'16':m<=100?'8':m<=102?'4':m===103?'3':'🏆';}
+function phText(slot){if(slot.t==='W')return"متصدّر "+slot.g;if(slot.t==='R')return"وصيف "+slot.g;
+  if(slot.t==='3')return"ثالث ("+CLUS[slot.m].join("/")+")";if(slot.t==='WM')return"الفائز من م"+slot.m;
+  if(slot.t==='LM')return"خاسر م"+slot.m;return"";}
+function thirdsAssignment(){if(!allGroupsDone())return null;
+  const th=rankedThirds().slice(0,8).map(o=>o.g);const ms=Object.keys(CLUS).map(Number);const used={};const out={};
+  function bt(i){if(i===ms.length)return true;const m=ms[i];
+    for(const g of CLUS[m]){if(th.includes(g)&&!used[g]){used[g]=1;out[m]=g;if(bt(i+1))return true;delete used[g];}}return false;}
+  return bt(0)?out:null;}
+function computeKO(){const winG={},runG={};
+  if(allGroupsDone())Object.keys(GROUPS).forEach(g=>{const a=standings(g);winG[g]=a[0].k;runG[g]=a[1].k;});
+  const asg=thirdsAssignment();const teamsOf={},winnerOf={},loserOf={};
+  function thirdTeam(g){return standings(g)[2].k;}
+  function resolve(slot){if(slot.t==='W')return winG[slot.g]||null;if(slot.t==='R')return runG[slot.g]||null;
+    if(slot.t==='3')return asg?thirdTeam(asg[slot.m]):null;if(slot.t==='WM')return winnerOf[slot.m]||null;
+    if(slot.t==='LM')return loserOf[slot.m]||null;return null;}
+  for(let m=73;m<=104;m++){const a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);teamsOf[m]={a,b};
+    const r=state.ko[m]||{};const have=a&&b&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;
+    if(have){if(+r.hs>+r.as){winnerOf[m]=a;loserOf[m]=b;}else if(+r.as>+r.hs){winnerOf[m]=b;loserOf[m]=a;}
+      else if(r.pen==='h'){winnerOf[m]=a;loserOf[m]=b;}else if(r.pen==='a'){winnerOf[m]=b;loserOf[m]=a;}}}
+  return {teamsOf,winnerOf,loserOf};}
+function traceTeamPath(team){const {teamsOf,winnerOf,loserOf}=computeKO();
+  let cur=null;for(let m=73;m<=88;m++){if(teamsOf[m]&&(teamsOf[m].a===team||teamsOf[m].b===team)){cur=m;break;}}
+  if(cur===null)return {inKO:false,path:[]};
+  const path=[];let m=cur;
+  while(m){const t=teamsOf[m];const mySideA=(t.a===team);
+    const oppTeam=mySideA?t.b:t.a;const oppSlot=mySideA?MATCH[m].b:MATCH[m].a;
+    const won=winnerOf[m]===team;const lost=(winnerOf[m]&&winnerOf[m]!==team);
+    path.push({m,mySideA,oppTeam,oppSlot,won,lost});
+    if(!won)break;
+    let next=null;for(let n=m+1;n<=104;n++){if(n!==103&&((MATCH[n].a.t==='WM'&&MATCH[n].a.m===m)||(MATCH[n].b.t==='WM'&&MATCH[n].b.m===m))){next=n;break;}}
+    m=next;}
+  return {inKO:true,path};}
 
 /* ===== الحالة ===== */
 let state={g:{},ko:{}}; let saveTimer=null;
@@ -493,6 +613,118 @@ function renderStandings(){
   });
 }
 
+/* ===== منتخبي ===== */
+function groupOf(team){return Object.keys(GROUPS).find(g=>GROUPS[g].includes(team));}
+function fillTeamSelect(){
+  const sel=document.getElementById('teamSelect');
+  let cur=state.myteam||'KSA';
+  const opts=Object.keys(GROUPS).map(g=>{
+    const inner=GROUPS[g].map(k=>`<option value="${k}" ${k===cur?'selected':''}>${fl(k)} ${nm(k)}</option>`).join('');
+    return `<optgroup label="المجموعة ${g}">${inner}</optgroup>`;
+  }).join('');
+  sel.innerHTML=opts;
+}
+function onTeamChange(){
+  state.myteam=document.getElementById('teamSelect').value;
+  queueSave();renderMyteam();
+}
+function setKO(m,side,val){
+  if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
+  if(val!==""){val=Math.max(0,Math.min(99,parseInt(val)||0));}
+  state.ko[m][side]=val;queueSave();renderMyteam();
+}
+function setKOPen(m,pw){
+  if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
+  state.ko[m].pen=(state.ko[m].pen===pw)?"":pw;queueSave();renderMyteam();
+}
+function renderMyteam(){
+  const team=state.myteam||'KSA';
+  const host=document.getElementById('myteamHost');
+  const g=groupOf(team);
+  const arr=standings(g);
+  const pos=arr.findIndex(s=>s.k===team)+1;
+  const me=arr.find(s=>s.k===team);
+  const done=groupDone(g);
+  const gd=me.gf-me.ga;
+
+  // بطاقة المنتخب
+  let qBadge='',qClass='';
+  if(!done){qBadge=`<div class="tcard-badge badge-t">أكمل توقّعات المجموعة ${g}</div>`;}
+  else if(pos<=2){qBadge=`<div class="tcard-badge badge-q">✅ متأهّل مباشر (${pos===1?'متصدّر':'وصيف'})</div>`;qClass=' q';}
+  else if(pos===3){qBadge=`<div class="tcard-badge badge-t">🥉 ثالث — مرشّح لأفضل 8</div>`;}
+  else{qBadge=`<div class="tcard-badge badge-out">خارج (المركز ${pos})</div>`;}
+
+  let h=`<div class="tcard${qClass}"><div class="tricolor"></div>
+    <div class="tcard-flag">${fl(team)}</div>
+    <div class="tcard-name head">${nm(team)}</div>
+    <div class="tcard-grp">المجموعة ${g} · تصنيف فيفا #${RANK[team]||'—'}</div>
+    <div class="tcard-stats">
+      <div class="tcard-stat"><span class="v">${done?pos:'—'}</span><span class="l">الترتيب</span></div>
+      <div class="tcard-stat"><span class="v">${me.pts}</span><span class="l">نقاط</span></div>
+      <div class="tcard-stat"><span class="v">${gd>0?'+':''}${gd}</span><span class="l">الفارق</span></div>
+    </div>
+    ${qBadge}
+  </div>`;
+
+  // المسار الإقصائي
+  if(!allGroupsDone()){
+    const c=predCount();
+    h+=`<div class="note-box">🔮 المسار الإقصائي يظهر بعد ما تكمّل <b>كل توقّعات دور المجموعات</b>.<br>أكملت <b>${c}</b> من <b>72</b> مباراة.</div>`;
+    host.innerHTML=h;return;
+  }
+  const trace=traceTeamPath(team);
+  if(!trace.inKO){
+    h+=`<div class="note-box">${nm(team)} <b>ما تأهّل</b> من دور المجموعات حسب توقّعاتك (المركز ${pos}).<br>غيّر توقّعاتك عشان يدخل الإقصائيات 🔄</div>`;
+    host.innerHTML=h;return;
+  }
+
+  h+=`<div class="path-title head">🛣️ رحلة ${nm(team)} للّقب</div>`;
+  let champion=false;
+  trace.path.forEach(step=>{
+    const m=step.m;const r=state.ko[m]||{};
+    const oppName=step.oppTeam?nm(step.oppTeam):phText(step.oppSlot);
+    const oppFlag=step.oppTeam?fl(step.oppTeam):'⚽';
+    const isFinal=(m===104);
+    let cls='kstep';if(step.won)cls+=' won';if(step.lost)cls+=' lost';if(isFinal)cls+=' final';
+    // ترتيب الأطراف: منتخبي يمين دايماً
+    const meSide=`<div class="kstep-side"><span class="fl">${fl(team)}</span><span class="nm me">${nm(team)}</span></div>`;
+    const oppSide=`<div class="kstep-side away"><span class="fl">${oppFlag}</span><span class="nm${step.oppTeam?'':' slot'}">${oppName}</span></div>`;
+    const myVal=step.mySideA?(r.hs??""):(r.as??"");
+    const opVal=step.mySideA?(r.as??""):(r.hs??"");
+    const mySaff=step.mySideA?'hs':'as';const opSaff=step.mySideA?'as':'hs';
+    const oppDisabled=step.oppTeam?'':'disabled';
+    h+=`<div class="${cls}">
+      <div class="kstep-head"><span class="kstep-badge num">${roundShort(m)}</span><span class="kstep-round">${roundOf(m)}</span><span class="kstep-mn">مباراة ${m}</span></div>
+      <div class="kstep-row">
+        ${meSide}
+        <div class="kstep-score">
+          <input type="number" min="0" inputmode="numeric" value="${myVal}" onchange="setKO(${m},'${mySaff}',this.value)">
+          <span class="kstep-dash">−</span>
+          <input type="number" min="0" inputmode="numeric" value="${opVal}" ${oppDisabled} onchange="setKO(${m},'${opSaff}',this.value)">
+        </div>
+        ${oppSide}
+      </div>`;
+    // ترجيح عند التعادل
+    const bothFilled=step.oppTeam&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;
+    const isDraw=bothFilled&&(+r.hs===+r.as);
+    if(isDraw){
+      const mePw=step.mySideA?'h':'a';const opPw=step.mySideA?'a':'h';
+      h+=`<div class="kstep-pen show"><span>الترجيح:</span>
+        <button class="${r.pen===mePw?'on':''}" onclick="setKOPen(${m},'${mePw}')">${nm(team)}</button>
+        <button class="${r.pen===opPw?'on':''}" onclick="setKOPen(${m},'${opPw}')">${step.oppTeam?nm(step.oppTeam):'الخصم'}</button>
+      </div>`;
+    }
+    if(step.won&&isFinal){champion=true;h+=`<div class="kstep-result win">🏆 بطل العالم!</div>`;}
+    else if(step.won){h+=`<div class="kstep-result win">✅ تأهّل للدور التالي</div>`;}
+    else if(step.lost){h+=`<div class="kstep-result out">❌ خرج في ${roundOf(m)}</div>`;}
+    h+=`</div>`;
+  });
+  if(champion){
+    h+=`<div class="champ-banner"><div class="big">🏆 ${nm(team)} بطل كأس العالم 2026!</div><div class="sub">حسب توقّعاتك — مبروك يا بطل 🎉</div></div>`;
+  }
+  host.innerHTML=h;
+}
+
 /* ===== الدخول والتنقّل ===== */
 let signupMode=false;
 function authMsg(msg,type){const m=document.getElementById('authMsg');m.textContent=msg;m.className='auth-msg '+(type||'');}
@@ -528,7 +760,8 @@ function showTab(name,btn){
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='standings')renderStandings();}
+  if(name==='standings')renderStandings();
+  if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
