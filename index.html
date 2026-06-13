@@ -201,6 +201,45 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .champ-banner .big{font-family:'Cairo';font-weight:900;font-size:20px}
 .champ-banner .sub{font-size:13px;margin-top:4px;font-weight:700}
 
+/* المباريات والنتائج */
+.mt-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:11px;position:relative}
+.mt-card.live{border-color:var(--bad);box-shadow:0 0 0 1px rgba(224,83,61,.4)}
+.mt-card.ksa{border-color:rgba(212,169,60,.5)}
+.mt-status{position:absolute;top:-9px;right:14px;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
+.st-live{background:var(--bad);color:#fff;animation:pulse 1.5s infinite}
+.st-post{background:var(--bg-3);color:var(--muted);border:1px solid var(--line)}
+.st-pre{background:var(--bg-3);color:var(--gold-bright);border:1px solid var(--line)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.mt-row{display:flex;align-items:center;gap:8px;margin-top:4px}
+.mt-side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+.mt-side.away{flex-direction:row-reverse;text-align:left}
+.mt-flag{font-size:24px;flex:none}
+.mt-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-scores{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;min-width:62px}
+.mt-actual{font-family:'Anton';font-size:22px;color:var(--text);letter-spacing:1px}
+.mt-actual .nogame{color:var(--muted-2);font-size:14px;font-family:'Tajawal'}
+.mt-pred{font-size:11px;color:var(--muted)}
+.mt-pred b{color:var(--gold-bright)}
+.acc{display:inline-block;font-family:'Cairo';font-weight:800;font-size:10px;padding:1px 7px;border-radius:99px;margin-top:2px}
+.acc5{background:rgba(47,191,113,.18);color:var(--ok)}
+.acc3{background:rgba(47,191,113,.12);color:var(--ok)}
+.acc2{background:rgba(232,181,58,.15);color:var(--warn)}
+.acc0{background:rgba(224,83,61,.13);color:var(--bad)}
+.mt-events{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)}
+.mt-col{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mt-col.away{align-items:flex-end}
+.ev{font-size:11px;color:var(--text);display:flex;align-items:center;gap:5px;line-height:1.3;max-width:100%}
+.mt-col.away .ev{flex-direction:row-reverse;text-align:left}
+.ev-ico{flex:none}
+.ev-min{color:var(--muted-2);font-family:'Anton';font-size:10px;flex:none}
+.ev-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev-assist{color:var(--muted-2);font-size:10px}
+.ev-out{color:var(--bad)}
+.ev-og{color:var(--bad);font-weight:800;font-size:9px;background:rgba(224,83,61,.13);padding:0 4px;border-radius:4px}
+.ev.owngoal .ev-txt{color:var(--bad)}
+.mt-tz{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+.mt-empty-ev{grid-column:1/-1;text-align:center;color:var(--muted-2);font-size:11px;padding:4px}
+
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-26{font-family:'Anton';font-size:70px;color:var(--line);line-height:1}
@@ -320,7 +359,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     </div>
     <div id="standHost"></div>
   </div>
-  <div class="page" id="page-matches"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">المباريات والنتائج</div><div class="empty-text">توقّعك مقابل النتيجة الحقيقية لكل مباراة.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
+  <div class="page" id="page-matches">
+    <div class="tz-note">⏱ كل الأوقات بتوقيت السعودية · 🔄 يتحدّث تلقائياً</div>
+    <div id="matchesHost"></div>
+  </div>
   <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
   <div class="page" id="page-points"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">نقاطي</div><div class="empty-text">نقاطك وخريطتك الحرارية ولحظاتك البارزة.</div><div class="empty-badge">قريباً</div></div></div>
   <div class="page" id="page-myteam">
@@ -503,6 +545,52 @@ function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,700)
 function pill(t){const p=document.getElementById('savePill');p.textContent=t;p.classList.add('show');
   clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('show'),1600);}
 
+/* ===== البيانات الحقيقية (من ESPN عبر Supabase) ===== */
+let live={matches:{},standings:{}};
+async function loadLive(){
+  try{
+    const {data:m}=await sb.from('live_matches').select('*');
+    const mm={};(m||[]).forEach(r=>mm[r.match_id_key]=r);live.matches=mm;
+    const {data:s}=await sb.from('live_standings').select('*');
+    const ss={};(s||[]).forEach(r=>ss[r.grp]=r.entries);live.standings=ss;
+  }catch(e){}
+}
+const ckey=(A,B)=>[A,B].sort().join("_");                 // مفتاح backend
+function liveFor(A,B){return live.matches[ckey(A,B)]||null;}
+function scoreFor(rec,team){ // نتيجة فريق معيّن من سجل backend
+  if(!rec)return null;
+  if(rec.home_code===team)return rec.home_score;
+  if(rec.away_code===team)return rec.away_score;
+  return null;
+}
+function minVal(m){if(!m)return 9999;const x=String(m).replace("'","").split("+");return (parseInt(x[0])||0)+(x[1]?(parseInt(x[1])||0)/100:0);}
+function evIcon(k){return {goal:"⚽",owngoal:"⚽",yellow:"🟨",red:"🟥",yellowred:"🟥",sub:"🔄"}[k]||"•";}
+function evLabel(ev){
+  const p=ev.players||[];
+  if(ev.kind==="sub")return `${p[1]||"?"} <span class="ev-out">←</span> ${p[0]||"?"}`;
+  if(ev.kind==="owngoal")return `${p[0]||""} <span class="ev-og">عكسي</span>`;
+  if(ev.kind==="goal")return p[0]+(p[1]?` <span class="ev-assist">(${p[1]})</span>`:"");
+  return p[0]||"";
+}
+// نقاط التوقّع (Kicktipp): مطابق=5، فارق+فائز=3، تعادل مختلف=3، اتجاه صحيح=2، خطأ=0
+function scorePred(ph,pa,ah,aa){
+  if(ph==null||pa==null||ah==null||aa==null||ph===""||pa==="")return null;
+  ph=+ph;pa=+pa;ah=+ah;aa=+aa;
+  if(ph===ah&&pa===aa)return 5;
+  const pd=Math.sign(ph-pa),ad=Math.sign(ah-aa);
+  if(pd!==ad)return 0;
+  if(pd===0)return 3;
+  if((ph-pa)===(ah-aa))return 3;
+  return 2;
+}
+function accBadge(pts){
+  if(pts===5)return '<span class="acc acc5">🎯 +5</span>';
+  if(pts===3)return '<span class="acc acc3">🟢 +3</span>';
+  if(pts===2)return '<span class="acc acc2">🟡 +2</span>';
+  if(pts===0)return '<span class="acc acc0">🔴 +0</span>';
+  return '';
+}
+
 function filled(r){return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}
 function predCount(){return GM.filter(m=>filled(state.g[m.id])).length;}
 
@@ -611,6 +699,76 @@ function renderStandings(){
     });
     h+=`</table>`;card.innerHTML=h;host.appendChild(card);
   });
+}
+
+/* ===== المباريات والنتائج ===== */
+function renderMatches(){
+  const host=document.getElementById('matchesHost');host.innerHTML="";
+  let lastDay="",dayCount=0;
+  GM.forEach(m=>{
+    const dayKey=m.tm.m+"/"+m.tm.d;
+    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
+      const dh=document.createElement('div');dh.className='day-head';
+      dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
+      host.appendChild(dh);}
+    host.appendChild(matchCard(m));
+  });
+}
+function matchCard(m){
+  const A=m.A,B=m.B,rec=liveFor(A,B);
+  const isKsa=(A==='KSA'||B==='KSA');
+  const pred=state.g[m.id]||{};
+  const status=rec?rec.status:'pre';
+  const el=document.createElement('div');
+  el.className='mt-card'+(status==='in'?' live':'')+(isKsa?' ksa':'');
+
+  // شارة الحالة
+  let badge='';
+  if(status==='in')badge='<span class="mt-status st-live">🔴 جارية</span>';
+  else if(status==='post')badge='<span class="mt-status st-post">انتهت</span>';
+  else badge='<span class="mt-status st-pre">⏱ '+m.tm.t+'</span>';
+
+  // النتيجة الحقيقية + التوقّع
+  const aS=scoreFor(rec,A),bS=scoreFor(rec,B);
+  const hasActual=(aS!=null&&bS!=null);
+  let actualHtml=hasActual?`${aS} <span style="color:var(--muted-2)">−</span> ${bS}`:`<span class="nogame">— : —</span>`;
+  const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
+  let predHtml=hasPred?`🔮 توقّعك <b>${pred.h}-${pred.a}</b>`:'🔮 ما توقّعت';
+  // دقّة التوقّع (لو المباراة خلصت)
+  let acc='';
+  if(status==='post'&&hasActual&&hasPred){
+    const pts=scorePred(pred.h,pred.a,aS,bS);acc=accBadge(pts);
+  }
+
+  el.innerHTML=`${badge}
+    <div class="mt-row">
+      <div class="mt-side"><span class="mt-flag">${fl(A)}</span><span class="mt-name">${nm(A)}</span></div>
+      <div class="mt-scores">
+        <div class="mt-actual num">${actualHtml}</div>
+        <div class="mt-pred">${predHtml}</div>
+        ${acc}
+      </div>
+      <div class="mt-side away"><span class="mt-flag">${fl(B)}</span><span class="mt-name">${nm(B)}</span></div>
+    </div>`;
+
+  // الأحداث (عمودين) لو فيه
+  const evs=(rec&&rec.events)?rec.events:[];
+  if(evs.length){
+    const home=rec.home_code,away=rec.away_code;
+    const colA=evs.filter(e=>evDisplayTeam(e,home,away)===A).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
+    const colB=evs.filter(e=>evDisplayTeam(e,home,away)===B).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
+    const renderCol=(arr,away)=>arr.map(e=>`<div class="ev ${e.kind}">
+      <span class="ev-ico">${evIcon(e.kind)}</span><span class="ev-min">${e.minute}</span>
+      <span class="ev-txt">${evLabel(e)}</span></div>`).join('')||'<div class="ev" style="color:var(--muted-2)">—</div>';
+    const wrap=document.createElement('div');wrap.className='mt-events';
+    wrap.innerHTML=`<div class="mt-col">${renderCol(colA,false)}</div><div class="mt-col away">${renderCol(colB,true)}</div>`;
+    el.appendChild(wrap);
+  }
+  return el;
+}
+function evDisplayTeam(ev,home,away){
+  // الهدف العكسي يظهر تحت المنتخب المستفيد (ESPN يحتسبه له مباشرة في ev.team)
+  return ev.team;
 }
 
 /* ===== منتخبي ===== */
@@ -753,6 +911,7 @@ async function enterApp(){
   document.getElementById('app').style.display='block';
   window.scrollTo(0,0);
   await loadState();
+  await loadLive();
   renderPredict();renderNext();
 }
 function showTab(name,btn){
@@ -761,7 +920,14 @@ function showTab(name,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   if(name==='standings')renderStandings();
+  if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
+
+let liveTimer=null;
+function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(()=>{
+  loadLive().then(()=>{if(document.getElementById('page-matches').classList.contains('active'))renderMatches();});
+},60000);}
+function stopLiveRefresh(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}}
 
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
