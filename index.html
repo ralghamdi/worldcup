@@ -139,18 +139,23 @@
   </header>
   <div class="tabs">
     <div class="tab on" data-v="groups">المجموعات</div>
+    <div class="tab" data-v="table">ترتيب المجموعات</div>
     <div class="tab" data-v="sched">المباريات</div>
     <div class="tab" data-v="quals">المتأهلون</div>
     <div class="tab" data-v="ko">الأدوار الإقصائية</div>
   </div>
   <div class="save-note" id="saveNote"></div>
   <div class="view on" id="v-groups">
+    <div class="tznote">✏️ أدخل النتائج والكروت فقط · الترتيب يظهر في تاب «ترتيب المجموعات» · 🟨−1 · 🟨🟨−3 · 🟥−4 · 🟨🟥−5</div>
+    <div id="groupsHost"></div>
+  </div>
+  <div class="view" id="v-table">
     <div class="legend">
       <span><i style="background:var(--green)"></i> أول وثاني (متأهل مباشر)</span>
       <span><i style="background:var(--gold)"></i> مركز ثالث (مرشح لأفضل 8)</span>
     </div>
-    <div class="tznote">⏱ كل الأوقات بتوقيت السعودية (AST) · 🟨−1 · 🟨🟨−3 · 🟥−4 · 🟨🟥−5 (نقاط اللعب النظيف)</div>
-    <div id="groupsHost"></div>
+    <div class="tznote">📊 الترتيب وفق قانون الفيفا: النقاط ← المواجهات المباشرة ← الفارق ← الأهداف ← اللعب النظيف ← تصنيف الفيفا</div>
+    <div id="tableHost"></div>
   </div>
   <div class="view" id="v-sched">
     <div class="tznote">📅 جدول كل المباريات بتوقيت السعودية · يوم بيوم</div>
@@ -331,12 +336,16 @@ function renderGroups(){const host=document.getElementById("groupsHost");host.in
           <span class="ci"><span class="cyl">🟨🟥</span><input type="number" min="0" inputmode="numeric" data-id="${M.id}" data-c="ayr" value="${r.ayr??""}"></span>
         </div>
       </div></div>`;});
-    h+=`<table id="tbl_${g}"></table>`;card.innerHTML=h;host.appendChild(card);renderTable(g);});
+    card.innerHTML=h;host.appendChild(card);});
   host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
     const id=e.target.dataset.id;if(!state.g[id])state.g[id]={h:"",a:""};
     if(e.target.dataset.c)state.g[id][e.target.dataset.c]=e.target.value;
     else state.g[id][e.target.dataset.s]=e.target.value;
-    renderTable(id.split("_")[0]);updateKO();updateBanner();queueSave();}));}
+    renderTables();updateKO();updateBanner();queueSave();}));}
+function renderTables(){const host=document.getElementById("tableHost");if(!host)return;host.innerHTML="";
+  Object.keys(GROUPS).forEach(g=>{const card=document.createElement("div");card.className="gcard";
+    card.innerHTML=`<div class="gh"><span class="let">${g}</span><h3>المجموعة ${g}</h3></div><table id="tbl_${g}"></table>`;
+    host.appendChild(card);renderTable(g);});}
 function renderTable(g){const arr=standings(g),tbl=document.getElementById("tbl_"+g);if(!tbl)return;
   let h=`<tr><th class="tname">المنتخب</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>+/−</th><th>نظيف</th><th>نقاط</th></tr>`;
   arr.forEach((s,i)=>{const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
@@ -451,19 +460,20 @@ function wireUI(){
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
     document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
     t.classList.add("on");document.getElementById("v-"+t.dataset.v).classList.add("on");
+    if(t.dataset.v==="table")renderTables();
     if(t.dataset.v==="sched")renderSched();
     if(t.dataset.v==="quals")renderQuals();
     if(t.dataset.v==="ko"){updateKO();updateBanner();}}));
   document.getElementById("clearBtn").addEventListener("click",async()=>{
     if(confirm("مسح كل النتائج المُدخلة؟ لا يمكن التراجع.")){
-      state={g:{},ko:{}};await saveState();renderGroups();renderSched();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
+      state={g:{},ko:{}};await saveState();renderGroups();renderTables();renderSched();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
   document.getElementById("printBtn").addEventListener("click",()=>window.print());
   document.getElementById("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 }
 function showLogin(){document.getElementById("login").style.display="flex";document.getElementById("app").style.display="none";}
 async function onLogin(){document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";
   document.getElementById("userEmail").textContent=user.email;
-  await loadState();renderGroups();renderQuals();renderKO();updateBanner();}
+  await loadState();renderGroups();renderTables();renderQuals();renderKO();updateBanner();}
 async function doAuth(){const email=document.getElementById("email").value.trim();const pass=document.getElementById("pass").value;const msg=document.getElementById("lmsg");
   if(!email||!pass){msg.textContent="اكتب البريد وكلمة المرور";return;}
   msg.textContent="جارٍ الدخول…";
