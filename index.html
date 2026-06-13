@@ -269,6 +269,23 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .pts-rules{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:16px;font-size:12px;color:var(--muted);line-height:1.9}
 .pts-rules b{color:var(--gold-bright)}
 
+/* الإحصائيات */
+.stat-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.stot{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+.stot .n{font-family:'Anton';font-size:22px;color:var(--gold-bright)}
+.stot .t{font-size:10px;color:var(--muted);margin-top:2px}
+.stat-row{display:flex;align-items:center;gap:10px;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:10px 13px;margin-bottom:7px}
+.stat-rank{font-family:'Anton';font-size:16px;color:var(--muted-2);min-width:22px;text-align:center}
+.stat-rank.top{color:var(--gold-bright)}
+.stat-flag{font-size:22px;flex:none}
+.stat-name{flex:1;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-team{font-size:11px;color:var(--muted);font-weight:400}
+.stat-val{font-family:'Anton';font-size:18px;color:var(--gold-bright);flex:none}
+.stat-val small{font-family:'Tajawal';font-size:11px;color:var(--muted)}
+.stat-cards{display:flex;gap:8px;flex:none;align-items:center}
+.cardpill{display:flex;align-items:center;gap:3px;font-family:'Anton';font-size:14px}
+.stat-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;line-height:1.7}
+
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-26{font-family:'Anton';font-size:70px;color:var(--line);line-height:1}
@@ -392,7 +409,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <div class="tz-note">⏱ كل الأوقات بتوقيت السعودية · 🔄 يتحدّث تلقائياً</div>
     <div id="matchesHost"></div>
   </div>
-  <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
+  <div class="page" id="page-stats"><div id="statsHost"></div></div>
   <div class="page" id="page-points"><div id="pointsHost"></div></div>
   <div class="page" id="page-myteam">
     <div class="team-pick">
@@ -755,6 +772,81 @@ function renderStandingsReal(){
   });
 }
 
+/* ===== الإحصائيات ===== */
+function aggStats(){
+  const scorers={},assists={},cards={};let goals=0,yel=0,red=0,played=0;
+  Object.values(live.matches||{}).forEach(rec=>{
+    if(rec.status==='post'||rec.status==='in')played++;
+    (rec.events||[]).forEach(e=>{
+      const p=e.players||[];
+      if(e.kind==="goal"&&p[0]){goals++;
+        const k=p[0]+"|"+e.team;if(!scorers[k])scorers[k]={name:p[0],team:e.team,goals:0};scorers[k].goals++;
+        if(p[1]){const ak=p[1]+"|"+e.team;if(!assists[ak])assists[ak]={name:p[1],team:e.team,a:0};assists[ak].a++;}
+      }
+      if(e.kind==="owngoal")goals++;
+      if(e.kind==="yellow"&&p[0]){yel++;const k=p[0]+"|"+e.team;if(!cards[k])cards[k]={name:p[0],team:e.team,y:0,r:0};cards[k].y++;}
+      if((e.kind==="red"||e.kind==="yellowred")&&p[0]){red++;const k=p[0]+"|"+e.team;if(!cards[k])cards[k]={name:p[0],team:e.team,y:0,r:0};cards[k].r++;}
+    });
+  });
+  return {
+    scorers:Object.values(scorers).sort((a,b)=>b.goals-a.goals),
+    assists:Object.values(assists).sort((a,b)=>b.a-a.a),
+    cards:Object.values(cards).sort((a,b)=>(b.r*3+b.y)-(a.r*3+a.y)),
+    goals,yel,red,played
+  };
+}
+function renderStats(){
+  const host=document.getElementById('statsHost');
+  const s=aggStats();
+  if(s.played===0){
+    host.innerHTML=`<div class="stat-empty">📊 الإحصائيات تظهر <b style="color:var(--gold-bright)">أول ما تبدأ المباريات</b>.<br>الهدّافون والكروت تُحسب تلقائياً من الأحداث.</div>`;return;
+  }
+  let h=`<div class="stat-totals">
+    <div class="stot"><div class="n num">${s.goals}</div><div class="t">⚽ أهداف</div></div>
+    <div class="stot"><div class="n num">${s.yel}</div><div class="t">🟨 صفراء</div></div>
+    <div class="stot"><div class="n num">${s.red}</div><div class="t">🟥 حمراء</div></div>
+    <div class="stot"><div class="n num">${s.played}</div><div class="t">مباريات</div></div>
+  </div>`;
+
+  // الهدّافون
+  h+=`<div class="sec-title head">👟 الهدّافون</div>`;
+  if(s.scorers.length){
+    s.scorers.slice(0,20).forEach((x,i)=>{
+      h+=`<div class="stat-row"><span class="stat-rank num ${i<3?'top':''}">${i+1}</span>
+        <span class="stat-flag">${fl(x.team)}</span>
+        <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
+        <span class="stat-val num">${x.goals} <small>هدف</small></span></div>`;
+    });
+  }else h+=`<div class="stat-empty" style="padding:20px">لا أهداف بعد</div>`;
+
+  // صنّاع الأهداف
+  if(s.assists.length){
+    h+=`<div class="sec-title head">🎁 صنّاع الأهداف</div>`;
+    s.assists.slice(0,10).forEach((x,i)=>{
+      h+=`<div class="stat-row"><span class="stat-rank num ${i<3?'top':''}">${i+1}</span>
+        <span class="stat-flag">${fl(x.team)}</span>
+        <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
+        <span class="stat-val num">${x.a} <small>صناعة</small></span></div>`;
+    });
+  }
+
+  // الكروت
+  h+=`<div class="sec-title head">🟨🟥 الكروت</div>`;
+  if(s.cards.length){
+    s.cards.slice(0,20).forEach(x=>{
+      h+=`<div class="stat-row">
+        <span class="stat-flag">${fl(x.team)}</span>
+        <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
+        <span class="stat-cards">
+          ${x.y?`<span class="cardpill">🟨 ${x.y}</span>`:''}
+          ${x.r?`<span class="cardpill">🟥 ${x.r}</span>`:''}
+        </span></div>`;
+    });
+  }else h+=`<div class="stat-empty" style="padding:20px">لا كروت بعد</div>`;
+
+  host.innerHTML=h;
+}
+
 /* ===== نقاطي ===== */
 function computePoints(){
   let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;
@@ -1048,6 +1140,7 @@ function showTab(name,btn){
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
   if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
+  if(name==='stats'){loadLive().then(renderStats);}
   if(name==='points'){loadLive().then(renderPoints);}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
