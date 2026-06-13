@@ -10,109 +10,61 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  /* ===== هوية مونديال 26 ===== */
-  --bg:#080B16;            /* ليل الملعب */
-  --bg-2:#0F1426;          /* سطح مرتفع */
-  --bg-3:#161D33;          /* بطاقات */
-  --line:#232C47;          /* حدود */
-  --gold:#D4A93C;          /* ذهب الكأس */
-  --gold-bright:#F3CE6B;   /* ذهب لامع */
-  --gold-deep:#A6801E;     /* ذهب غامق */
-  --can:#D52B1E;           /* أحمر كندا */
-  --mex:#0B8A4D;           /* أخضر المكسيك */
-  --usa:#2B6CD4;           /* أزرق أمريكا */
-  --text:#F5F3EC;          /* أبيض دافئ */
-  --muted:#8E97AE;         /* رمادي */
-  --muted-2:#5A6079;
-  --ok:#2FBF71;
-  --warn:#E8B53A;
-  --bad:#E0533D;
-  --radius:18px;
-  --radius-sm:12px;
+  --bg:#080B16;--bg-2:#0F1426;--bg-3:#161D33;--line:#232C47;
+  --gold:#D4A93C;--gold-bright:#F3CE6B;--gold-deep:#A6801E;
+  --can:#D52B1E;--mex:#0B8A4D;--usa:#2B6CD4;
+  --text:#F5F3EC;--muted:#8E97AE;--muted-2:#5A6079;
+  --ok:#2FBF71;--warn:#E8B53A;--bad:#E0533D;
+  --radius:18px;--radius-sm:12px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{
-  font-family:'Tajawal',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  overflow-x:hidden;
-  background-image:
-    radial-gradient(1200px 600px at 80% -10%, rgba(212,169,60,.10), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(43,108,212,.08), transparent 55%),
-    radial-gradient(700px 500px at 50% 120%, rgba(11,138,77,.06), transparent 55%);
-  background-attachment:fixed;
-}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
+  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(212,169,60,.10),transparent 60%),
+    radial-gradient(900px 500px at -10% 10%,rgba(43,108,212,.08),transparent 55%),
+    radial-gradient(700px 500px at 50% 120%,rgba(11,138,77,.06),transparent 55%);
+  background-attachment:fixed;}
 .num{font-family:'Anton',sans-serif;letter-spacing:.5px}
 .head{font-family:'Cairo',sans-serif}
-
-/* ===== خط الدول الثلاث المضيفة ===== */
 .tricolor{height:4px;width:100%;background:linear-gradient(90deg,var(--can) 0 33.3%,var(--mex) 33.3% 66.6%,var(--usa) 66.6% 100%)}
 
-/* ============ شاشة الدخول ============ */
-#auth{
-  position:fixed;inset:0;z-index:100;
-  display:flex;align-items:center;justify-content:center;
-  padding:24px;
-  background:
-    radial-gradient(1000px 700px at 50% -20%, rgba(212,169,60,.16), transparent 60%),
-    var(--bg);
-}
-.auth-card{
-  width:100%;max-width:380px;text-align:center;
-  animation:rise .6s cubic-bezier(.2,.8,.2,1);
-}
+/* الدخول */
+#auth{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(1000px 700px at 50% -20%,rgba(212,169,60,.16),transparent 60%),var(--bg);}
+.auth-card{width:100%;max-width:380px;text-align:center;animation:rise .6s cubic-bezier(.2,.8,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 .brand-mark{position:relative;margin-bottom:6px;line-height:.8}
-.brand-26{
-  font-family:'Anton',sans-serif;
-  font-size:120px;
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold) 45%,var(--gold-deep));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 6px 24px rgba(212,169,60,.35));
-  letter-spacing:2px;
-}
+.brand-26{font-family:'Anton',sans-serif;font-size:120px;background:linear-gradient(180deg,var(--gold-bright),var(--gold) 45%,var(--gold-deep));
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(212,169,60,.35));letter-spacing:2px}
 .brand-trophy{font-size:38px;position:absolute;top:-6px;left:50%;transform:translateX(-50%);filter:drop-shadow(0 4px 12px rgba(212,169,60,.5))}
-.brand-title{font-family:'Cairo',sans-serif;font-weight:900;font-size:26px;margin-top:4px;letter-spacing:1px}
+.brand-title{font-family:'Cairo';font-weight:900;font-size:26px;margin-top:4px;letter-spacing:1px}
 .brand-sub{color:var(--gold-bright);font-weight:700;font-size:13px;letter-spacing:3px;margin-top:2px;text-transform:uppercase}
 .auth-tri{width:90px;height:4px;margin:18px auto;border-radius:4px;background:linear-gradient(90deg,var(--can),var(--mex),var(--usa))}
 .auth-form{margin-top:24px;display:flex;flex-direction:column;gap:12px;text-align:right}
 .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}
-.field input{
-  width:100%;padding:14px 16px;border-radius:var(--radius-sm);
-  background:var(--bg-2);border:1.5px solid var(--line);color:var(--text);
-  font-family:'Tajawal';font-size:15px;transition:border-color .2s,box-shadow .2s;
-}
+.field input{width:100%;padding:14px 16px;border-radius:var(--radius-sm);background:var(--bg-2);border:1.5px solid var(--line);
+  color:var(--text);font-family:'Tajawal';font-size:15px;transition:border-color .2s,box-shadow .2s}
 .field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,169,60,.12)}
-.btn-gold{
-  margin-top:6px;padding:15px;border:none;border-radius:var(--radius-sm);cursor:pointer;
-  font-family:'Cairo';font-weight:800;font-size:16px;color:#1a1405;
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold));
-  box-shadow:0 8px 20px rgba(212,169,60,.25);transition:transform .15s,box-shadow .2s;
-}
+.btn-gold{margin-top:6px;padding:15px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:'Cairo';font-weight:800;
+  font-size:16px;color:#1a1405;background:linear-gradient(180deg,var(--gold-bright),var(--gold));box-shadow:0 8px 20px rgba(212,169,60,.25);transition:transform .15s}
 .btn-gold:active{transform:translateY(1px)}
 .btn-ghost{background:none;border:none;color:var(--muted);font-family:'Tajawal';font-weight:700;font-size:13px;cursor:pointer;padding:8px;margin-top:4px}
 .btn-ghost b{color:var(--gold-bright)}
 .auth-msg{min-height:18px;font-size:13px;font-weight:700;margin-top:4px}
-.auth-msg.err{color:var(--bad)}
-.auth-msg.ok{color:var(--ok)}
+.auth-msg.err{color:var(--bad)}.auth-msg.ok{color:var(--ok)}
 
-/* ============ التطبيق ============ */
-#app{display:none;min-height:100%;padding-bottom:90px}
-.topbar{
-  position:sticky;top:0;z-index:40;
-  background:rgba(10,14,26,.82);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
-}
+/* التطبيق */
+#app{display:none;min-height:100%;padding-bottom:40px;max-width:760px;margin:0 auto}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(8,11,22,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .topbar-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
 .mini-mark{display:flex;align-items:center;gap:8px}
 .mini-26{font-family:'Anton';font-size:30px;background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
-.mini-title{font-family:'Cairo';font-weight:900;font-size:15px}
-.mini-title span{color:var(--gold-bright)}
+.mini-title{font-family:'Cairo';font-weight:900;font-size:15px}.mini-title span{color:var(--gold-bright)}
 .icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);font-size:16px;cursor:pointer;display:grid;place-items:center}
 
 /* بطاقة المباراة القادمة */
 .next-card{margin:14px 16px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:linear-gradient(135deg,var(--bg-2),var(--bg-3));position:relative}
+.next-card.ksa{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 8px 30px rgba(212,169,60,.18)}
 .next-card .tricolor{position:absolute;top:0;left:0}
 .next-inner{padding:16px}
 .next-label{font-size:11px;letter-spacing:2px;color:var(--gold-bright);font-weight:800;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -122,7 +74,7 @@ body{
 .next-name{font-weight:700;font-size:13px;text-align:center}
 .next-vs{font-family:'Anton';color:var(--muted);font-size:20px}
 .next-meta{text-align:center;margin-top:12px;color:var(--muted);font-size:12px;font-weight:600}
-.next-count{font-family:'Cairo';font-weight:900;color:var(--gold-bright);font-size:15px}
+.next-count{font-family:'Cairo';font-weight:900;color:var(--gold-bright);font-size:16px;margin-top:3px}
 
 /* تابات */
 .tabs{display:flex;gap:6px;padding:6px;margin:0 12px;background:var(--bg-2);border-radius:14px;border:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
@@ -130,10 +82,42 @@ body{
 .tab{flex:0 0 auto;padding:10px 14px;border-radius:10px;border:none;background:none;color:var(--muted);font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .tab.active{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1405;box-shadow:0 4px 12px rgba(212,169,60,.25)}
 
-/* محتوى */
-.page{display:none;padding:18px 16px;animation:fade .35s}
+.page{display:none;padding:16px;animation:fade .35s}
 .page.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* شريط التقدّم */
+.progress-wrap{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-label{font-family:'Cairo';font-weight:700;font-size:14px}
+.progress-count{font-family:'Anton';font-size:22px;color:var(--gold-bright)}
+.progress-count small{font-family:'Tajawal';font-size:13px;color:var(--muted)}
+.progress-bar{height:8px;background:var(--bg-3);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));border-radius:99px;transition:width .4s}
+.tz-note{font-size:12px;color:var(--gold);margin:12px 2px 4px;font-weight:600}
+
+/* يوم */
+.day-head{display:flex;align-items:center;gap:10px;margin:20px 2px 10px}
+.day-date{font-family:'Cairo';font-weight:900;font-size:15px}
+.day-line{flex:1;height:1px;background:var(--line)}
+.day-num{font-family:'Anton';font-size:13px;color:var(--muted-2);background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+
+/* مباراة */
+.match{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;position:relative}
+.match.ksa{border-color:rgba(212,169,60,.5);background:linear-gradient(135deg,rgba(212,169,60,.07),var(--bg-2))}
+.match.ksa::before{content:"🇸🇦 مباراتك";position:absolute;top:-9px;right:14px;background:var(--gold);color:#1a1405;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
+.m-row{display:flex;align-items:center;gap:8px}
+.m-side{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.m-side.away{flex-direction:row-reverse;text-align:left}
+.m-flag{font-size:24px;flex:none}
+.m-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-score{display:flex;align-items:center;gap:6px;flex:none}
+.m-score input{width:42px;height:40px;text-align:center;font-family:'Anton';font-size:20px;background:var(--bg-3);
+  border:1.5px solid var(--line);border-radius:10px;color:var(--text);transition:border-color .2s}
+.m-score input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,60,.12)}
+.m-score input.filled{border-color:var(--gold-deep)}
+.m-dash{color:var(--muted-2);font-family:'Anton'}
+.m-time{text-align:center;font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
 
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
@@ -142,32 +126,25 @@ body{
 .empty-text{font-size:14px;margin-top:8px;line-height:1.7;max-width:280px;margin-inline:auto}
 .empty-badge{display:inline-block;margin-top:16px;padding:7px 16px;border-radius:999px;background:var(--bg-3);border:1px solid var(--line);color:var(--gold-bright);font-size:12px;font-weight:700}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-3);border:1px solid var(--gold);color:var(--text);padding:12px 20px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:all .3s;z-index:90;pointer-events:none}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.save-pill{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--bg-3);border:1px solid var(--gold);
+  color:var(--text);padding:9px 18px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;transition:all .3s;z-index:90;pointer-events:none}
+.save-pill.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 
-<!-- ============ شاشة الدخول ============ -->
+<!-- الدخول -->
 <div id="auth">
   <div class="auth-card">
-    <div class="brand-mark">
-      <div class="brand-trophy">🏆</div>
-      <div class="brand-26 num">26</div>
-    </div>
+    <div class="brand-mark"><div class="brand-trophy">🏆</div><div class="brand-26 num">26</div></div>
     <div class="brand-title head">مونديال السعودية</div>
     <div class="brand-sub">We Are 26</div>
     <div class="auth-tri"></div>
-
     <div class="auth-form">
-      <div class="field">
-        <label>البريد الإلكتروني</label>
-        <input id="email" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email">
-      </div>
-      <div class="field">
-        <label>كلمة المرور</label>
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
-      </div>
+      <div class="field"><label>البريد الإلكتروني</label>
+        <input id="email" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="field"><label>كلمة المرور</label>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول</button>
       <button class="btn-ghost" id="switchBtn" onclick="toggleMode()">ما عندك حساب؟ <b>سجّل الآن</b></button>
       <div class="auth-msg" id="authMsg"></div>
@@ -175,35 +152,21 @@ body{
   </div>
 </div>
 
-<!-- ============ التطبيق ============ -->
+<!-- التطبيق -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-row">
-      <div class="mini-mark">
-        <div class="mini-26 num">26</div>
-        <div class="mini-title">مونديال <span>السعودية</span></div>
-      </div>
+      <div class="mini-mark"><div class="mini-26 num">26</div><div class="mini-title">مونديال <span>السعودية</span></div></div>
       <button class="icon-btn" onclick="doLogout()" title="خروج">⏻</button>
     </div>
     <div class="tricolor"></div>
   </div>
 
-  <!-- بطاقة المباراة القادمة -->
-  <div class="next-card">
+  <div class="next-card" id="nextCard">
     <div class="tricolor"></div>
-    <div class="next-inner">
-      <div class="next-label">⏱ مباراتك القادمة</div>
-      <div class="next-teams">
-        <div class="next-team"><div class="next-flag">🇸🇦</div><div class="next-name">السعودية</div></div>
-        <div class="next-vs num">VS</div>
-        <div class="next-team"><div class="next-flag">🇪🇸</div><div class="next-name">إسبانيا</div></div>
-      </div>
-      <div class="next-meta">المجموعة H · ملعب نيويورك</div>
-      <div class="next-meta next-count">يبدأ العدّ التنازلي قريباً</div>
-    </div>
+    <div class="next-inner" id="nextInner"></div>
   </div>
 
-  <!-- التابات -->
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="showTab('predict',this)">توقعاتي</button>
     <button class="tab" onclick="showTab('standings',this)">ترتيب المجموعات</button>
@@ -213,145 +176,216 @@ body{
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
   </div>
 
-  <!-- الصفحات -->
+  <!-- توقعاتي -->
   <div class="page active" id="page-predict">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">توقعاتي</div>
-      <div class="empty-text">هنا بتدخل توقّعاتك لكل مباريات المونديال، من الافتتاح حتى النهائي.</div>
-      <div class="empty-badge">قريباً — الخطوة الجاية</div>
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <div class="progress-label">🔮 توقّعاتك لدور المجموعات</div>
+        <div class="progress-count"><span id="predCount">0</span><small>/72</small></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="predFill" style="width:0%"></div></div>
     </div>
+    <div class="tz-note">⏱ كل الأوقات بتوقيت السعودية</div>
+    <div id="predictHost"></div>
   </div>
 
-  <div class="page" id="page-standings">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">ترتيب المجموعات</div>
-      <div class="empty-text">جداول المجموعات الـ12، بترتيبك المتوقّع والترتيب الحقيقي بزر تبديل.</div>
-      <div class="empty-badge">قريباً</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-matches">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">المباريات والنتائج</div>
-      <div class="empty-text">توقّعك مقابل النتيجة الحقيقية لكل مباراة، مع المسجّلين والكروت.</div>
-      <div class="empty-badge">قريباً — يتغذّى من ESPN</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-stats">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">الإحصائيات</div>
-      <div class="empty-text">الهدّافين، الكروت، نجوم الجولات، وأبرز أرقام البطولة.</div>
-      <div class="empty-badge">قريباً — يتغذّى من ESPN</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-points">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">نقاطي</div>
-      <div class="empty-text">نقاطك، خريطتك الحرارية لكل المباريات، ولحظاتك البارزة.</div>
-      <div class="empty-badge">قريباً</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-myteam">
-    <div class="empty">
-      <div class="empty-26 num">26</div>
-      <div class="empty-title head">منتخبي</div>
-      <div class="empty-text">اختر منتخبك، وشوف طريقه المتوقّع للنهائي كشجرة كاملة.</div>
-      <div class="empty-badge">قريباً</div>
-    </div>
-  </div>
+  <!-- باقي التابات -->
+  <div class="page" id="page-standings"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">ترتيب المجموعات</div><div class="empty-text">جداول المجموعات الـ12، بترتيبك المتوقّع والترتيب الحقيقي.</div><div class="empty-badge">الخطوة الجاية</div></div></div>
+  <div class="page" id="page-matches"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">المباريات والنتائج</div><div class="empty-text">توقّعك مقابل النتيجة الحقيقية لكل مباراة.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
+  <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
+  <div class="page" id="page-points"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">نقاطي</div><div class="empty-text">نقاطك وخريطتك الحرارية ولحظاتك البارزة.</div><div class="empty-badge">قريباً</div></div></div>
+  <div class="page" id="page-myteam"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">منتخبي</div><div class="empty-text">اختر منتخبك وشوف طريقه للنهائي.</div><div class="empty-badge">قريباً</div></div></div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="save-pill" id="savePill"></div>
 
 <script>
-/* ============ Supabase ============ */
+/* ===== Supabase ===== */
 const SB_URL='https://rpmckviwjtbwkrexkxme.supabase.co';
 const SB_KEY='sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671';
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
+let user=null;
 
-let signupMode=false;
+/* ===== البيانات ===== */
+const T={
+MEX:["المكسيك","🇲🇽"],RSA:["جنوب أفريقيا","🇿🇦"],KOR:["كوريا الجنوبية","🇰🇷"],CZE:["التشيك","🇨🇿"],
+CAN:["كندا","🇨🇦"],SUI:["سويسرا","🇨🇭"],QAT:["قطر","🇶🇦"],BIH:["البوسنة","🇧🇦"],
+BRA:["البرازيل","🇧🇷"],MAR:["المغرب","🇲🇦"],SCO:["اسكتلندا","🏴󠁧󠁢󠁳󠁣󠁴󠁿"],HAI:["هايتي","🇭🇹"],
+USA:["أمريكا","🇺🇸"],PAR:["باراغواي","🇵🇾"],AUS:["أستراليا","🇦🇺"],TUR:["تركيا","🇹🇷"],
+GER:["ألمانيا","🇩🇪"],ECU:["الإكوادور","🇪🇨"],CIV:["ساحل العاج","🇨🇮"],CUW:["كوراساو","🇨🇼"],
+NED:["هولندا","🇳🇱"],JPN:["اليابان","🇯🇵"],TUN:["تونس","🇹🇳"],SWE:["السويد","🇸🇪"],
+BEL:["بلجيكا","🇧🇪"],EGY:["مصر","🇪🇬"],IRN:["إيران","🇮🇷"],NZL:["نيوزيلندا","🇳🇿"],
+ESP:["إسبانيا","🇪🇸"],URU:["أوروغواي","🇺🇾"],KSA:["السعودية","🇸🇦"],CPV:["الرأس الأخضر","🇨🇻"],
+FRA:["فرنسا","🇫🇷"],NOR:["النرويج","🇳🇴"],SEN:["السنغال","🇸🇳"],IRQ:["العراق","🇮🇶"],
+ARG:["الأرجنتين","🇦🇷"],AUT:["النمسا","🇦🇹"],ALG:["الجزائر","🇩🇿"],JOR:["الأردن","🇯🇴"],
+POR:["البرتغال","🇵🇹"],COL:["كولومبيا","🇨🇴"],COD:["الكونغو","🇨🇩"],UZB:["أوزبكستان","🇺🇿"],
+ENG:["إنجلترا","🏴󠁧󠁢󠁥󠁮󠁧󠁿"],CRO:["كرواتيا","🇭🇷"],GHA:["غانا","🇬🇭"],PAN:["بنما","🇵🇦"]};
+const GROUPS={A:["MEX","RSA","KOR","CZE"],B:["CAN","SUI","QAT","BIH"],C:["BRA","MAR","SCO","HAI"],
+D:["USA","PAR","AUS","TUR"],E:["GER","ECU","CIV","CUW"],F:["NED","JPN","TUN","SWE"],
+G:["BEL","EGY","IRN","NZL"],H:["ESP","URU","KSA","CPV"],I:["FRA","NOR","SEN","IRQ"],
+J:["ARG","AUT","ALG","JOR"],K:["POR","COL","COD","UZB"],L:["ENG","CRO","GHA","PAN"]};
+const RR=[[[0,1],[2,3]],[[0,2],[3,1]],[[3,0],[1,2]]];
+const TIMES={
+MEX_RSA:{m:6,d:11,t:"22:00"},KOR_CZE:{m:6,d:12,t:"05:00"},CZE_RSA:{m:6,d:18,t:"19:00"},MEX_KOR:{m:6,d:19,t:"04:00"},CZE_MEX:{m:6,d:25,t:"04:00"},RSA_KOR:{m:6,d:25,t:"04:00"},
+CAN_BIH:{m:6,d:12,t:"22:00"},QAT_SUI:{m:6,d:13,t:"22:00"},SUI_BIH:{m:6,d:18,t:"22:00"},CAN_QAT:{m:6,d:19,t:"01:00"},SUI_CAN:{m:6,d:24,t:"22:00"},BIH_QAT:{m:6,d:24,t:"22:00"},
+BRA_MAR:{m:6,d:14,t:"01:00"},HAI_SCO:{m:6,d:14,t:"04:00"},SCO_MAR:{m:6,d:20,t:"01:00"},BRA_HAI:{m:6,d:20,t:"03:30"},SCO_BRA:{m:6,d:25,t:"01:00"},MAR_HAI:{m:6,d:25,t:"01:00"},
+USA_PAR:{m:6,d:13,t:"04:00"},AUS_TUR:{m:6,d:14,t:"07:00"},USA_AUS:{m:6,d:19,t:"22:00"},TUR_PAR:{m:6,d:20,t:"06:00"},TUR_USA:{m:6,d:26,t:"05:00"},PAR_AUS:{m:6,d:26,t:"05:00"},
+GER_CUW:{m:6,d:14,t:"20:00"},CIV_ECU:{m:6,d:15,t:"02:00"},GER_CIV:{m:6,d:20,t:"23:00"},ECU_CUW:{m:6,d:21,t:"06:00"},ECU_GER:{m:6,d:25,t:"23:00"},CUW_CIV:{m:6,d:25,t:"23:00"},
+NED_JPN:{m:6,d:14,t:"23:00"},SWE_TUN:{m:6,d:15,t:"05:00"},NED_SWE:{m:6,d:20,t:"20:00"},TUN_JPN:{m:6,d:21,t:"07:00"},JPN_SWE:{m:6,d:26,t:"02:00"},TUN_NED:{m:6,d:26,t:"02:00"},
+BEL_EGY:{m:6,d:15,t:"22:00"},IRN_NZL:{m:6,d:16,t:"04:00"},BEL_IRN:{m:6,d:21,t:"22:00"},NZL_EGY:{m:6,d:22,t:"04:00"},EGY_IRN:{m:6,d:27,t:"06:00"},NZL_BEL:{m:6,d:27,t:"06:00"},
+ESP_CPV:{m:6,d:15,t:"19:00"},KSA_URU:{m:6,d:16,t:"01:00"},ESP_KSA:{m:6,d:21,t:"19:00"},URU_CPV:{m:6,d:22,t:"01:00"},CPV_KSA:{m:6,d:27,t:"03:00"},URU_ESP:{m:6,d:27,t:"03:00"},
+FRA_SEN:{m:6,d:16,t:"22:00"},IRQ_NOR:{m:6,d:17,t:"01:00"},FRA_IRQ:{m:6,d:23,t:"00:00"},NOR_SEN:{m:6,d:23,t:"03:00"},NOR_FRA:{m:6,d:26,t:"22:00"},SEN_IRQ:{m:6,d:26,t:"22:00"},
+ARG_ALG:{m:6,d:17,t:"04:00"},AUT_JOR:{m:6,d:17,t:"07:00"},ARG_AUT:{m:6,d:22,t:"20:00"},JOR_ALG:{m:6,d:23,t:"06:00"},ALG_AUT:{m:6,d:28,t:"05:00"},JOR_ARG:{m:6,d:28,t:"05:00"},
+POR_COD:{m:6,d:17,t:"20:00"},UZB_COL:{m:6,d:18,t:"05:00"},POR_UZB:{m:6,d:23,t:"20:00"},COL_COD:{m:6,d:24,t:"05:00"},COL_POR:{m:6,d:28,t:"02:30"},COD_UZB:{m:6,d:28,t:"02:30"},
+ENG_CRO:{m:6,d:17,t:"23:00"},GHA_PAN:{m:6,d:18,t:"02:00"},ENG_GHA:{m:6,d:23,t:"23:00"},PAN_CRO:{m:6,d:24,t:"02:00"},PAN_ENG:{m:6,d:28,t:"00:00"},CRO_GHA:{m:6,d:28,t:"00:00"}};
 
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
+const AR_WD=["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"];
+function wdName(m,d){const base=(m===6)?0:2;return AR_WD[(base+(d-1))%7];}
+function monName(m){return m===6?"يونيو":"يوليو";}
+const nm=k=>T[k][0],fl=k=>T[k][1];
+function timeFor(a,b){return TIMES[a+"_"+b]||TIMES[b+"_"+a]||null;}
+function sortKey(tm){if(!tm)return 999999999;return tm.m*1000000+tm.d*10000+parseInt(tm.t.replace(":",""),10);}
+function matchDate(tm){if(!tm)return null;const[h,mi]=tm.t.split(":").map(Number);return new Date(2026,tm.m-1,tm.d,h,mi,0);}
+
+function groupMatches(){const out=[];Object.keys(GROUPS).forEach(g=>{const teams=GROUPS[g];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const A=teams[pair[0]],B=teams[pair[1]];
+    out.push({id:`${g}_${ri}_${mi}`,g,A,B,tm:timeFor(A,B)});}));});
+  out.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return out;}
+const GM=groupMatches();
+
+/* ===== الحالة ===== */
+let state={g:{},ko:{}}; let saveTimer=null;
+async function loadState(){state={g:{},ko:{}};
+  try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
+    if(data&&data.data)state=data.data;}catch(e){}
+  if(!state.g)state.g={};if(!state.ko)state.ko={};}
+async function saveState(){pill("جارٍ الحفظ…");
+  try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
+    if(error)throw error;pill("تم الحفظ ✓");}catch(e){pill("تعذّر الحفظ");}}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,700);}
+function pill(t){const p=document.getElementById('savePill');p.textContent=t;p.classList.add('show');
+  clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('show'),1600);}
+
+function filled(r){return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}
+function predCount(){return GM.filter(m=>filled(state.g[m.id])).length;}
+
+/* ===== توقعاتي ===== */
+function renderPredict(){
+  const host=document.getElementById('predictHost');host.innerHTML="";
+  let lastDay="";let dayCount=0;
+  GM.forEach(m=>{
+    const dayKey=m.tm.m+"/"+m.tm.d;
+    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
+      const dh=document.createElement('div');dh.className='day-head';
+      dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
+      host.appendChild(dh);}
+    const r=state.g[m.id]||{};const isKsa=(m.A==='KSA'||m.B==='KSA');
+    const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'');
+    el.innerHTML=`<div class="m-row">
+      <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
+      <div class="m-score">
+        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="h" value="${r.h??""}" class="${r.h!=null&&r.h!==""?'filled':''}">
+        <span class="m-dash">−</span>
+        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="a" value="${r.a??""}" class="${r.a!=null&&r.a!==""?'filled':''}">
+      </div>
+      <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
+    </div>
+    <div class="m-time">⏱ ${m.tm.t}</div>`;
+    host.appendChild(el);
+  });
+  host.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    const id=e.target.dataset.id,s=e.target.dataset.s;
+    if(!state.g[id])state.g[id]={h:"",a:""};
+    let v=e.target.value;if(v!==""){v=Math.max(0,Math.min(99,parseInt(v)||0));e.target.value=v;}
+    state.g[id][s]=v;
+    e.target.classList.toggle('filled',v!=="");
+    updateProgress();queueSave();
+  }));
+  updateProgress();
 }
-function authMsg(msg,type){
-  const m=document.getElementById('authMsg');
-  m.textContent=msg;m.className='auth-msg '+(type||'');
+function updateProgress(){
+  const c=predCount();
+  document.getElementById('predCount').textContent=c;
+  document.getElementById('predFill').style.width=(c/72*100)+"%";
 }
-function toggleMode(){
-  signupMode=!signupMode;
-  document.getElementById('loginBtn').textContent=signupMode?'إنشاء حساب':'دخول';
-  document.getElementById('switchBtn').innerHTML=signupMode
-    ?'عندك حساب؟ <b>سجّل دخولك</b>':'ما عندك حساب؟ <b>سجّل الآن</b>';
-  authMsg('');
+
+/* ===== بطاقة المباراة القادمة ===== */
+function renderNext(){
+  const now=new Date();
+  let upcoming=GM.filter(m=>matchDate(m.tm)&&matchDate(m.tm).getTime()>now.getTime())
+                 .sort((x,y)=>matchDate(x.tm)-matchDate(y.tm));
+  const ksaNext=upcoming.find(m=>m.A==='KSA'||m.B==='KSA');
+  const m=ksaNext||upcoming[0]||GM[GM.length-1];
+  const card=document.getElementById('nextCard');
+  const isKsa=m&&(m.A==='KSA'||m.B==='KSA');
+  card.classList.toggle('ksa',!!isKsa);
+  const label=isKsa?'🇸🇦 مباراة منتخبك القادمة':'⏱ المباراة القادمة';
+  document.getElementById('nextInner').innerHTML=`
+    <div class="next-label">${label}</div>
+    <div class="next-teams">
+      <div class="next-team"><div class="next-flag">${fl(m.A)}</div><div class="next-name">${nm(m.A)}</div></div>
+      <div class="next-vs num">VS</div>
+      <div class="next-team"><div class="next-flag">${fl(m.B)}</div><div class="next-name">${nm(m.B)}</div></div>
+    </div>
+    <div class="next-meta">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)} · ${m.tm.t}</div>
+    <div class="next-count" id="nextCount"></div>`;
+  tickCountdown(m);
 }
-async function doLogin(){
-  const email=document.getElementById('email').value.trim();
-  const pass=document.getElementById('password').value;
-  if(!email||!pass){authMsg('اكتب البريد وكلمة المرور','err');return}
-  authMsg(signupMode?'جاري إنشاء الحساب...':'جاري الدخول...');
-  try{
-    let res;
-    if(signupMode){
-      res=await sb.auth.signUp({email,password:pass});
-      if(res.error)throw res.error;
-      authMsg('تم إنشاء الحساب! جاري الدخول...','ok');
-    }else{
-      res=await sb.auth.signInWithPassword({email,password:pass});
-      if(res.error)throw res.error;
-    }
-    if(res.data&&res.data.session){enterApp()}
-    else if(signupMode){
-      const r2=await sb.auth.signInWithPassword({email,password:pass});
-      if(r2.error)throw r2.error;enterApp();
-    }
-  }catch(e){
-    authMsg(translateErr(e.message),'err');
+let cdTimer=null;
+function tickCountdown(m){
+  clearInterval(cdTimer);
+  const target=matchDate(m.tm);
+  function upd(){
+    const el=document.getElementById('nextCount');if(!el)return;
+    const diff=target.getTime()-Date.now();
+    if(diff<=0){el.textContent="🔴 المباراة بدأت";clearInterval(cdTimer);return;}
+    const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),mi=Math.floor(diff%3600000/60000);
+    el.textContent=d>0?`بعد ${d} يوم و ${h} ساعة`:(h>0?`بعد ${h} ساعة و ${mi} دقيقة`:`بعد ${mi} دقيقة`);
   }
+  upd();cdTimer=setInterval(upd,30000);
 }
+
+/* ===== الدخول والتنقّل ===== */
+let signupMode=false;
+function authMsg(msg,type){const m=document.getElementById('authMsg');m.textContent=msg;m.className='auth-msg '+(type||'');}
+function toggleMode(){signupMode=!signupMode;
+  document.getElementById('loginBtn').textContent=signupMode?'إنشاء حساب':'دخول';
+  document.getElementById('switchBtn').innerHTML=signupMode?'عندك حساب؟ <b>سجّل دخولك</b>':'ما عندك حساب؟ <b>سجّل الآن</b>';authMsg('');}
+async function doLogin(){
+  const email=document.getElementById('email').value.trim(),pass=document.getElementById('password').value;
+  if(!email||!pass){authMsg('اكتب البريد وكلمة المرور','err');return;}
+  authMsg(signupMode?'جاري إنشاء الحساب...':'جاري الدخول...');
+  try{let res;
+    if(signupMode){res=await sb.auth.signUp({email,password:pass});if(res.error)throw res.error;
+      if(!res.data.session){res=await sb.auth.signInWithPassword({email,password:pass});if(res.error)throw res.error;}}
+    else{res=await sb.auth.signInWithPassword({email,password:pass});if(res.error)throw res.error;}
+    user=res.data.user;await enterApp();
+  }catch(e){authMsg(translateErr(e.message),'err');}}
 function translateErr(m){
   if(/Invalid login/i.test(m))return'البريد أو كلمة المرور غير صحيحة';
-  if(/already registered/i.test(m))return'هذا البريد مسجّل مسبقاً، سجّل دخولك';
-  if(/at least 6/i.test(m))return'كلمة المرور لازم 6 أحرف على الأقل';
-  if(/valid email/i.test(m))return'البريد غير صحيح';
-  return m;
-}
-async function doLogout(){
-  await sb.auth.signOut();
-  document.getElementById('app').style.display='none';
-  document.getElementById('auth').style.display='flex';
-}
-function enterApp(){
+  if(/already registered/i.test(m))return'هذا البريد مسجّل، سجّل دخولك';
+  if(/at least 6/i.test(m))return'كلمة المرور 6 أحرف على الأقل';
+  if(/valid email/i.test(m))return'البريد غير صحيح';return m;}
+async function doLogout(){await sb.auth.signOut();clearInterval(cdTimer);
+  document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}
+async function enterApp(){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
   window.scrollTo(0,0);
+  await loadState();
+  renderPredict();renderNext();
 }
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-/* دخول بزر Enter */
+  btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
-/* استرجاع الجلسة لو موجودة */
-(async()=>{
-  const {data}=await sb.auth.getSession();
-  if(data&&data.session)enterApp();
-})();
+(async()=>{const {data}=await sb.auth.getSession();
+  if(data&&data.session){user=data.session.user;await enterApp();}})();
 </script>
 </body>
 </html>
