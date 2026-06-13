@@ -240,6 +240,35 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .mt-tz{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
 .mt-empty-ev{grid-column:1/-1;text-align:center;color:var(--muted-2);font-size:11px;padding:4px}
 
+/* نقاطي */
+.pts-hero{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1405;border-radius:18px;padding:22px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.pts-hero .big{font-family:'Anton';font-size:56px;line-height:1}
+.pts-hero .lbl{font-family:'Cairo';font-weight:800;font-size:14px;margin-top:2px}
+.pts-hero .sub{font-size:12px;margin-top:8px;font-weight:700;opacity:.85}
+.pts-break{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.brk{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:11px 6px;text-align:center}
+.brk .n{font-family:'Anton';font-size:22px}
+.brk .t{font-size:10px;color:var(--muted);margin-top:2px;font-weight:600}
+.brk.b5 .n{color:var(--ok)}.brk.b3 .n{color:var(--ok)}.brk.b2 .n{color:var(--warn)}.brk.b0 .n{color:var(--bad)}
+.sec-title{font-family:'Cairo';font-weight:900;font-size:15px;margin:18px 2px 10px;display:flex;align-items:center;gap:8px}
+.heat{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.hcell{aspect-ratio:1;border-radius:5px;background:var(--bg-3);border:1px solid var(--line)}
+.hcell.h5{background:var(--gold);border-color:var(--gold-bright)}
+.hcell.h3{background:var(--ok);border-color:var(--ok)}
+.hcell.h2{background:#7BA05B;border-color:#7BA05B}
+.hcell.h0{background:var(--bad);border-color:var(--bad)}
+.hcell.hp{background:var(--bg-3);border-color:var(--gold-deep)}
+.heat-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}
+.heat-legend span{display:flex;align-items:center;gap:5px}
+.heat-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.hl-card{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.hl-card .hl-badge{font-family:'Anton';font-size:13px;color:#1a1405;background:var(--gold);border-radius:7px;padding:2px 8px;flex:none}
+.hl-teams{flex:1;font-size:13px;font-weight:700;min-width:0}
+.hl-sc{font-family:'Anton';font-size:15px;color:var(--gold-bright);flex:none}
+.pts-note{text-align:center;color:var(--muted);font-size:13px;padding:30px 16px;line-height:1.7}
+.pts-rules{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:16px;font-size:12px;color:var(--muted);line-height:1.9}
+.pts-rules b{color:var(--gold-bright)}
+
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-26{font-family:'Anton';font-size:70px;color:var(--line);line-height:1}
@@ -364,7 +393,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <div id="matchesHost"></div>
   </div>
   <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
-  <div class="page" id="page-points"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">نقاطي</div><div class="empty-text">نقاطك وخريطتك الحرارية ولحظاتك البارزة.</div><div class="empty-badge">قريباً</div></div></div>
+  <div class="page" id="page-points"><div id="pointsHost"></div></div>
   <div class="page" id="page-myteam">
     <div class="team-pick">
       <label>اختر منتخبك</label>
@@ -726,6 +755,79 @@ function renderStandingsReal(){
   });
 }
 
+/* ===== نقاطي ===== */
+function computePoints(){
+  let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;
+  const per={};
+  GM.forEach(m=>{
+    const pred=state.g[m.id];const rec=liveFor(m.A,m.B);
+    if(!pred||!rec||rec.status!=='post')return;
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
+    if(aS==null||bS==null)return;
+    const pts=scorePred(pred.h,pred.a,aS,bS);
+    if(pts==null)return;
+    per[m.id]=pts;total+=pts;scored++;
+    if(pts===5)exact++;else if(pts===3)good++;else if(pts===2)ok++;else wrong++;
+  });
+  return {total,scored,exact,good,ok,wrong,per};
+}
+function renderPoints(){
+  const host=document.getElementById('pointsHost');
+  const r=computePoints();
+  const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
+
+  let h=`<div class="pts-hero"><div class="big num">${r.total}</div><div class="lbl">نقطة</div>
+    <div class="sub">من ${r.scored} مباراة انتهت · دقّة ${acc}%</div></div>`;
+
+  h+=`<div class="pts-break">
+    <div class="brk b5"><div class="n num">${r.exact}</div><div class="t">🎯 مطابق</div></div>
+    <div class="brk b3"><div class="n num">${r.good}</div><div class="t">🟢 فارق صح</div></div>
+    <div class="brk b2"><div class="n num">${r.ok}</div><div class="t">🟡 فائز صح</div></div>
+    <div class="brk b0"><div class="n num">${r.wrong}</div><div class="t">🔴 خطأ</div></div>
+  </div>`;
+
+  // الخريطة الحرارية
+  h+=`<div class="sec-title head">🗺️ خريطتك الحرارية</div><div class="heat">`;
+  GM.forEach(m=>{
+    const pred=state.g[m.id];const rec=liveFor(m.A,m.B);
+    let cls='hcell';
+    if(m.id in r.per){const p=r.per[m.id];cls+=p===5?' h5':p===3?' h3':p===2?' h2':' h0';}
+    else if(pred&&pred.h!==""&&pred.h!=null){cls+=' hp';}
+    h+=`<div class="${cls}"></div>`;
+  });
+  h+=`</div><div class="heat-legend">
+    <span><i style="background:var(--gold)"></i> مطابق</span>
+    <span><i style="background:var(--ok)"></i> فارق صح</span>
+    <span><i style="background:#7BA05B"></i> فائز صح</span>
+    <span><i style="background:var(--bad)"></i> خطأ</span>
+    <span><i style="background:var(--bg-3);border:1px solid var(--gold-deep)"></i> بانتظار</span>
+  </div>`;
+
+  // لحظاتك البارزة (التوقّعات المطابقة)
+  const perfect=GM.filter(m=>r.per[m.id]===5);
+  if(perfect.length){
+    h+=`<div class="sec-title head">⭐ توقّعاتك المثالية</div>`;
+    perfect.forEach(m=>{const pred=state.g[m.id];
+      h+=`<div class="hl-card"><span class="hl-badge num">🎯 5</span>
+        <span class="hl-teams">${fl(m.A)} ${nm(m.A)} × ${nm(m.B)} ${fl(m.B)}</span>
+        <span class="hl-sc num">${pred.h}-${pred.a}</span></div>`;
+    });
+  }
+
+  if(r.scored===0){
+    h+=`<div class="pts-note">🔮 نقاطك تبدأ مع <b style="color:var(--gold-bright)">أول مباراة تنتهي</b> توقّعت نتيجتها.<br>كل ما تخلص مباراة، تنحسب نقاطك تلقائياً.</div>`;
+  }
+
+  h+=`<div class="pts-rules">📋 <b>نظام النقاط:</b><br>
+    🎯 نتيجة مطابقة تماماً = <b>5 نقاط</b><br>
+    🟢 الفائز + فارق الأهداف صحيح = <b>3 نقاط</b><br>
+    🟢 توقّعت تعادل وصار تعادل (نتيجة مختلفة) = <b>3 نقاط</b><br>
+    🟡 الفائز صحيح بس الفارق مختلف = <b>2 نقطة</b><br>
+    🔴 خطأ = <b>0</b></div>`;
+
+  host.innerHTML=h;
+}
+
 /* ===== المباريات والنتائج ===== */
 function renderMatches(){
   const host=document.getElementById('matchesHost');host.innerHTML="";
@@ -946,6 +1048,7 @@ function showTab(name,btn){
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
   if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
+  if(name==='points'){loadLive().then(renderPoints);}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
 let liveTimer=null;
