@@ -141,7 +141,6 @@
   <div class="tabs">
     <div class="tab on" data-v="groups">المجموعات</div>
     <div class="tab" data-v="table">ترتيب المجموعات</div>
-    <div class="tab" data-v="sched">المباريات</div>
     <div class="tab" data-v="quals">المتأهلون</div>
     <div class="tab" data-v="ko">الأدوار الإقصائية</div>
   </div>
@@ -157,10 +156,6 @@
     </div>
     <div class="tznote">📊 الترتيب وفق قانون الفيفا: النقاط ← المواجهات المباشرة ← الفارق ← الأهداف ← اللعب النظيف ← تصنيف الفيفا</div>
     <div id="tableHost"></div>
-  </div>
-  <div class="view" id="v-sched">
-    <div class="tznote">📅 جدول كل المباريات بتوقيت السعودية · يوم بيوم</div>
-    <div id="schedHost"></div>
   </div>
   <div class="view" id="v-quals">
     <div class="qbox"><h3>✅ المتأهلون المباشرون</h3><p class="hint">أول وثاني كل مجموعة (24 منتخب). يتحدّث تلقائياً.</p><div class="qgrid" id="directHost"></div></div>
@@ -466,12 +461,11 @@ function wireUI(){
     document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
     t.classList.add("on");document.getElementById("v-"+t.dataset.v).classList.add("on");
     if(t.dataset.v==="table")renderTables();
-    if(t.dataset.v==="sched")renderSched();
     if(t.dataset.v==="quals")renderQuals();
     if(t.dataset.v==="ko"){updateKO();updateBanner();}}));
   document.getElementById("clearBtn").addEventListener("click",async()=>{
     if(confirm("مسح كل النتائج المُدخلة؟ لا يمكن التراجع.")){
-      state={g:{},ko:{}};await saveState();renderGroups();renderTables();renderSched();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
+      state={g:{},ko:{}};await saveState();renderGroups();renderTables();renderQuals();updateKO();updateBanner();setNote("تم المسح ✓");}});
   document.getElementById("printBtn").addEventListener("click",()=>window.print());
   document.getElementById("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 }
