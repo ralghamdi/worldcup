@@ -395,7 +395,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
           </g>
           <text x="100" y="182" font-family="Anton, sans-serif" font-size="74" text-anchor="middle" fill="url(#mg)" letter-spacing="3">26</text>
         </svg>
-        <div class="mini-title">مونديال <span>السعودية</span></div>
+        <div class="mini-title"><span>™FIFA WORLD CUP 2026</span></div>
       </div>
       <button class="logout-btn" onclick="doLogout()" title="تسجيل الخروج">خروج</button>
     </div>
@@ -900,9 +900,13 @@ function renderStats(){
 }
 
 /* ===== نقاطي ===== */
+// بداية احتساب النقاط: مباراة قطر×سويسرا (13 يونيو 22:00). أي مباراة قبلها لا تُحسب للجميع.
+const SCORING_START=new Date(2026,5,13,22,0,0).getTime();
+function counts(m){const d=matchDate(m.tm);return d?d.getTime()>=SCORING_START:true;}
 function computePointsForG(g){
   let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;const per={};
   GM.forEach(m=>{
+    if(!counts(m))return; // مستثناة من الاحتساب (قبل بداية المنافسة)
     const pred=g[m.id];const rec=liveFor(m.A,m.B);
     if(!pred||!rec||rec.status!=='post')return;
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
@@ -971,7 +975,7 @@ function viewFriend(uid){
     const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
     const hasActual=(aS!=null&&bS!=null&&rec&&rec.status==='post');
-    let acc='';if(hasActual&&hasPred){acc=accBadge(scorePred(pred.h,pred.a,aS,bS));}
+    let acc='';if(hasActual&&hasPred&&counts(m)){acc=accBadge(scorePred(pred.h,pred.a,aS,bS));}
     h+=`<div class="mt-card"><div class="mt-row">
       <div class="mt-side"><span class="mt-flag">${fl(m.A)}</span><span class="mt-name">${nm(m.A)}</span></div>
       <div class="mt-scores">
@@ -1004,7 +1008,8 @@ function renderPoints(){
   GM.forEach(m=>{
     const pred=state.g[m.id];const rec=liveFor(m.A,m.B);
     let cls='hcell';
-    if(m.id in r.per){const p=r.per[m.id];cls+=p===5?' h5':p===3?' h3':p===2?' h2':' h0';}
+    if(!counts(m)){/* مستثناة قبل البداية: خلية محايدة */}
+    else if(m.id in r.per){const p=r.per[m.id];cls+=p===5?' h5':p===3?' h3':p===2?' h2':' h0';}
     else if(pred&&pred.h!==""&&pred.h!=null){cls+=' hp';}
     h+=`<div class="${cls}"></div>`;
   });
@@ -1077,7 +1082,7 @@ function matchCard(m){
   let predHtml=hasPred?`🔮 توقّعك <b>${pred.h}-${pred.a}</b>`:'🔮 ما توقّعت';
   // دقّة التوقّع (لو المباراة خلصت)
   let acc='';
-  if(status==='post'&&hasActual&&hasPred){
+  if(status==='post'&&hasActual&&hasPred&&counts(m)){
     const pts=scorePred(pred.h,pred.a,aS,bS);acc=accBadge(pts);
   }
 
