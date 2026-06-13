@@ -326,16 +326,16 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   </div>
 
   <div class="tabs" id="tabs">
-    <button class="tab active" onclick="showTab('predict',this)">توقعاتي</button>
+    <button class="tab active" onclick="showTab('matches',this)">المباريات والنتائج</button>
     <button class="tab" onclick="showTab('standings',this)">ترتيب المجموعات</button>
-    <button class="tab" onclick="showTab('matches',this)">المباريات والنتائج</button>
     <button class="tab" onclick="showTab('stats',this)">الإحصائيات</button>
-    <button class="tab" onclick="showTab('points',this)">نقاطي</button>
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
+    <button class="tab" onclick="showTab('predict',this)">توقعاتي</button>
+    <button class="tab" onclick="showTab('points',this)">نقاطي</button>
   </div>
 
   <!-- توقعاتي -->
-  <div class="page active" id="page-predict">
+  <div class="page" id="page-predict">
     <div class="progress-wrap">
       <div class="progress-top">
         <div class="progress-label">🔮 توقّعاتك لدور المجموعات</div>
@@ -350,8 +350,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <!-- باقي التابات -->
   <div class="page" id="page-standings">
     <div class="toggle-wrap">
-      <button class="toggle-btn on" id="tgPred" onclick="setStandMode('pred')">🔮 ترتيبي المتوقّع</button>
-      <button class="toggle-btn" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
+      <button class="toggle-btn on" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
+      <button class="toggle-btn" id="tgPred" onclick="setStandMode('pred')">🔮 ترتيبي المتوقّع</button>
     </div>
     <div class="legend">
       <span><i style="background:var(--ok)"></i> أول وثاني (متأهل مباشر)</span>
@@ -359,7 +359,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     </div>
     <div id="standHost"></div>
   </div>
-  <div class="page" id="page-matches">
+  <div class="page active" id="page-matches">
     <div class="tz-note">⏱ كل الأوقات بتوقيت السعودية · 🔄 يتحدّث تلقائياً</div>
     <div id="matchesHost"></div>
   </div>
@@ -671,7 +671,7 @@ function tickCountdown(m){
 }
 
 /* ===== ترتيب المجموعات ===== */
-let standMode='pred';
+let standMode='real';
 function setStandMode(mode){
   standMode=mode;
   document.getElementById('tgPred').classList.toggle('on',mode==='pred');
@@ -937,14 +937,14 @@ async function enterApp(){
   window.scrollTo(0,0);
   await loadState();
   await loadLive();
-  renderPredict();renderNext();
+  renderPredict();renderNext();renderMatches();startLiveRefresh();
 }
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='standings')renderStandings();
+  if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
   if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
