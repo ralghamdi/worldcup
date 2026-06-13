@@ -351,7 +351,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="page" id="page-standings">
     <div class="toggle-wrap">
       <button class="toggle-btn on" id="tgPred" onclick="setStandMode('pred')">🔮 ترتيبي المتوقّع</button>
-      <button class="toggle-btn disabled" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
+      <button class="toggle-btn" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
     </div>
     <div class="legend">
       <span><i style="background:var(--ok)"></i> أول وثاني (متأهل مباشر)</span>
@@ -673,16 +673,13 @@ function tickCountdown(m){
 /* ===== ترتيب المجموعات ===== */
 let standMode='pred';
 function setStandMode(mode){
-  if(mode==='real'){
-    pill('الترتيب الحقيقي يجي مع ESPN قريباً');
-    return; // معطّل حتى المرحلة 2
-  }
   standMode=mode;
   document.getElementById('tgPred').classList.toggle('on',mode==='pred');
   document.getElementById('tgReal').classList.toggle('on',mode==='real');
-  renderStandings();
+  if(mode==='real'){loadLive().then(renderStandings);}else renderStandings();
 }
 function renderStandings(){
+  if(standMode==='real'){renderStandingsReal();return;}
   const host=document.getElementById('standHost');host.innerHTML="";
   Object.keys(GROUPS).forEach(g=>{
     const arr=standings(g);
@@ -696,6 +693,34 @@ function renderStandings(){
       h+=`<tr class="${cls}"><td class="t-name">${dot}<span class="fl">${fl(s.k)}</span>${nm(s.k)}</td>
       <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td>
       <td>${gd>0?'+':''}${gd}</td><td class="pts">${s.pts}</td></tr>`;
+    });
+    h+=`</table>`;card.innerHTML=h;host.appendChild(card);
+  });
+}
+function renderStandingsReal(){
+  const host=document.getElementById('standHost');host.innerHTML="";
+  const hasAny=Object.keys(live.standings||{}).length>0;
+  if(!hasAny){
+    host.innerHTML=`<div class="note-box">⚽ الترتيب الحقيقي يظهر <b>أول ما تبدأ المباريات</b> ويُسحب من ESPN تلقائياً.<br>لسه ما فيه نتائج محفوظة.</div>`;return;
+  }
+  Object.keys(GROUPS).forEach(g=>{
+    const entries=live.standings[g];
+    const card=document.createElement('div');card.className='gcard';
+    let h=`<div class="gcard-head"><span class="gcard-let num">${g}</span><span class="gcard-title head">المجموعة ${g}</span></div>`;
+    if(!entries||!entries.length){
+      h+=`<div style="color:var(--muted-2);font-size:12px;text-align:center;padding:10px">لم تبدأ بعد</div>`;
+      card.innerHTML=h;host.appendChild(card);return;
+    }
+    // رتّب حسب rank من ESPN
+    const arr=entries.slice().sort((x,y)=>(x.rank||9)-(y.rank||9));
+    h+=`<table class="stbl"><tr><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/−</th><th>نقاط</th></tr>`;
+    arr.forEach((s,i)=>{
+      const code=s.code;const cls=i===0?'q1':i===1?'q2':i===2?'q3':'';
+      const dot=i<2?'<span class="pos-dot dot-q"></span>':i===2?'<span class="pos-dot dot-t"></span>':'';
+      const gd=s.gd||0;
+      h+=`<tr class="${cls}"><td class="t-name">${dot}<span class="fl">${code?fl(code):''}</span>${code?nm(code):'?'}</td>
+      <td>${s.gp||0}</td><td>${s.w||0}</td><td>${s.d||0}</td><td>${s.l||0}</td>
+      <td>${gd>0?'+':''}${gd}</td><td class="pts">${s.pts||0}</td></tr>`;
     });
     h+=`</table>`;card.innerHTML=h;host.appendChild(card);
   });
