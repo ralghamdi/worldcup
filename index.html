@@ -123,6 +123,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .m-score input::-webkit-outer-spin-button,.m-score input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .m-score input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,60,.12)}
 .m-score input.filled{border-color:var(--gold-deep)}
+.m-score input:disabled{opacity:.45;cursor:not-allowed;background:var(--bg-2)}
+.match.locked{opacity:.78}
+.match.locked .m-time{color:var(--bad);font-weight:700}
 .m-dash{color:var(--muted-2);font-family:'Anton'}
 .m-time{text-align:center;font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
 
@@ -434,7 +437,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 /* ===== Supabase ===== */
 const SB_URL='https://rpmckviwjtbwkrexkxme.supabase.co';
 const SB_KEY='sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671';
-const LOGO_URL='https://i.ibb.co/0yBL2rX6/2026-FIFA-World-Cup-emblem-svg.png'; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
+const LOGO_URL='https://i.ibb.co/Lz5nrpjY/2026-FIFA-World-Cup-emblem-svg.webp'; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
 const APP_TITLE='™FIFA WORLD CUP 2026'; // ← حط اسم الموقع هنا بين القوسين (لو فاضي يطلع الافتراضي)
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 let user=null;
@@ -651,6 +654,13 @@ function filled(r){return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}
 function predCount(){return GM.filter(m=>filled(state.g[m.id])).length;}
 
 /* ===== توقعاتي ===== */
+function predLocked(m){
+  const rec=liveFor(m.A,m.B);
+  if(rec&&(rec.status==='in'||rec.status==='post'))return true;
+  const md=matchDate(m.tm);
+  if(md&&Date.now()>=md.getTime())return true;
+  return false;
+}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
   let lastDay="";let dayCount=0;
@@ -661,20 +671,22 @@ function renderPredict(){
       dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
       host.appendChild(dh);}
     const r=state.g[m.id]||{};const isKsa=(m.A==='KSA'||m.B==='KSA');
-    const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'');
+    const locked=predLocked(m);
+    const dis=locked?'disabled':'';
+    const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'');
     el.innerHTML=`<div class="m-row">
       <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
       <div class="m-score">
-        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="h" value="${r.h??""}" class="${r.h!=null&&r.h!==""?'filled':''}">
+        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="h" value="${r.h??""}" ${dis} class="${r.h!=null&&r.h!==""?'filled':''}">
         <span class="m-dash">−</span>
-        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="a" value="${r.a??""}" class="${r.a!=null&&r.a!==""?'filled':''}">
+        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="a" value="${r.a??""}" ${dis} class="${r.a!=null&&r.a!==""?'filled':''}">
       </div>
       <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
     </div>
-    <div class="m-time">⏱ ${m.tm.t}</div>`;
+    <div class="m-time">${locked?'🔒 بدأت — التوقّع مقفل':'⏱ '+m.tm.t}</div>`;
     host.appendChild(el);
   });
-  host.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+  host.querySelectorAll('input:not([disabled])').forEach(inp=>inp.addEventListener('input',e=>{
     const id=e.target.dataset.id,s=e.target.dataset.s;
     if(!state.g[id])state.g[id]={h:"",a:""};
     let v=e.target.value;if(v!==""){v=Math.max(0,Math.min(99,parseInt(v)||0));e.target.value=v;}
@@ -1150,6 +1162,7 @@ function showTab(name,btn){
   btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
   if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
+  if(name==='predict'){loadLive().then(renderPredict);}
   if(name==='stats'){loadLive().then(renderStats);}
   if(name==='points'){loadLive().then(renderPoints);}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
