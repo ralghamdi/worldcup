@@ -208,8 +208,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .mt-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:11px;position:relative}
 .mt-card.live{border-color:var(--bad);box-shadow:0 0 0 1px rgba(230,29,37,.4),0 0 22px rgba(230,29,37,.18)}
 .mt-card.ksa{border-color:rgba(229,184,56,.5);background:linear-gradient(135deg,rgba(229,184,56,.06),var(--bg-2))}
-.mt-card.host::before{content:"";position:absolute;top:0;right:0;left:0;height:3px;border-radius:14px 14px 0 0;
-  background:linear-gradient(90deg,var(--can) 0 33.3%,var(--mex) 33.3% 66.6%,var(--usa) 66.6% 100%);opacity:.65}
 .mt-status{position:absolute;top:-9px;right:14px;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
 .st-live{background:var(--bad);color:#fff;animation:pulse 1.5s infinite}
 .st-post{background:var(--bg-3);color:var(--muted);border:1px solid var(--line)}
@@ -432,7 +430,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 /* ===== Supabase ===== */
 const SB_URL='https://rpmckviwjtbwkrexkxme.supabase.co';
 const SB_KEY='sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671';
-const LOGO_URL=''; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
+const LOGO_URL='https://i.ibb.co/0yBL2rX6/2026-FIFA-World-Cup-emblem-svg.png'; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
+const APP_TITLE='FIFA WORLD CUP 2026™'; // ← حط اسم الموقع هنا بين القوسين (لو فاضي يطلع الافتراضي)
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 let user=null;
 
@@ -943,11 +942,10 @@ function renderMatches(){
 function matchCard(m){
   const A=m.A,B=m.B,rec=liveFor(A,B);
   const isKsa=(A==='KSA'||B==='KSA');
-  const isHost=(['MEX','CAN','USA'].includes(A)||['MEX','CAN','USA'].includes(B));
   const pred=state.g[m.id]||{};
   const status=rec?rec.status:'pre';
   const el=document.createElement('div');
-  el.className='mt-card'+(status==='in'?' live':'')+(isKsa?' ksa':(isHost?' host':''));
+  el.className='mt-card'+(status==='in'?' live':'')+(isKsa?' ksa':'');
 
   // شارة الحالة
   let badge='';
@@ -1165,6 +1163,11 @@ document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Ente
   applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
 function applyLogo(){
+  if(APP_TITLE){
+    document.title=APP_TITLE;
+    const bt=document.querySelector('.brand-title');if(bt)bt.textContent=APP_TITLE;
+    const mt=document.querySelector('.mini-title');if(mt)mt.textContent=APP_TITLE;
+  }
   if(!LOGO_URL)return;
   document.querySelectorAll('.mini-emblem,.brand-emblem').forEach(el=>{
     const cls=el.getAttribute('class');
