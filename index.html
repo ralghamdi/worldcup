@@ -296,6 +296,29 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .cardpill{display:flex;align-items:center;gap:3px;font-family:'Anton';font-size:14px}
 .stat-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;line-height:1.7}
 
+/* لوحة الترتيب */
+.lb-row{display:flex;align-items:center;gap:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .2s}
+.lb-row:active{transform:scale(.99)}
+.lb-row.me{border-color:var(--gold);background:linear-gradient(135deg,rgba(229,184,56,.07),var(--bg-2))}
+.lb-row.top1{border-color:var(--gold)}
+.lb-rank{font-family:'Anton';font-size:20px;min-width:30px;text-align:center;color:var(--muted-2)}
+.lb-rank.g{color:var(--gold-bright)}
+.lb-medal{font-size:20px;min-width:30px;text-align:center}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-name .youtag{font-size:10px;color:var(--gold-bright);font-weight:700;margin-inline-start:5px}
+.lb-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.lb-pts{font-family:'Anton';font-size:24px;color:var(--gold-bright);flex:none}
+.lb-pts small{font-family:'Tajawal';font-size:11px;color:var(--muted)}
+.lb-arrow{color:var(--muted-2);flex:none;font-size:16px}
+.lb-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;line-height:1.8}
+/* عرض توقّعات صديق */
+.fp-head{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.fp-back{background:var(--bg-3);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 14px;font-family:'Tajawal';font-weight:700;font-size:13px;cursor:pointer;flex:none}
+.fp-name{font-family:'Cairo';font-weight:900;font-size:18px;flex:1}
+.fp-name .sub{font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+.fp-pts{font-family:'Anton';font-size:26px;color:var(--gold-bright);flex:none}
+
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-26{font-family:'Anton';font-size:70px;color:var(--line);line-height:1}
@@ -336,6 +359,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <div class="brand-sub">We Are 26</div>
     <div class="auth-tri"></div>
     <div class="auth-form">
+      <div class="field" id="nameField" style="display:none"><label>اسمك (يظهر في لوحة الترتيب)</label>
+        <input id="dispName" type="text" inputmode="text" placeholder="مثال: راعد" autocomplete="name" maxlength="20"></div>
       <div class="field"><label>البريد الإلكتروني</label>
         <input id="email" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email"></div>
       <div class="field"><label>كلمة المرور</label>
@@ -389,6 +414,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
     <button class="tab" onclick="showTab('predict',this)">توقعاتي</button>
     <button class="tab" onclick="showTab('points',this)">نقاطي</button>
+    <button class="tab" onclick="showTab('board',this)">🏆 الترتيب العام</button>
   </div>
 
   <!-- توقعاتي -->
@@ -422,6 +448,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   </div>
   <div class="page" id="page-stats"><div id="statsHost"></div></div>
   <div class="page" id="page-points"><div id="pointsHost"></div></div>
+  <div class="page" id="page-board"><div id="boardHost"></div></div>
   <div class="page" id="page-myteam">
     <div class="team-pick">
       <label>اختر منتخبك</label>
@@ -596,7 +623,8 @@ let state={g:{},ko:{}}; let saveTimer=null;
 async function loadState(){state={g:{},ko:{}};
   try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
     if(data&&data.data)state=data.data;}catch(e){}
-  if(!state.g)state.g={};if(!state.ko)state.ko={};}
+  if(!state.g)state.g={};if(!state.ko)state.ko={};
+  if(pendingName){state.name=pendingName;pendingName='';saveState();}}
 async function saveState(){pill("جارٍ الحفظ…");
   try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
     if(error)throw error;pill("تم الحفظ ✓");}catch(e){pill("تعذّر الحفظ");}}
@@ -870,11 +898,10 @@ function renderStats(){
 }
 
 /* ===== نقاطي ===== */
-function computePoints(){
-  let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;
-  const per={};
+function computePointsForG(g){
+  let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;const per={};
   GM.forEach(m=>{
-    const pred=state.g[m.id];const rec=liveFor(m.A,m.B);
+    const pred=g[m.id];const rec=liveFor(m.A,m.B);
     if(!pred||!rec||rec.status!=='post')return;
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
     if(aS==null||bS==null)return;
@@ -884,6 +911,76 @@ function computePoints(){
     if(pts===5)exact++;else if(pts===3)good++;else if(pts===2)ok++;else wrong++;
   });
   return {total,scored,exact,good,ok,wrong,per};
+}
+function computePoints(){return computePointsForG(state.g);}
+
+/* ===== لوحة الترتيب العام ===== */
+let boardData=[];
+async function loadBoard(){
+  await loadLive();
+  try{
+    const {data}=await sb.from('tracker_data').select('user_id,data');
+    boardData=(data||[]).map(row=>{
+      const d=row.data||{};const g=d.g||{};
+      const r=computePointsForG(g);
+      const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
+      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc};
+    });
+    boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
+  }catch(e){boardData=[];}
+}
+function renderBoard(){
+  const host=document.getElementById('boardHost');
+  if(!boardData.length){
+    host.innerHTML=`<div class="lb-empty">🏆 لوحة الترتيب فاضية.<br>أول ما يبدأ اللاعبون يتوقّعون وتنتهي المباريات، تظهر نقاطهم هنا.</div>`;return;
+  }
+  let h=`<div class="sec-title head">🏆 ترتيب اللاعبين</div>`;
+  const medals=['🥇','🥈','🥉'];
+  boardData.forEach((p,i)=>{
+    const me=(p.uid===user.id);
+    const rankHtml=i<3?`<span class="lb-medal">${medals[i]}</span>`:`<span class="lb-rank">${i+1}</span>`;
+    h+=`<div class="lb-row ${me?'me':''} ${i===0?'top1':''}" onclick="viewFriend('${p.uid}')">
+      ${rankHtml}
+      <div class="lb-info">
+        <div class="lb-name">${p.name}${me?'<span class="youtag">(أنت)</span>':''}</div>
+        <div class="lb-sub">${p.scored} مباراة · ${p.exact} مطابقة · دقّة ${p.acc}%</div>
+      </div>
+      <div class="lb-pts num">${p.total}<small> نقطة</small></div>
+      <span class="lb-arrow">‹</span>
+    </div>`;
+  });
+  h+=`<div class="lb-empty" style="padding:18px;font-size:12px">👆 اضغط أي لاعب لرؤية توقّعاته</div>`;
+  host.innerHTML=h;
+}
+function viewFriend(uid){
+  const p=boardData.find(x=>x.uid===uid);if(!p)return;
+  const host=document.getElementById('boardHost');
+  let h=`<div class="fp-head">
+    <button class="fp-back" onclick="renderBoard()">‹ رجوع</button>
+    <div class="fp-name">${p.name}<div class="sub">${p.scored} مباراة · دقّة ${p.acc}%</div></div>
+    <div class="fp-pts num">${p.total}</div>
+  </div>`;
+  let lastDay="",dayCount=0;
+  GM.forEach(m=>{
+    const dayKey=m.tm.m+"/"+m.tm.d;
+    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
+      h+=`<div class="day-head"><span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span></div>`;}
+    const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
+    const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
+    const hasActual=(aS!=null&&bS!=null&&rec&&rec.status==='post');
+    let acc='';if(hasActual&&hasPred){acc=accBadge(scorePred(pred.h,pred.a,aS,bS));}
+    h+=`<div class="mt-card"><div class="mt-row">
+      <div class="mt-side"><span class="mt-flag">${fl(m.A)}</span><span class="mt-name">${nm(m.A)}</span></div>
+      <div class="mt-scores">
+        <div class="mt-actual num">${hasPred?`${pred.h} <span style="color:var(--muted-2)">−</span> ${pred.a}`:'<span class="nogame">— : —</span>'}</div>
+        <div class="mt-pred">${hasActual?`⚽ النتيجة <b>${aS}-${bS}</b>`:'⏱ لم تنتهِ'}</div>
+        ${acc}
+      </div>
+      <div class="mt-side away"><span class="mt-flag">${fl(m.B)}</span><span class="mt-name">${nm(m.B)}</span></div>
+    </div></div>`;
+  });
+  host.innerHTML=h;window.scrollTo(0,0);
 }
 function renderPoints(){
   const host=document.getElementById('pointsHost');
@@ -1129,17 +1226,21 @@ let signupMode=false;
 function authMsg(msg,type){const m=document.getElementById('authMsg');m.textContent=msg;m.className='auth-msg '+(type||'');}
 function toggleMode(){signupMode=!signupMode;
   document.getElementById('loginBtn').textContent=signupMode?'إنشاء حساب':'دخول';
+  document.getElementById('nameField').style.display=signupMode?'block':'none';
   document.getElementById('switchBtn').innerHTML=signupMode?'عندك حساب؟ <b>سجّل دخولك</b>':'ما عندك حساب؟ <b>سجّل الآن</b>';authMsg('');}
 async function doLogin(){
   const email=document.getElementById('email').value.trim(),pass=document.getElementById('password').value;
   if(!email||!pass){authMsg('اكتب البريد وكلمة المرور','err');return;}
+  if(signupMode&&!document.getElementById('dispName').value.trim()){authMsg('اكتب اسمك','err');return;}
   authMsg(signupMode?'جاري إنشاء الحساب...':'جاري الدخول...');
   try{let res;
     if(signupMode){res=await sb.auth.signUp({email,password:pass});if(res.error)throw res.error;
-      if(!res.data.session){res=await sb.auth.signInWithPassword({email,password:pass});if(res.error)throw res.error;}}
+      if(!res.data.session){res=await sb.auth.signInWithPassword({email,password:pass});if(res.error)throw res.error;}
+      pendingName=document.getElementById('dispName').value.trim();}
     else{res=await sb.auth.signInWithPassword({email,password:pass});if(res.error)throw res.error;}
     user=res.data.user;await enterApp();
   }catch(e){authMsg(translateErr(e.message),'err');}}
+let pendingName='';
 function translateErr(m){
   if(/Invalid login/i.test(m))return'البريد أو كلمة المرور غير صحيحة';
   if(/already registered/i.test(m))return'هذا البريد مسجّل، سجّل دخولك';
@@ -1165,6 +1266,7 @@ function showTab(name,btn){
   if(name==='predict'){loadLive().then(renderPredict);}
   if(name==='stats'){loadLive().then(renderStats);}
   if(name==='points'){loadLive().then(renderPoints);}
+  if(name==='board'){loadBoard().then(renderBoard);}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
 let liveTimer=null;
