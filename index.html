@@ -33,10 +33,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   background:radial-gradient(1000px 700px at 50% -20%,rgba(212,169,60,.16),transparent 60%),var(--bg);}
 .auth-card{width:100%;max-width:380px;text-align:center;animation:rise .6s cubic-bezier(.2,.8,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.brand-mark{position:relative;margin-bottom:6px;line-height:.8}
-.brand-26{font-family:'Anton',sans-serif;font-size:120px;background:linear-gradient(180deg,var(--gold-bright),var(--gold) 45%,var(--gold-deep));
-  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(212,169,60,.35));letter-spacing:2px}
-.brand-trophy{font-size:38px;position:absolute;top:-6px;left:50%;transform:translateX(-50%);filter:drop-shadow(0 4px 12px rgba(212,169,60,.5))}
+.brand-mark{position:relative;margin-bottom:6px;display:flex;justify-content:center}
+.brand-emblem{height:150px;width:150px;filter:drop-shadow(0 8px 28px rgba(212,169,60,.4))}
 .brand-title{font-family:'Cairo';font-weight:900;font-size:26px;margin-top:4px;letter-spacing:1px}
 .brand-sub{color:var(--gold-bright);font-weight:700;font-size:13px;letter-spacing:3px;margin-top:2px;text-transform:uppercase}
 .auth-tri{width:90px;height:4px;margin:18px auto;border-radius:4px;background:linear-gradient(90deg,var(--can),var(--mex),var(--usa))}
@@ -57,8 +55,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 #app{display:none;min-height:100%;padding-bottom:40px;max-width:760px;margin:0 auto}
 .topbar{position:sticky;top:0;z-index:40;background:rgba(8,11,22,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .topbar-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
-.mini-mark{display:flex;align-items:center;gap:8px}
-.mini-26{font-family:'Anton';font-size:30px;background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.mini-mark{display:flex;align-items:center;gap:9px}
+.mini-emblem{height:42px;width:42px;flex:none;filter:drop-shadow(0 2px 6px rgba(212,169,60,.3))}
 .mini-title{font-family:'Cairo';font-weight:900;font-size:15px}.mini-title span{color:var(--gold-bright)}
 .icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);font-size:16px;cursor:pointer;display:grid;place-items:center}
 
@@ -112,12 +110,41 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .m-flag{font-size:24px;flex:none}
 .m-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .m-score{display:flex;align-items:center;gap:6px;flex:none}
-.m-score input{width:42px;height:40px;text-align:center;font-family:'Anton';font-size:20px;background:var(--bg-3);
-  border:1.5px solid var(--line);border-radius:10px;color:var(--text);transition:border-color .2s}
+.m-score input{width:44px;height:44px;text-align:center;font-family:'Anton';font-size:21px;background:var(--bg-3);
+  border:1.5px solid var(--line);border-radius:10px;color:var(--text);transition:border-color .2s;
+  -moz-appearance:textfield;appearance:textfield;padding:0;line-height:44px}
+.m-score input::-webkit-outer-spin-button,.m-score input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .m-score input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,60,.12)}
 .m-score input.filled{border-color:var(--gold-deep)}
 .m-dash{color:var(--muted-2);font-family:'Anton'}
 .m-time{text-align:center;font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
+
+/* ترتيب المجموعات */
+.toggle-wrap{display:flex;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:5px;gap:5px;margin-bottom:14px}
+.toggle-btn{flex:1;padding:10px;border:none;border-radius:9px;background:none;color:var(--muted);font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.toggle-btn.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1405}
+.toggle-btn.disabled{opacity:.5}
+.real-note{text-align:center;color:var(--muted);font-size:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
+.real-note b{color:var(--gold-bright)}
+.gcard{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.gcard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.gcard-let{font-family:'Anton';font-size:22px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:9px;padding:1px 12px}
+.gcard-title{font-family:'Cairo';font-weight:900;font-size:14px}
+.stbl{width:100%;border-collapse:collapse;font-size:13px}
+.stbl th{font-family:'Cairo';font-weight:600;color:var(--muted);font-size:10px;padding:6px 3px;border-bottom:1px solid var(--line);text-align:center}
+.stbl td{padding:8px 3px;text-align:center;border-bottom:1px solid rgba(35,44,71,.5)}
+.stbl tr:last-child td{border-bottom:none}
+.stbl .t-name{text-align:right;white-space:nowrap;font-weight:700;font-size:13px}
+.stbl .t-name .fl{margin-left:5px}
+.stbl tr.q1 td{background:rgba(47,191,113,.12)}
+.stbl tr.q2 td{background:rgba(47,191,113,.06)}
+.stbl tr.q3 td{background:rgba(212,169,60,.07)}
+.stbl .pts{font-family:'Anton';font-size:15px;color:var(--gold-bright)}
+.pos-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.dot-q{background:var(--ok)}.dot-t{background:var(--gold)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:12px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
 
 /* حالة فاضية */
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
@@ -136,7 +163,25 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 <!-- الدخول -->
 <div id="auth">
   <div class="auth-card">
-    <div class="brand-mark"><div class="brand-trophy">🏆</div><div class="brand-26 num">26</div></div>
+    <div class="brand-mark">
+      <svg class="brand-emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="شعار">
+        <defs>
+          <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3CE6B"/><stop offset="0.5" stop-color="#D4A93C"/><stop offset="1" stop-color="#A6801E"/></linearGradient>
+          <linearGradient id="bgs1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3CE6B"/><stop offset="1" stop-color="#C99B2E"/></linearGradient>
+        </defs>
+        <g transform="translate(100,54)">
+          <path d="M-29,-16 C-46,-16 -46,8 -27,12 L-27,3 C-36,1 -36,-8 -29,-8 Z" fill="url(#bg1)"/>
+          <path d="M29,-16 C46,-16 46,8 27,12 L27,3 C36,1 36,-8 29,-8 Z" fill="url(#bg1)"/>
+          <path d="M-29,-22 L29,-22 L29,-5 C29,17 17,30 0,32 C-17,30 -29,17 -29,-5 Z" fill="url(#bgs1)"/>
+          <path d="M-29,-22 L29,-22 L29,-16 L-29,-16 Z" fill="#F3CE6B"/>
+          <path d="M-17,-16 L-11,-16 L-15,18 C-21,11 -23,0 -23,-9 Z" fill="#FBE6A4" opacity="0.5"/>
+          <rect x="-5.5" y="31" width="11" height="12" fill="url(#bg1)"/>
+          <path d="M-18,43 L18,43 L15,52 L-15,52 Z" fill="url(#bg1)"/>
+          <rect x="-23" y="52" width="46" height="6" rx="2" fill="#F3CE6B"/>
+        </g>
+        <text x="100" y="184" font-family="Anton, sans-serif" font-size="78" text-anchor="middle" fill="url(#bg1)" letter-spacing="3">26</text>
+      </svg>
+    </div>
     <div class="brand-title head">مونديال السعودية</div>
     <div class="brand-sub">We Are 26</div>
     <div class="auth-tri"></div>
@@ -156,7 +201,26 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 <div id="app">
   <div class="topbar">
     <div class="topbar-row">
-      <div class="mini-mark"><div class="mini-26 num">26</div><div class="mini-title">مونديال <span>السعودية</span></div></div>
+      <div class="mini-mark">
+        <svg class="mini-emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="شعار">
+          <defs>
+            <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3CE6B"/><stop offset="0.5" stop-color="#D4A93C"/><stop offset="1" stop-color="#A6801E"/></linearGradient>
+            <linearGradient id="mgs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3CE6B"/><stop offset="1" stop-color="#C99B2E"/></linearGradient>
+          </defs>
+          <g transform="translate(100,54)">
+            <path d="M-29,-16 C-46,-16 -46,8 -27,12 L-27,3 C-36,1 -36,-8 -29,-8 Z" fill="url(#mg)"/>
+            <path d="M29,-16 C46,-16 46,8 27,12 L27,3 C36,1 36,-8 29,-8 Z" fill="url(#mg)"/>
+            <path d="M-29,-22 L29,-22 L29,-5 C29,17 17,30 0,32 C-17,30 -29,17 -29,-5 Z" fill="url(#mgs)"/>
+            <path d="M-29,-22 L29,-22 L29,-16 L-29,-16 Z" fill="#F3CE6B"/>
+            <path d="M-17,-16 L-11,-16 L-15,18 C-21,11 -23,0 -23,-9 Z" fill="#FBE6A4" opacity="0.5"/>
+            <rect x="-5.5" y="31" width="11" height="12" fill="url(#mg)"/>
+            <path d="M-18,43 L18,43 L15,52 L-15,52 Z" fill="url(#mg)"/>
+            <rect x="-23" y="52" width="46" height="6" rx="2" fill="#F3CE6B"/>
+          </g>
+          <text x="100" y="182" font-family="Anton, sans-serif" font-size="74" text-anchor="middle" fill="url(#mg)" letter-spacing="3">26</text>
+        </svg>
+        <div class="mini-title">مونديال <span>السعودية</span></div>
+      </div>
       <button class="icon-btn" onclick="doLogout()" title="خروج">⏻</button>
     </div>
     <div class="tricolor"></div>
@@ -190,7 +254,17 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   </div>
 
   <!-- باقي التابات -->
-  <div class="page" id="page-standings"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">ترتيب المجموعات</div><div class="empty-text">جداول المجموعات الـ12، بترتيبك المتوقّع والترتيب الحقيقي.</div><div class="empty-badge">الخطوة الجاية</div></div></div>
+  <div class="page" id="page-standings">
+    <div class="toggle-wrap">
+      <button class="toggle-btn on" id="tgPred" onclick="setStandMode('pred')">🔮 ترتيبي المتوقّع</button>
+      <button class="toggle-btn disabled" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i> أول وثاني (متأهل مباشر)</span>
+      <span><i style="background:var(--gold)"></i> ثالث (مرشّح لأفضل 8)</span>
+    </div>
+    <div id="standHost"></div>
+  </div>
   <div class="page" id="page-matches"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">المباريات والنتائج</div><div class="empty-text">توقّعك مقابل النتيجة الحقيقية لكل مباراة.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
   <div class="page" id="page-stats"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">الإحصائيات</div><div class="empty-text">الهدّافين والكروت ونجوم الجولات.</div><div class="empty-badge">قريباً — ESPN</div></div></div>
   <div class="page" id="page-points"><div class="empty"><div class="empty-26 num">26</div><div class="empty-title head">نقاطي</div><div class="empty-text">نقاطك وخريطتك الحرارية ولحظاتك البارزة.</div><div class="empty-badge">قريباً</div></div></div>
@@ -252,6 +326,49 @@ function groupMatches(){const out=[];Object.keys(GROUPS).forEach(g=>{const teams
     out.push({id:`${g}_${ri}_${mi}`,g,A,B,tm:timeFor(A,B)});}));});
   out.sort((x,y)=>sortKey(x.tm)-sortKey(y.tm));return out;}
 const GM=groupMatches();
+
+/* ===== تصنيف فيفا (للكسر النهائي في الترتيب المتوقّع) ===== */
+const RANK={MEX:14,RSA:60,KOR:25,CZE:39,CAN:30,BIH:64,QAT:57,SUI:19,BRA:6,MAR:7,HAI:83,SCO:42,
+USA:17,PAR:40,AUS:27,TUR:22,GER:10,CUW:82,CIV:33,ECU:23,NED:8,JPN:18,SWE:38,TUN:46,
+BEL:9,EGY:29,IRN:21,NZL:85,ESP:2,CPV:67,KSA:61,URU:16,FRA:3,SEN:15,IRQ:56,NOR:31,
+ARG:1,ALG:28,AUT:24,JOR:63,POR:5,COD:45,UZB:50,COL:13,ENG:4,CRO:11,GHA:73,PAN:34};
+const mid=(g,r,m)=>`${g}_${r}_${m}`;
+
+/* محرّك كسر التعادل الكامل (مطابق لقانون فيفا) — الترتيب المتوقّع بدون كروت، الكسر النهائي بتصنيف فيفا */
+function rawStats(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});const played=[];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];const A=teams[pair[0]],B=teams[pair[1]];
+    if(filled(res)){const hs=+res.h,as=+res.a;played.push({A,B,hs,as});
+      st[A].gf+=hs;st[A].ga+=as;st[B].gf+=as;st[B].ga+=hs;st[A].p++;st[B].p++;
+      if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
+      else{st[A].d++;st[B].d++;st[A].pts++;st[B].pts++;}}}));
+  return {st,played};}
+function miniStats(played,subset){const m={};subset.forEach(k=>m[k]={pts:0,gd:0,gf:0});
+  played.forEach(p=>{if(subset.includes(p.A)&&subset.includes(p.B)){
+    m[p.A].gf+=p.hs;m[p.B].gf+=p.as;m[p.A].gd+=p.hs-p.as;m[p.B].gd+=p.as-p.hs;
+    if(p.hs>p.as)m[p.A].pts+=3;else if(p.as>p.hs)m[p.B].pts+=3;else{m[p.A].pts++;m[p.B].pts++;}}});
+  return m;}
+function rankOverall(subset,st){return subset.slice().sort((x,y)=>{const X=st[x],Y=st[y];
+  return (Y.gf-Y.ga)-(X.gf-X.ga)||Y.gf-X.gf||((RANK[x]||999)-(RANK[y]||999));});}
+function rankTied(subset,ctx){if(subset.length===1)return subset.slice();
+  const m=miniStats(ctx.played,subset);
+  const sorted=subset.slice().sort((x,y)=>m[y].pts-m[x].pts||m[y].gd-m[x].gd||m[y].gf-m[x].gf);
+  const blocks=[];let cur=[sorted[0]];
+  for(let i=1;i<sorted.length;i++){const a=sorted[i-1],b=sorted[i];
+    if(m[a].pts===m[b].pts&&m[a].gd===m[b].gd&&m[a].gf===m[b].gf)cur.push(b);else{blocks.push(cur);cur=[b];}}
+  blocks.push(cur);let res=[];
+  for(const blk of blocks){
+    if(blk.length===1)res=res.concat(blk);
+    else if(blk.length===subset.length)res=res.concat(rankOverall(blk,ctx.st));
+    else res=res.concat(rankTied(blk,ctx));}
+  return res;}
+function standings(g){const ctx=rawStats(g);const st=ctx.st;
+  const byPts=Object.keys(st).sort((x,y)=>st[y].pts-st[x].pts);
+  const blocks=[];let cur=[byPts[0]];
+  for(let i=1;i<byPts.length;i++){if(st[byPts[i]].pts===st[byPts[i-1]].pts)cur.push(byPts[i]);else{blocks.push(cur);cur=[byPts[i]];}}
+  blocks.push(cur);let order=[];
+  for(const blk of blocks){if(blk.length===1)order=order.concat(blk);else order=order.concat(rankTied(blk,ctx));}
+  return order.map(k=>st[k]);}
+function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>filled(state.g[mid(g,ri,mi)])));}
 
 /* ===== الحالة ===== */
 let state={g:{},ko:{}}; let saveTimer=null;
@@ -345,6 +462,37 @@ function tickCountdown(m){
   upd();cdTimer=setInterval(upd,30000);
 }
 
+/* ===== ترتيب المجموعات ===== */
+let standMode='pred';
+function setStandMode(mode){
+  if(mode==='real'){
+    pill('الترتيب الحقيقي يجي مع ESPN قريباً');
+    return; // معطّل حتى المرحلة 2
+  }
+  standMode=mode;
+  document.getElementById('tgPred').classList.toggle('on',mode==='pred');
+  document.getElementById('tgReal').classList.toggle('on',mode==='real');
+  renderStandings();
+}
+function renderStandings(){
+  const host=document.getElementById('standHost');host.innerHTML="";
+  Object.keys(GROUPS).forEach(g=>{
+    const arr=standings(g);
+    const card=document.createElement('div');card.className='gcard';
+    let h=`<div class="gcard-head"><span class="gcard-let num">${g}</span><span class="gcard-title head">المجموعة ${g}</span></div>`;
+    h+=`<table class="stbl"><tr><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>له</th><th>عليه</th><th>+/−</th><th>نقاط</th></tr>`;
+    arr.forEach((s,i)=>{
+      const cls=i===0?'q1':i===1?'q2':i===2?'q3':'';
+      const dot=i<2?'<span class="pos-dot dot-q"></span>':i===2?'<span class="pos-dot dot-t"></span>':'';
+      const gd=s.gf-s.ga;
+      h+=`<tr class="${cls}"><td class="t-name">${dot}<span class="fl">${fl(s.k)}</span>${nm(s.k)}</td>
+      <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td>
+      <td>${gd>0?'+':''}${gd}</td><td class="pts">${s.pts}</td></tr>`;
+    });
+    h+=`</table>`;card.innerHTML=h;host.appendChild(card);
+  });
+}
+
 /* ===== الدخول والتنقّل ===== */
 let signupMode=false;
 function authMsg(msg,type){const m=document.getElementById('authMsg');m.textContent=msg;m.className='auth-msg '+(type||'');}
@@ -379,7 +527,8 @@ function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='standings')renderStandings();}
 
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
