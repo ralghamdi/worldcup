@@ -426,6 +426,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 /* ===== Supabase ===== */
 const SB_URL='https://rpmckviwjtbwkrexkxme.supabase.co';
 const SB_KEY='sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671';
+const LOGO_URL='https://i.ibb.co/0yBL2rX6/2026-FIFA-World-Cup-emblem-svg.png'; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 let user=null;
 
@@ -1154,7 +1155,18 @@ document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='E
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
 (async()=>{const {data}=await sb.auth.getSession();
+  applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
+function applyLogo(){
+  if(!LOGO_URL)return;
+  document.querySelectorAll('.mini-emblem,.brand-emblem').forEach(el=>{
+    const cls=el.getAttribute('class');
+    const img=document.createElement('img');
+    img.src=LOGO_URL;img.alt='شعار';img.className=cls;
+    img.style.objectFit='contain';
+    el.replaceWith(img);
+  });
+}
 </script>
 </body>
 </html>
