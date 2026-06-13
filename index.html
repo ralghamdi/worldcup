@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>FIFA WORLD CUP 2026</title>
+<title>™FIFA WORLD CUP 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -698,7 +698,7 @@ function renderPredict(){
       const dh=document.createElement('div');dh.className='day-head';
       dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
       host.appendChild(dh);}
-    const r=state.g[m.id]||{};const isKsa=(m.A==='KSA'||m.B==='KSA');
+    const r=state.g[m.id]||{};const isKsa=(m.A===myTeam()||m.B===myTeam());
     const locked=predLocked(m);
     const dis=locked?'disabled':'';
     const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'');
@@ -731,16 +731,18 @@ function updateProgress(){
 }
 
 /* ===== بطاقة المباراة القادمة ===== */
+function myTeam(){return state.myteam||'KSA';}
 function renderNext(){
   const now=new Date();
   let upcoming=GM.filter(m=>matchDate(m.tm)&&matchDate(m.tm).getTime()>now.getTime())
                  .sort((x,y)=>matchDate(x.tm)-matchDate(y.tm));
-  const ksaNext=upcoming.find(m=>m.A==='KSA'||m.B==='KSA');
-  const m=ksaNext||upcoming[0]||GM[GM.length-1];
+  const mt=myTeam();
+  const mineNext=upcoming.find(m=>m.A===mt||m.B===mt);
+  const m=mineNext||upcoming[0]||GM[GM.length-1];
   const card=document.getElementById('nextCard');
-  const isKsa=m&&(m.A==='KSA'||m.B==='KSA');
-  card.classList.toggle('ksa',!!isKsa);
-  const label=isKsa?'🇸🇦 مباراة منتخبك القادمة':'⏱ المباراة القادمة';
+  const isMine=m&&(m.A===mt||m.B===mt);
+  card.classList.toggle('ksa',!!isMine);
+  const label=isMine?`${fl(mt)} مباراة منتخبك القادمة`:'⏱ المباراة القادمة';
   document.getElementById('nextInner').innerHTML=`
     <div class="next-label">${label}</div>
     <div class="next-teams">
@@ -1054,7 +1056,7 @@ function renderMatches(){
 }
 function matchCard(m){
   const A=m.A,B=m.B,rec=liveFor(A,B);
-  const isKsa=(A==='KSA'||B==='KSA');
+  const isKsa=(A===myTeam()||B===myTeam());
   const pred=state.g[m.id]||{};
   const status=rec?rec.status:'pre';
   const el=document.createElement('div');
@@ -1067,8 +1069,9 @@ function matchCard(m){
   else badge='<span class="mt-status st-pre">⏱ '+m.tm.t+'</span>';
 
   // النتيجة الحقيقية + التوقّع
+  const started=(status==='in'||status==='post');
   const aS=scoreFor(rec,A),bS=scoreFor(rec,B);
-  const hasActual=(aS!=null&&bS!=null);
+  const hasActual=(started&&aS!=null&&bS!=null);
   let actualHtml=hasActual?`${aS} <span style="color:var(--muted-2)">−</span> ${bS}`:`<span class="nogame">— : —</span>`;
   const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
   let predHtml=hasPred?`🔮 توقّعك <b>${pred.h}-${pred.a}</b>`:'🔮 ما توقّعت';
@@ -1122,7 +1125,7 @@ function fillTeamSelect(){
 }
 function onTeamChange(){
   state.myteam=document.getElementById('teamSelect').value;
-  queueSave();renderMyteam();
+  queueSave();renderMyteam();renderNext();renderMatches();renderPredict();
 }
 function setKO(m,side,val){
   if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
