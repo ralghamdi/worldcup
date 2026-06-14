@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>™FIFA WORLD CUP 2026</title>
+<link rel="icon" type="image/png" href="https://i.ibb.co/LzDpgfLy/2026-FIFA-World-Cup-emblem-svg.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -295,6 +296,21 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .stat-cards{display:flex;gap:8px;flex:none;align-items:center}
 .cardpill{display:flex;align-items:center;gap:3px;font-family:'Anton';font-size:14px}
 .stat-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;line-height:1.7}
+.pager{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 20px}
+.pager button{min-width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg-2);
+  color:var(--text);font-family:'Anton';font-size:14px;cursor:pointer;padding:0 8px;transition:all .15s}
+.pager button.on{background:var(--gold);color:#1a1405;border-color:var(--gold-bright)}
+.pager button:disabled{opacity:.35;cursor:not-allowed}
+.pager .pg-arrow{font-family:'Tajawal';font-weight:700}
+.subtabs{display:flex;gap:8px;margin-bottom:14px;position:sticky;top:0;z-index:10;padding:4px 0;background:linear-gradient(var(--bg) 60%,transparent)}
+.subtab{flex:1;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--bg-2);color:var(--muted);
+  font-family:'Cairo';font-weight:800;font-size:13px;cursor:pointer;text-align:center;transition:all .2s}
+.subtab.on{background:var(--gold);color:#1a1405;border-color:var(--gold-bright)}
+.subtab .cnt{font-family:'Anton';font-size:11px;opacity:.8;margin-inline-start:4px}
+.totop{position:fixed;bottom:18px;left:18px;z-index:50;width:46px;height:46px;border-radius:50%;
+  background:var(--gold);color:#1a1405;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;font-weight:900}
+.totop.show{display:flex}
 
 /* لوحة الترتيب */
 .lb-row{display:flex;align-items:center;gap:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .2s}
@@ -374,6 +390,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 
 <!-- التطبيق -->
 <div id="app">
+  <button class="totop" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="للأعلى">↑</button>
   <div class="topbar">
     <div class="tricolor"></div>
     <div class="topbar-row">
@@ -682,21 +699,35 @@ function filled(r){return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}
 function predCount(){return GM.filter(m=>filled(state.g[m.id])).length;}
 
 /* ===== توقعاتي ===== */
-function predLocked(m){
+function matchStarted(m){
   const rec=liveFor(m.A,m.B);
   if(rec&&(rec.status==='in'||rec.status==='post'))return true;
   const md=matchDate(m.tm);
-  if(md&&Date.now()>=md.getTime())return true;
-  return false;
+  return md?Date.now()>=md.getTime():false;
 }
+function predLocked(m){return matchStarted(m);}
+let predSub='upcoming';
+function setPredSub(s){predSub=s;renderPredict();}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
-  let lastDay="";let dayCount=0;
-  GM.forEach(m=>{
+  const upc=GM.filter(m=>!matchStarted(m));
+  const past=GM.filter(m=>matchStarted(m));
+  const list=predSub==='upcoming'?upc:past;
+  const st=document.createElement('div');st.className='subtabs';
+  st.innerHTML=`<button class="subtab ${predSub==='upcoming'?'on':''}" onclick="setPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
+    <button class="subtab ${predSub==='past'?'on':''}" onclick="setPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
+  host.appendChild(st);
+  if(!list.length){
+    const e=document.createElement('div');e.className='stat-empty';
+    e.innerHTML=predSub==='upcoming'?'🎉 ما فيه مباريات قادمة بدون توقّع... توقّعت كل شي!':'لا مباريات سابقة بعد.';
+    host.appendChild(e);updateProgress();return;
+  }
+  let lastDay="";
+  list.forEach(m=>{
     const dayKey=m.tm.m+"/"+m.tm.d;
-    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
+    if(dayKey!==lastDay){lastDay=dayKey;
       const dh=document.createElement('div');dh.className='day-head';
-      dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
+      dh.innerHTML=`<span class="day-num num">${wdName(m.tm.m,m.tm.d)}</span><span class="day-date head">${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
       host.appendChild(dh);}
     const r=state.g[m.id]||{};const isKsa=(m.A===myTeam()||m.B===myTeam());
     const locked=predLocked(m);
@@ -716,6 +747,8 @@ function renderPredict(){
   });
   host.querySelectorAll('input:not([disabled])').forEach(inp=>inp.addEventListener('input',e=>{
     const id=e.target.dataset.id,s=e.target.dataset.s;
+    const mm=GM.find(x=>x.id===id);
+    if(mm&&matchStarted(mm)){e.target.value="";e.target.disabled=true;renderPredict();return;} // بدأت أثناء الكتابة
     if(!state.g[id])state.g[id]={h:"",a:""};
     let v=e.target.value;if(v!==""){v=Math.max(0,Math.min(99,parseInt(v)||0));e.target.value=v;}
     state.g[id][s]=v;
@@ -847,6 +880,19 @@ function aggStats(){
     goals,yel,red,played
   };
 }
+let statPages={scorers:1,assists:1,cards:1};
+const STAT_PER=8;
+function setStatPage(key,n){statPages[key]=n;renderStats();
+  const el=document.getElementById('sec-'+key);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function pagerHtml(key,total){
+  const pages=Math.ceil(total/STAT_PER);if(pages<=1)return'';
+  const cur=statPages[key];let h='<div class="pager">';
+  h+=`<button class="pg-arrow" onclick="setStatPage('${key}',${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="${i===cur?'on':''}" onclick="setStatPage('${key}',${i})">${i}</button>`;
+  h+=`<button class="pg-arrow" onclick="setStatPage('${key}',${cur+1})" ${cur>=pages?'disabled':''}>›</button>`;
+  return h+'</div>';
+}
+function pageSlice(key,arr){const cur=statPages[key]||1;const st=(cur-1)*STAT_PER;return arr.slice(st,st+STAT_PER);}
 function renderStats(){
   const host=document.getElementById('statsHost');
   const s=aggStats();
@@ -861,31 +907,35 @@ function renderStats(){
   </div>`;
 
   // الهدّافون
-  h+=`<div class="sec-title head">👟 الهدّافون</div>`;
+  h+=`<div class="sec-title head" id="sec-scorers">👟 الهدّافون</div>`;
   if(s.scorers.length){
-    s.scorers.slice(0,20).forEach((x,i)=>{
-      h+=`<div class="stat-row"><span class="stat-rank num ${i<3?'top':''}">${i+1}</span>
+    const base=(statPages.scorers-1)*STAT_PER;
+    pageSlice('scorers',s.scorers).forEach((x,i)=>{const rank=base+i+1;
+      h+=`<div class="stat-row"><span class="stat-rank num ${rank<=3?'top':''}">${rank}</span>
         <span class="stat-flag">${fl(x.team)}</span>
         <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
         <span class="stat-val num">${x.goals} <small>هدف</small></span></div>`;
     });
+    h+=pagerHtml('scorers',s.scorers.length);
   }else h+=`<div class="stat-empty" style="padding:20px">لا أهداف بعد</div>`;
 
   // صنّاع الأهداف
+  h+=`<div class="sec-title head" id="sec-assists">🎁 صنّاع الأهداف</div>`;
   if(s.assists.length){
-    h+=`<div class="sec-title head">🎁 صنّاع الأهداف</div>`;
-    s.assists.slice(0,10).forEach((x,i)=>{
-      h+=`<div class="stat-row"><span class="stat-rank num ${i<3?'top':''}">${i+1}</span>
+    const base=(statPages.assists-1)*STAT_PER;
+    pageSlice('assists',s.assists).forEach((x,i)=>{const rank=base+i+1;
+      h+=`<div class="stat-row"><span class="stat-rank num ${rank<=3?'top':''}">${rank}</span>
         <span class="stat-flag">${fl(x.team)}</span>
         <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
         <span class="stat-val num">${x.a} <small>صناعة</small></span></div>`;
     });
-  }
+    h+=pagerHtml('assists',s.assists.length);
+  }else h+=`<div class="stat-empty" style="padding:20px">لا صناعة بعد</div>`;
 
   // الكروت
-  h+=`<div class="sec-title head">🟨🟥 الكروت</div>`;
+  h+=`<div class="sec-title head" id="sec-cards">🟨🟥 الكروت</div>`;
   if(s.cards.length){
-    s.cards.slice(0,20).forEach(x=>{
+    pageSlice('cards',s.cards).forEach(x=>{
       h+=`<div class="stat-row">
         <span class="stat-flag">${fl(x.team)}</span>
         <span class="stat-name">${x.name} <span class="stat-team">${nm(x.team)}</span></span>
@@ -894,6 +944,7 @@ function renderStats(){
           ${x.r?`<span class="cardpill">🟥 ${x.r}</span>`:''}
         </span></div>`;
     });
+    h+=pagerHtml('cards',s.cards.length);
   }else h+=`<div class="stat-empty" style="padding:20px">لا كروت بعد</div>`;
 
   host.innerHTML=h;
@@ -1047,14 +1098,30 @@ function renderPoints(){
 }
 
 /* ===== المباريات والنتائج ===== */
+let matchSub='upcoming';
+function setMatchSub(s){matchSub=s;renderMatches();}
 function renderMatches(){
   const host=document.getElementById('matchesHost');host.innerHTML="";
-  let lastDay="",dayCount=0;
-  GM.forEach(m=>{
+  const upc=GM.filter(m=>!matchStarted(m));
+  const past=GM.filter(m=>matchStarted(m));
+  // المباريات السابقة: الأحدث أول
+  past.reverse();
+  const list=matchSub==='upcoming'?upc:past;
+  const st=document.createElement('div');st.className='subtabs';
+  st.innerHTML=`<button class="subtab ${matchSub==='upcoming'?'on':''}" onclick="setMatchSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
+    <button class="subtab ${matchSub==='past'?'on':''}" onclick="setMatchSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
+  host.appendChild(st);
+  if(!list.length){
+    const e=document.createElement('div');e.className='stat-empty';
+    e.innerHTML=matchSub==='upcoming'?'لا مباريات قادمة.':'لا مباريات سابقة بعد.';
+    host.appendChild(e);return;
+  }
+  let lastDay="";
+  list.forEach(m=>{
     const dayKey=m.tm.m+"/"+m.tm.d;
-    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
+    if(dayKey!==lastDay){lastDay=dayKey;
       const dh=document.createElement('div');dh.className='day-head';
-      dh.innerHTML=`<span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
+      dh.innerHTML=`<span class="day-num num">${wdName(m.tm.m,m.tm.d)}</span><span class="day-date head">${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
       host.appendChild(dh);}
     host.appendChild(matchCard(m));
   });
@@ -1254,7 +1321,9 @@ function translateErr(m){
   if(/already registered/i.test(m))return'هذا البريد مسجّل، سجّل دخولك';
   if(/at least 6/i.test(m))return'كلمة المرور 6 أحرف على الأقل';
   if(/valid email/i.test(m))return'البريد غير صحيح';return m;}
-async function doLogout(){await sb.auth.signOut();clearInterval(cdTimer);
+async function doLogout(){
+  if(!confirm('تسجيل الخروج؟'))return;
+  await sb.auth.signOut();clearInterval(cdTimer);clearInterval(lockTimer);stopLiveRefresh();
   document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}
 async function enterApp(){
   document.getElementById('auth').style.display='none';
@@ -1262,8 +1331,18 @@ async function enterApp(){
   window.scrollTo(0,0);
   await loadState();
   await loadLive();
-  renderPredict();renderNext();renderMatches();startLiveRefresh();
+  renderPredict();renderNext();renderMatches();startLiveRefresh();startLockTimer();
 }
+// مؤقّت يقفل المباريات تلقائياً عند بدئها (بدون تحديث يدوي)
+let lockTimer=null;
+function startLockTimer(){clearInterval(lockTimer);lockTimer=setInterval(()=>{
+  const active=document.querySelector('.page.active');if(!active)return;
+  const id=active.id;
+  if(id==='page-predict')renderPredict();
+  else if(id==='page-matches')renderMatches();
+  else if(id==='page-predict'||id==='page-myteam'){}
+  renderNext();
+},30000);}
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -1285,6 +1364,9 @@ function stopLiveRefresh(){if(liveTimer){clearInterval(liveTimer);liveTimer=null
 
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+window.addEventListener('scroll',()=>{
+  const b=document.getElementById('toTop');if(b)b.classList.toggle('show',window.scrollY>400);
+});
 
 (async()=>{const {data}=await sb.auth.getSession();
   applyLogo();
