@@ -706,7 +706,8 @@ function matchStarted(m){
   return md?Date.now()>=md.getTime():false;
 }
 function predLocked(m){return matchStarted(m);}
-let predSub='upcoming';
+function matchFinished(m){const rec=liveFor(m.A,m.B);return !!(rec&&rec.status==='post');}
+  let predSub='upcoming';
 function setPredSub(s){predSub=s;renderPredict();}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
@@ -1102,8 +1103,8 @@ let matchSub='upcoming';
 function setMatchSub(s){matchSub=s;renderMatches();}
 function renderMatches(){
   const host=document.getElementById('matchesHost');host.innerHTML="";
-  const upc=GM.filter(m=>!matchStarted(m));
-  const past=GM.filter(m=>matchStarted(m));
+  const upc=GM.filter(m=>!matchFinished(m));
+  const past=GM.filter(m=>matchFinished(m));
   // المباريات السابقة: الأحدث أول
   past.reverse();
   const list=matchSub==='upcoming'?upc:past;
