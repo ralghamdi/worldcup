@@ -636,15 +636,26 @@ function traceTeamPath(team){const {teamsOf,winnerOf,loserOf}=computeKO();
   return {inKO:true,path};}
 
 /* ===== الحالة ===== */
-let state={g:{},ko:{}}; let saveTimer=null;
+let state={g:{},ko:{}}; let saveTimer=null; let savedG={};
 async function loadState(){state={g:{},ko:{}};
   try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
     if(data&&data.data)state=data.data;}catch(e){}
-  if(!state.g)state.g={};if(!state.ko)state.ko={};
+ if(!state.g)state.g={};if(!state.ko)state.ko={};
+  savedG=JSON.parse(JSON.stringify(state.g||{}));
   if(pendingName){state.name=pendingName;pendingName='';saveState();}}
-async function saveState(){pill("جارٍ الحفظ…");
+async function saveState(){
+  // حماية: أي مباراة بدأت، نرجّع توقّعها للمحفوظ سابقاً (نمنع أي تعديل بعد البداية)
+  GM.forEach(m=>{
+    if(matchStarted(m)){
+      if(savedG[m.id]!==undefined) state.g[m.id]=savedG[m.id];
+      else delete state.g[m.id];
+    }
+  });
+  pill("جارٍ الحفظ…");
   try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
-    if(error)throw error;pill("تم الحفظ ✓");}catch(e){pill("تعذّر الحفظ");}}
+    if(error)throw error;
+    savedG=JSON.parse(JSON.stringify(state.g||{}));
+    pill("تم الحفظ ✓");}catch(e){pill("تعذّر الحفظ");}}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,700);}
 function pill(t){const p=document.getElementById('savePill');p.textContent=t;p.classList.add('show');
   clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('show'),1600);}
@@ -1368,7 +1379,15 @@ document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Ente
 window.addEventListener('scroll',()=>{
   const b=document.getElementById('toTop');if(b)b.classList.toggle('show',window.scrollY>400);
 });
-
+function resetIdle(){
+  clearTimeout(idleTimer);
+  idleTimer=setTimeout(async()=>{
+    if(user){await sb.auth.signOut();location.reload();}
+  },15*60*1000);
+}
+['click','keydown','scroll','touchstart'].forEach(ev=>
+  document.addEventListener(ev,resetIdle,{passive:true}));
+resetIdle();
 (async()=>{const {data}=await sb.auth.getSession();
   applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
