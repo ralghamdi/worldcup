@@ -1055,16 +1055,24 @@ function viewFriend(uid){
     const dayKey=m.tm.m+"/"+m.tm.d;
     if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
       h+=`<div class="day-head"><span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span></div>`;}
-    const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
+const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
+    const started=matchStarted(m); // لا نكشف توقّع مباراة لم تبدأ (منع النسخ)
     const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
     const hasActual=(aS!=null&&bS!=null&&rec&&rec.status==='post');
     let acc='';if(hasActual&&hasPred&&counts(m)){acc=accBadge(scorePred(pred.h,pred.a,aS,bS));}
+    // عرض التوقّع: محجوب قبل بداية المباراة، يظهر بعد ما تبدأ
+    let predBox;
+    if(!started){
+      predBox = hasPred ? '<span class="nogame">🔒 محجوب</span>' : '<span class="nogame">— : —</span>';
+    }else{
+      predBox = hasPred ? `${pred.h} <span style="color:var(--muted-2)">−</span> ${pred.a}` : '<span class="nogame">— : —</span>';
+    }
     h+=`<div class="mt-card"><div class="mt-row">
       <div class="mt-side"><span class="mt-flag">${fl(m.A)}</span><span class="mt-name">${nm(m.A)}</span></div>
       <div class="mt-scores">
-        <div class="mt-actual num">${hasPred?`${pred.h} <span style="color:var(--muted-2)">−</span> ${pred.a}`:'<span class="nogame">— : —</span>'}</div>
-        <div class="mt-pred">${hasActual?`⚽ النتيجة <b>${aS}-${bS}</b>`:'⏱ لم تنتهِ'}</div>
+        <div class="mt-actual num">${predBox}</div>
+        <div class="mt-pred">${hasActual?`⚽ النتيجة <b>${aS}-${bS}</b>`:(started?'⏱ لم تنتهِ':'⏱ '+m.tm.t)}</div>
         ${acc}
       </div>
       <div class="mt-side away"><span class="mt-flag">${fl(m.B)}</span><span class="mt-name">${nm(m.B)}</span></div>
