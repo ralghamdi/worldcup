@@ -722,8 +722,8 @@ function matchFinished(m){const rec=liveFor(m.A,m.B);return !!(rec&&rec.status==
 function setPredSub(s){predSub=s;renderPredict();}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
-  const upc=GM.filter(m=>!matchStarted(m));
-  const past=GM.filter(m=>matchStarted(m));
+  const upc=GM.filter(m=>!matchFinished(m));
+  const past=GM.filter(m=>matchFinished(m));
   const list=predSub==='upcoming'?upc:past;
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${predSub==='upcoming'?'on':''}" onclick="setPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
@@ -1379,6 +1379,7 @@ document.getElementById('email').addEventListener('keydown',e=>{if(e.key==='Ente
 window.addEventListener('scroll',()=>{
   const b=document.getElementById('toTop');if(b)b.classList.toggle('show',window.scrollY>400);
 });
+let idleTimer=null;
 function resetIdle(){
   clearTimeout(idleTimer);
   idleTimer=setTimeout(async()=>{
