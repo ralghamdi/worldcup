@@ -1356,7 +1356,7 @@ function translateErr(m){
   if(/valid email/i.test(m))return'البريد غير صحيح';return m;}
 async function doLogout(){
   if(!confirm('تسجيل الخروج؟'))return;
-  await sb.auth.signOut();clearInterval(cdTimer);clearInterval(lockTimer);stopLiveRefresh();
+  await sb.auth.signOut();clearInterval(cdTimer);clearInterval(lockTimer);clearTimeout(idleTimer);stopLiveRefresh();
   document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}
 async function enterApp(){
   document.getElementById('auth').style.display='none';
