@@ -686,7 +686,7 @@ function scoreFor(rec,team){ // نتيجة فريق معيّن من سجل backe
 function minVal(m){if(!m)return 9999;const x=String(m).replace("'","").split("+");return (parseInt(x[0])||0)+(x[1]?(parseInt(x[1])||0)/100:0);}
 function evIcon(k){return {goal:"⚽",owngoal:"⚽",yellow:"🟨",red:"🟥",yellowred:"🟥",sub:"🔄"}[k]||"•";}
 function evLabel(ev){
-  const p=ev.players||[];
+  const p=(ev.players||[]).map(esc);
   if(ev.kind==="sub")return `${p[1]||"?"} <span class="ev-out">←</span> ${p[0]||"?"}`;
   if(ev.kind==="owngoal")return `${p[0]||""} <span class="ev-og">عكسي</span>`;
   if(ev.kind==="goal")return p[0]+(p[1]?` <span class="ev-assist">(${p[1]})</span>`:"");
