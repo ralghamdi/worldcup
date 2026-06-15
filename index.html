@@ -1135,8 +1135,8 @@ let matchSub='upcoming';
 function setMatchSub(s){matchSub=s;renderMatches();}
 function renderMatches(){
   const host=document.getElementById('matchesHost');host.innerHTML="";
-  const upc=GM.filter(m=>!matchStarted(m));
-  const past=GM.filter(m=>matchStarted(m));
+  const upc=GM.filter(m=>!matchFinished(m));
+  const past=GM.filter(m=>matchFinished(m));
   // المباريات السابقة: الأحدث أول
   past.reverse();
   const list=matchSub==='upcoming'?upc:past;
