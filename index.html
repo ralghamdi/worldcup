@@ -527,7 +527,7 @@ ENG_CRO:{m:6,d:17,t:"23:00"},GHA_PAN:{m:6,d:18,t:"02:00"},ENG_GHA:{m:6,d:23,t:"2
 const AR_WD=["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"];
 function wdName(m,d){const base=(m===6)?0:2;return AR_WD[(base+(d-1))%7];}
 function monName(m){return m===6?"يونيو":"يوليو";}
-const nm=k=>T[k][0],fl=k=>T[k][1];
+const nm=k=>(T[k]||['؟',''])[0],fl=k=>(T[k]||['','🏳️'])[1];
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function timeFor(a,b){return TIMES[a+"_"+b]||TIMES[b+"_"+a]||null;}
 function sortKey(tm){if(!tm)return 999999999;return tm.m*1000000+tm.d*10000+parseInt(tm.t.replace(":",""),10);}
@@ -1211,8 +1211,8 @@ function matchCard(m){
     const home=rec.home_code,away=rec.away_code;
     const colA=evs.filter(e=>evDisplayTeam(e,home,away)===A).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
     const colB=evs.filter(e=>evDisplayTeam(e,home,away)===B).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
-    const renderCol=(arr,away)=>arr.map(e=>`<div class="ev ${e.kind}">
-      <span class="ev-ico">${evIcon(e.kind)}</span><span class="ev-min">${e.minute}</span>
+    const renderCol=(arr,away)=>arr.map(e=>`<div class="ev ${esc(e.kind)}">
+      <span class="ev-ico">${evIcon(e.kind)}</span><span class="ev-min">${esc(e.minute)}</span>
       <span class="ev-txt">${evLabel(e)}</span></div>`).join('')||'<div class="ev" style="color:var(--muted-2)">—</div>';
     const wrap=document.createElement('div');wrap.className='mt-events';
     wrap.innerHTML=`<div class="mt-col">${renderCol(colA,false)}</div><div class="mt-col away">${renderCol(colB,true)}</div>`;
