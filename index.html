@@ -332,6 +332,19 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .cards-note b{color:var(--gold-bright)}
 .cards-note .yw{color:var(--warn);font-weight:800}
 .stat-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;line-height:1.7}
+/* جوائز التوقّعات */
+.award{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px}
+.award .aw-ico{font-size:30px;flex:none;width:42px;text-align:center}
+.award .aw-info{flex:1;min-width:0}
+.award .aw-t{font-family:'Cairo';font-weight:800;font-size:14px;color:var(--gold-bright)}
+.award .aw-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.award .aw-win{text-align:left;flex:none}
+.award .aw-name{font-weight:800;font-size:14px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.award .aw-val{font-family:'Anton';font-size:15px;color:var(--gold-bright);margin-top:1px}
+.gstat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:4px}
+.gstat{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:14px 8px;text-align:center}
+.gstat .gs-n{font-family:'Anton';font-size:28px;color:var(--gold-bright);line-height:1}
+.gstat .gs-t{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.3}
 .pager{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 20px}
 .pager button{min-width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg-2);
   color:var(--text);font-family:'Anton';font-size:14px;cursor:pointer;padding:0 8px;transition:all .15s}
@@ -991,13 +1004,20 @@ function pagerHtml(key,total){
   return h+'</div>';
 }
 function pageSlice(key,arr){const cur=statPages[key]||1;const st=(cur-1)*STAT_PER;return arr.slice(st,st+STAT_PER);}
+let statSub='tournament';
+function setStatSub(s){statSub=s;if(s==='predictions'){loadBoard().then(renderStats);}else renderStats();}
 function renderStats(){
   const host=document.getElementById('statsHost');
+  const head=`<div class="subtabs">
+    <button class="subtab ${statSub==='tournament'?'on':''}" onclick="setStatSub('tournament')">🏆 البطولة</button>
+    <button class="subtab ${statSub==='predictions'?'on':''}" onclick="setStatSub('predictions')">🔮 التوقّعات</button>
+  </div>`;
+  if(statSub==='predictions'){host.innerHTML=head+renderPredStatsHtml();return;}
   const s=aggStats();
   if(s.played===0){
-    host.innerHTML=`<div class="stat-empty">📊 الإحصائيات تظهر <b style="color:var(--gold-bright)">أول ما تبدأ المباريات</b>.<br>الهدّافون والكروت تُحسب تلقائياً من الأحداث.</div>`;return;
+    host.innerHTML=head+`<div class="stat-empty">📊 إحصائيات البطولة تظهر <b style="color:var(--gold-bright)">أول ما تبدأ المباريات</b>.<br>الهدّافون والكروت تُحسب تلقائياً من الأحداث.</div>`;return;
   }
-  let h=`<div class="stat-totals">
+  let h=head+`<div class="stat-totals">
     <div class="stot"><div class="n num">${s.goals}</div><div class="t">⚽ أهداف</div></div>
     <div class="stot"><div class="n num">${s.yel}</div><div class="t">🟨 صفراء</div></div>
     <div class="stot"><div class="n num">${s.red}</div><div class="t">🟥 حمراء</div></div>
@@ -1062,8 +1082,47 @@ function renderStats(){
 
   host.innerHTML=h;
 }
-
-/* ===== نقاطي ===== */
+// تاب إحصائيات التوقّعات (الجوائز)
+function renderPredStatsHtml(){
+  const B=boardData||[];
+  if(!B.length)return `<div class="stat-empty">🔮 إحصائيات التوقّعات تظهر أول ما يبدأ اللاعبون التوقّع.</div>`;
+  const leader=(key,minScored)=>{
+    let arr=B.slice();
+    if(minScored)arr=arr.filter(x=>x.scored>=minScored);
+    arr.sort((a,b)=>(b[key]||0)-(a[key]||0));
+    return (arr[0]&&(arr[0][key]||0)>0)?arr[0]:null;
+  };
+  const card=(ico,title,sub,p,valFn)=>{
+    if(!p)return '';
+    return `<div class="award"><div class="aw-ico">${ico}</div>
+      <div class="aw-info"><div class="aw-t">${title}</div><div class="aw-sub">${sub}</div></div>
+      <div class="aw-win"><div class="aw-name">${esc(p.name)}</div><div class="aw-val">${valFn(p)}</div></div></div>`;
+  };
+  let h='';
+  h+=`<div class="sec-title head">🎯 جوائز الدقّة</div>`;
+  h+=card('👑','ملك التوقّعات','أعلى نقاط',leader('total'),p=>p.total+' نقطة');
+  h+=card('🎯','القنّاص','أكثر نتائج مطابقة',leader('exact'),p=>p.exact+' مطابقة');
+  h+=card('📊','الأدقّ','أعلى نسبة دقّة (5+ مباريات)',leader('acc',5),p=>p.acc+'%');
+  h+=`<div class="sec-title head">🔥 جوائز الإنجاز</div>`;
+  h+=card('🔥','أطول سلسلة','أطول سلسلة مطابقات متتالية',leader('bestStreak'),p=>p.bestStreak+' متتالية');
+  h+=card('🃏','سيّد الجوكر','أكثر نقاط من الجوكر',leader('jokerBonus'),p=>'+'+p.jokerBonus);
+  h+=card('⚡','الأنشط','أكثر لاعب توقّع مباريات',leader('predTotal'),p=>p.predTotal+' توقّع');
+  h+=`<div class="sec-title head">😅 جوائز طريفة</div>`;
+  h+=card('🐢','المتعثّر','أكثر توقّعات خاطئة',leader('wrong'),p=>p.wrong+' خطأ');
+  h+=card('🎲','المقامر','أكثر توقّعات بنتائج كبيرة (4+ أهداف)',leader('bigBets'),p=>p.bigBets+' مغامرة');
+  h+=card('🛡️','المحافظ','أكثر من يتوقّع التعادلات',leader('drawBets'),p=>p.drawBets+' تعادل');
+  // إحصائيات عامة
+  const avg=Math.round(B.reduce((s,x)=>s+x.total,0)/B.length);
+  const cc={};B.forEach(x=>{if(x.champ)cc[x.champ]=(cc[x.champ]||0)+1;});
+  let topChamp=null,topC=0;Object.keys(cc).forEach(k=>{if(cc[k]>topC){topC=cc[k];topChamp=k;}});
+  h+=`<div class="sec-title head">📈 إحصائيات عامة</div>`;
+  h+=`<div class="gstat-grid">
+    <div class="gstat"><div class="gs-n num">${B.length}</div><div class="gs-t">لاعب مشارك</div></div>
+    <div class="gstat"><div class="gs-n num">${avg}</div><div class="gs-t">متوسط النقاط</div></div>
+    <div class="gstat"><div class="gs-n" style="font-size:26px">${topChamp?fl(topChamp):'—'}</div><div class="gs-t">${topChamp?'الأكثر ترشيحاً للّقب ('+topC+')':'لا بطل متوقّع'}</div></div>
+  </div>`;
+  return h;
+}
 // بداية احتساب النقاط: مباراة قطر×سويسرا (13 يونيو 22:00). أي مباراة قبلها لا تُحسب للجميع.
 const SCORING_START=new Date(2026,5,13,22,0,0).getTime();
 function counts(m){const d=matchDate(m.tm);return d?d.getTime()>=SCORING_START:true;}
@@ -1106,7 +1165,12 @@ function computePointsForG(g,champ){
   // البطل
   let champBonus=0;const ac=actualChampion();
   if(champ&&ac&&champ===ac){champBonus=CHAMP_BONUS;total+=CHAMP_BONUS;}
-  return {total,scored,exact,good,ok,wrong,per,jokerBonus,streakBonus,bestStreak,curStreak:streak,champBonus,champ:champ||null};
+  // أنماط التوقّع (من كل التوقّعات المعبّأة)
+  let predTotal=0,bigBets=0,drawBets=0;
+  GM.forEach(m=>{const r=g[m.id];if(filled(r)){predTotal++;
+    if(((+r.h)+(+r.a))>=4)bigBets++;
+    if(+r.h===+r.a)drawBets++;}});
+  return {total,scored,exact,good,ok,wrong,per,jokerBonus,streakBonus,bestStreak,curStreak:streak,champBonus,champ:champ||null,predTotal,bigBets,drawBets};
 }
 function computePoints(){return computePointsForG(state.g,state.champion);}
 // تبديل الجوكر على مباراة
@@ -1138,7 +1202,8 @@ async function loadBoard(){
       const d=row.data||{};const g=d.g||{};
       const r=computePointsForG(g,d.champion);
       const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:d.champion||null};
+      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:d.champion||null,
+        bestStreak:r.bestStreak,jokerBonus:r.jokerBonus,wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
   }catch(e){boardData=[];}
@@ -1617,7 +1682,7 @@ function showTab(name,btn){
   if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
   if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
   if(name==='predict'){loadLive().then(renderPredict);}
-  if(name==='stats'){loadLive().then(renderStats);}
+  if(name==='stats'){loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(renderStats);else renderStats();});}
   if(name==='points'){loadLive().then(renderPoints);}
   if(name==='board'){loadBoard().then(renderBoard);}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
