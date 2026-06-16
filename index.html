@@ -1068,7 +1068,7 @@ function renderStats(){
 const SCORING_START=new Date(2026,5,13,22,0,0).getTime();
 function counts(m){const d=matchDate(m.tm);return d?d.getTime()>=SCORING_START:true;}
 const MAX_JOKERS=3;
-const STREAK_BONUS=5;          // بونص كل 3 توقّعات صحيحة متتالية
+const STREAK_BONUS=10;         // بونص كل 3 توقّعات مطابقة تماماً متتالية
 const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
 // قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
 const CHAMP_LOCK=new Date(2026,5,28,0,0,0).getTime();
@@ -1098,8 +1098,8 @@ function computePointsForG(g,champ){
     if(jok.has(m.id)){pts=base*2;jokerBonus+=base;} // الجوكر يضاعف
     per[m.id]=pts;total+=pts;scored++;
     if(base===5)exact++;else if(base===3)good++;else if(base===2)ok++;else wrong++;
-    // السلسلة: توقّع صحيح = أصاب الفائز على الأقل (base>=2)
-    if(base>=2){streak++;if(streak>bestStreak)bestStreak=streak;
+    // السلسلة: توقّع مطابق تماماً (base===5)
+    if(base===5){streak++;if(streak>bestStreak)bestStreak=streak;
       if(streak%3===0){streakBonus+=STREAK_BONUS;total+=STREAK_BONUS;}}
     else streak=0;
   });
@@ -1225,7 +1225,7 @@ function renderPoints(){
     <span class="br-t">الجوكر <small>نقاط مضاعفة من توقّعاتك المميّزة</small></span>
     <span class="br-v">+${r.jokerBonus}</span></div>`;
   h+=`<div class="bonus-row"><span class="br-ico">🔥</span>
-    <span class="br-t">السلسلة <small>أطول سلسلة: ${r.bestStreak} · الحالية: ${r.curStreak} · كل 3 = +${STREAK_BONUS}</small></span>
+    <span class="br-t">السلسلة <small>أطول سلسلة: ${r.bestStreak} · الحالية: ${r.curStreak} · كل 3 مطابقة = +${STREAK_BONUS}</small></span>
     <span class="br-v">+${r.streakBonus}</span></div>`;
   h+=`<div class="bonus-row"><span class="br-ico">🎯</span>
     <span class="br-t">توقّع البطل <small>${r.champ?fl(r.champ)+' '+nm(r.champ):'لم تختر بعد'} · +${CHAMP_BONUS} لو صح</small></span>
@@ -1290,7 +1290,7 @@ function renderPoints(){
     🔴 خطأ = <b>0</b><br><br>
     <b>⚡ نقاط إضافية:</b><br>
     🃏 <b>الجوكر:</b> عندك <b>${MAX_JOKERS} جوكرات</b> — حط جوكر على توقّع (من صفحة توقعاتي) ونقاط تلك المباراة <b>×2</b>. يُحط قبل بداية المباراة فقط.<br>
-    🔥 <b>السلسلة:</b> كل <b>3 توقّعات صحيحة متتالية</b> (تصيب الفائز على الأقل) = <b>+${STREAK_BONUS} بونص</b>.<br>
+    🔥 <b>السلسلة:</b> كل <b>3 توقّعات مطابقة تماماً (🎯) متتالية</b> = <b>+${STREAK_BONUS} بونص</b>.<br>
     🎯 <b>توقّع البطل:</b> اختر بطل العالم المتوقّع، لو صح = <b>+${CHAMP_BONUS} نقطة</b>. يُقفل مع بداية الأدوار الإقصائية.</div>`;
 
   host.innerHTML=h;
