@@ -601,7 +601,7 @@ const mid=(g,r,m)=>`${g}_${r}_${m}`;
 
 /* محرّك كسر التعادل الكامل (مطابق لقانون فيفا) — الترتيب المتوقّع بدون كروت، الكسر النهائي بتصنيف فيفا */
 function rawStats(g){const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});const played=[];
-  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const res=state.g[mid(g,ri,mi)];const A=teams[pair[0]],B=teams[pair[1]];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const A=teams[pair[0]],B=teams[pair[1]];const res=effRes(mid(g,ri,mi),A,B);
     if(filled(res)){const hs=+res.h,as=+res.a;played.push({A,B,hs,as});
       st[A].gf+=hs;st[A].ga+=as;st[B].gf+=as;st[B].ga+=hs;st[A].p++;st[B].p++;
       if(hs>as){st[A].w++;st[A].pts+=3;st[B].l++;}else if(hs<as){st[B].w++;st[B].pts+=3;st[A].l++;}
@@ -633,8 +633,23 @@ function standings(g){const ctx=rawStats(g);const st=ctx.st;
   blocks.push(cur);let order=[];
   for(const blk of blocks){if(blk.length===1)order=order.concat(blk);else order=order.concat(rankTied(blk,ctx));}
   return order.map(k=>st[k]);}
-function groupDone(g){return RR.every((round,ri)=>round.every((pair,mi)=>filled(state.g[mid(g,ri,mi)])));}
+// النتيجة الفعّالة للمسار: الحقيقية لو خلصت، وإلا توقّع اللاعب
+function effRes(idk,A,B){
+  const rec=liveFor(A,B);
+  if(rec&&rec.status==='post'){
+    const aS=scoreFor(rec,A),bS=scoreFor(rec,B);
+    if(aS!=null&&bS!=null)return {h:aS,a:bS};
+  }
+  const r=state.g[idk];
+  return filled(r)?r:null;
+}
+function groupDone(g){const teams=GROUPS[g];return RR.every((round,ri)=>round.every((pair,mi)=>{
+  const A=teams[pair[0]],B=teams[pair[1]];return effRes(mid(g,ri,mi),A,B)!=null;}));}
 function allGroupsDone(){return Object.keys(GROUPS).every(groupDone);}
+// عدد المباريات المكتملة فعلياً (خلصت أو متوقّعة)
+function effDoneCount(){let c=0;Object.keys(GROUPS).forEach(g=>{const teams=GROUPS[g];
+  RR.forEach((round,ri)=>round.forEach((pair,mi)=>{const A=teams[pair[0]],B=teams[pair[1]];
+    if(effRes(mid(g,ri,mi),A,B)!=null)c++;}));});return c;}
 function rankedThirds(){const arr=Object.keys(GROUPS).map(g=>({...standings(g)[2],g}));
   return arr.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||((RANK[x.k]||999)-(RANK[y.k]||999)));}
 
@@ -1423,8 +1438,8 @@ function renderMyteam(){
 
   // المسار الإقصائي
   if(!allGroupsDone()){
-    const c=predCount();
-    h+=`<div class="note-box">🔮 المسار الإقصائي يظهر بعد ما تكمّل <b>كل توقّعات دور المجموعات</b>.<br>أكملت <b>${c}</b> من <b>72</b> مباراة.</div>`;
+    const c=effDoneCount();
+    h+=`<div class="note-box">🔮 المسار الإقصائي يظهر بعد ما تكمّل <b>توقّعات المباريات القادمة</b>.<br>المباريات المنتهية تُحتسب بنتيجتها الحقيقية تلقائياً.<br>مكتمل <b>${c}</b> من <b>72</b> مباراة — باقي <b>${72-c}</b>.</div>`;
     host.innerHTML=h;return;
   }
   const trace=traceTeamPath(team);
