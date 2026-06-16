@@ -129,6 +129,37 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .match.locked .m-time{color:var(--bad);font-weight:700}
 .m-dash{color:var(--muted-2);font-family:'Anton'}
 .m-time{text-align:center;font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
+/* الجوكر */
+.joker-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,rgba(229,184,56,.12),var(--bg-2));border:1px solid var(--gold-deep);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.joker-bar .jb-t{font-family:'Cairo';font-weight:800;font-size:13px;color:var(--gold-bright)}
+.joker-bar .jb-t small{display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:2px}
+.joker-bar .jb-n{font-family:'Anton';font-size:24px;color:var(--gold-bright);flex:none}
+.m-joker{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.joker-btn{padding:6px 14px;border-radius:99px;border:1px solid var(--gold-deep);background:var(--bg-3);color:var(--gold-bright);
+  font-family:'Cairo';font-weight:800;font-size:11px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.joker-btn.on{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border-color:var(--gold-bright);box-shadow:0 3px 12px rgba(212,169,60,.4)}
+.joker-btn:disabled{opacity:.4;cursor:not-allowed}
+.match.jok{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.match.jok::after{content:"🃏 ×2";position:absolute;top:-9px;left:14px;background:var(--gold);color:#1a1405;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
+/* البطل */
+.champ-card{background:linear-gradient(135deg,var(--bg-2),var(--bg-3));border:1px solid var(--gold);border-radius:16px;padding:16px;margin-bottom:16px;position:relative;overflow:hidden}
+.champ-card .tricolor{position:absolute;top:0;left:0}
+.champ-h{font-family:'Cairo';font-weight:900;font-size:15px;color:var(--gold-bright);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.champ-sub{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.champ-pick select{width:100%;padding:13px 14px;border-radius:11px;background:var(--bg-3);border:1.5px solid var(--gold-deep);
+  color:var(--text);font-family:'Tajawal';font-size:15px;font-weight:700;cursor:pointer}
+.champ-pick select:focus{outline:none;border-color:var(--gold)}
+.champ-locked{display:flex;align-items:center;gap:12px;background:var(--bg-3);border-radius:12px;padding:14px}
+.champ-locked .cl-flag{font-size:38px}
+.champ-locked .cl-name{font-family:'Cairo';font-weight:900;font-size:18px}
+.champ-locked .cl-tag{font-size:11px;color:var(--gold-bright);font-weight:700;margin-top:2px}
+.champ-none{color:var(--muted);font-size:13px;text-align:center;padding:6px}
+/* بونص */
+.bonus-row{display:flex;align-items:center;gap:10px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:8px}
+.bonus-row .br-ico{font-size:22px;flex:none}
+.bonus-row .br-t{flex:1;font-weight:700;font-size:13px}
+.bonus-row .br-t small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+.bonus-row .br-v{font-family:'Anton';font-size:20px;color:var(--gold-bright);flex:none}
 
 /* ترتيب المجموعات */
 .toggle-wrap{display:flex;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:5px;gap:5px;margin-bottom:14px}
@@ -756,6 +787,14 @@ function renderPredict(){
   st.innerHTML=`<button class="subtab ${predSub==='upcoming'?'on':''}" onclick="setPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
     <button class="subtab ${predSub==='past'?'on':''}" onclick="setPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
   host.appendChild(st);
+  // شريط الجوكرات (في القادمة فقط)
+  if(predSub==='upcoming'){
+    const used=jokerCount(state.g);const left=Math.max(0,MAX_JOKERS-used);
+    const jb=document.createElement('div');jb.className='joker-bar';
+    jb.innerHTML=`<div class="jb-t">🃏 الجوكرات<small>حط جوكر على توقّع = نقاطه ×2 (لمباراة ما بدأت)</small></div>
+      <div class="jb-n">${left}<small style="font-family:Tajawal;font-size:11px;color:var(--muted)">/${MAX_JOKERS}</small></div>`;
+    host.appendChild(jb);
+  }
   if(!list.length){
     const e=document.createElement('div');e.className='stat-empty';
     e.innerHTML=predSub==='upcoming'?'🎉 ما فيه مباريات قادمة بدون توقّع... توقّعت كل شي!':'لا مباريات سابقة بعد.';
@@ -771,7 +810,9 @@ function renderPredict(){
     const r=state.g[m.id]||{};const isKsa=(m.A===myTeam()||m.B===myTeam());
     const locked=predLocked(m);
     const dis=locked?'disabled':'';
-    const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'');
+    const hasJoker=!!(state.g[m.id]&&state.g[m.id].j);
+    const hasPred=(r.h!=null&&r.h!=="");
+    const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'')+(hasJoker?' jok':'');
     el.innerHTML=`<div class="m-row">
       <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
       <div class="m-score">
@@ -781,7 +822,9 @@ function renderPredict(){
       </div>
       <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
     </div>
-    <div class="m-time">${locked?'🔒 بدأت — التوقّع مقفل':'⏱ '+m.tm.t}</div>`;
+    ${locked?`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`
+      :`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJoker('${m.id}')">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>
+        <div class="m-time">⏱ ${m.tm.t}</div>`}`;
     host.appendChild(el);
   });
   host.querySelectorAll('input:not([disabled])').forEach(inp=>inp.addEventListener('input',e=>{
@@ -1009,22 +1052,66 @@ function renderStats(){
 // بداية احتساب النقاط: مباراة قطر×سويسرا (13 يونيو 22:00). أي مباراة قبلها لا تُحسب للجميع.
 const SCORING_START=new Date(2026,5,13,22,0,0).getTime();
 function counts(m){const d=matchDate(m.tm);return d?d.getTime()>=SCORING_START:true;}
-function computePointsForG(g){
-  let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;const per={};
+const MAX_JOKERS=3;
+const STREAK_BONUS=5;          // بونص كل 3 توقّعات صحيحة متتالية
+const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
+// قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
+const CHAMP_LOCK=new Date(2026,5,28,0,0,0).getTime();
+function champLocked(){return Date.now()>=CHAMP_LOCK;}
+// الجوكرات الصالحة لمجموعة توقّعات g (أول 3 بالترتيب الزمني، لمنع أي تلاعب)
+function validJokers(g){
+  const ids=GM.filter(m=>g[m.id]&&g[m.id].j&&counts(m)).slice(0,MAX_JOKERS).map(m=>m.id);
+  return new Set(ids);
+}
+function jokerCount(g){return GM.filter(m=>g[m.id]&&g[m.id].j).length;}
+// البطل الحقيقي (الفائز بالنهائي م104) — يُحسب لاحقاً عند توفّر نتائج الإقصائيات
+function actualChampion(){return null;} // TODO: يُربط بنتيجة النهائي عند توفّرها
+function computePointsForG(g,champ){
+  let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;
+  let jokerBonus=0,streakBonus=0,bestStreak=0;const per={};
+  const jok=validJokers(g);
+  let streak=0;
   GM.forEach(m=>{
     if(!counts(m))return; // مستثناة من الاحتساب (قبل بداية المنافسة)
     const pred=g[m.id];const rec=liveFor(m.A,m.B);
     if(!pred||!rec||rec.status!=='post')return;
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
     if(aS==null||bS==null)return;
-    const pts=scorePred(pred.h,pred.a,aS,bS);
-    if(pts==null)return;
+    const base=scorePred(pred.h,pred.a,aS,bS);
+    if(base==null)return;
+    let pts=base;
+    if(jok.has(m.id)){pts=base*2;jokerBonus+=base;} // الجوكر يضاعف
     per[m.id]=pts;total+=pts;scored++;
-    if(pts===5)exact++;else if(pts===3)good++;else if(pts===2)ok++;else wrong++;
+    if(base===5)exact++;else if(base===3)good++;else if(base===2)ok++;else wrong++;
+    // السلسلة: توقّع صحيح = أصاب الفائز على الأقل (base>=2)
+    if(base>=2){streak++;if(streak>bestStreak)bestStreak=streak;
+      if(streak%3===0){streakBonus+=STREAK_BONUS;total+=STREAK_BONUS;}}
+    else streak=0;
   });
-  return {total,scored,exact,good,ok,wrong,per};
+  // البطل
+  let champBonus=0;const ac=actualChampion();
+  if(champ&&ac&&champ===ac){champBonus=CHAMP_BONUS;total+=CHAMP_BONUS;}
+  return {total,scored,exact,good,ok,wrong,per,jokerBonus,streakBonus,bestStreak,curStreak:streak,champBonus,champ:champ||null};
 }
-function computePoints(){return computePointsForG(state.g);}
+function computePoints(){return computePointsForG(state.g,state.champion);}
+// تبديل الجوكر على مباراة
+function toggleJoker(id){
+  const m=GM.find(x=>x.id===id);if(!m)return;
+  if(matchStarted(m)){pill('بدأت المباراة — مقفل');return;}
+  if(!state.g[id]||state.g[id].h===""||state.g[id].h==null){pill('توقّع النتيجة أول');return;}
+  if(state.g[id].j){delete state.g[id].j;}
+  else{
+    if(jokerCount(state.g)>=MAX_JOKERS){pill('خلصت جوكراتك ('+MAX_JOKERS+')');return;}
+    state.g[id].j=1;
+  }
+  queueSave();renderPredict();
+}
+// اختيار البطل
+function setChampion(code){
+  if(champLocked()){pill('قفل اختيار البطل');return;}
+  state.champion=code||'';if(!code)delete state.champion;
+  queueSave();renderPoints();
+}
 
 /* ===== لوحة الترتيب العام ===== */
 let boardData=[];
@@ -1034,9 +1121,9 @@ async function loadBoard(){
     const {data}=await sb.from('tracker_data').select('user_id,data');
     boardData=(data||[]).map(row=>{
       const d=row.data||{};const g=d.g||{};
-      const r=computePointsForG(g);
+      const r=computePointsForG(g,d.champion);
       const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc};
+      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:d.champion||null};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
   }catch(e){boardData=[];}
@@ -1116,6 +1203,36 @@ function renderPoints(){
     <div class="brk b2"><div class="n num">${r.ok}</div><div class="t">🟡 فائز صح</div></div>
     <div class="brk b0"><div class="n num">${r.wrong}</div><div class="t">🔴 خطأ</div></div>
   </div>`;
+
+  // البونصات (جوكر + سلسلة + بطل)
+  h+=`<div class="sec-title head">⚡ نقاط إضافية</div>`;
+  h+=`<div class="bonus-row"><span class="br-ico">🃏</span>
+    <span class="br-t">الجوكر <small>نقاط مضاعفة من توقّعاتك المميّزة</small></span>
+    <span class="br-v">+${r.jokerBonus}</span></div>`;
+  h+=`<div class="bonus-row"><span class="br-ico">🔥</span>
+    <span class="br-t">السلسلة <small>أطول سلسلة: ${r.bestStreak} · الحالية: ${r.curStreak} · كل 3 = +${STREAK_BONUS}</small></span>
+    <span class="br-v">+${r.streakBonus}</span></div>`;
+  h+=`<div class="bonus-row"><span class="br-ico">🎯</span>
+    <span class="br-t">توقّع البطل <small>${r.champ?fl(r.champ)+' '+nm(r.champ):'لم تختر بعد'} · +${CHAMP_BONUS} لو صح</small></span>
+    <span class="br-v">${r.champBonus?'+'+r.champBonus:'—'}</span></div>`;
+
+  // اختيار البطل
+  h+=`<div class="champ-card"><div class="tricolor"></div>
+    <div class="champ-h">🏆 توقّع بطل العالم</div>`;
+  if(champLocked()){
+    h+= state.champion
+      ? `<div class="champ-locked"><span class="cl-flag">${fl(state.champion)}</span>
+          <div><div class="cl-name head">${nm(state.champion)}</div><div class="cl-tag">🔒 اختيارك مقفل · +${CHAMP_BONUS} لو فاز</div></div></div>`
+      : `<div class="champ-none">🔒 أُقفل الاختيار (بدأت الأدوار الإقصائية) ولم تختر بطلاً.</div>`;
+  }else{
+    h+=`<div class="champ-sub">اختر منتخباً تتوقّع يرفع الكأس. لو صح = <b style="color:var(--gold-bright)">+${CHAMP_BONUS} نقطة</b>. يُقفل مع بداية الأدوار الإقصائية.</div>
+      <div class="champ-pick"><select onchange="setChampion(this.value)">
+        <option value="">— اختر البطل —</option>
+        ${Object.keys(GROUPS).map(g=>`<optgroup label="المجموعة ${g}">`+
+          GROUPS[g].map(k=>`<option value="${k}" ${state.champion===k?'selected':''}>${fl(k)} ${nm(k)}</option>`).join('')+`</optgroup>`).join('')}
+      </select></div>`;
+  }
+  h+=`</div>`;
 
   // الخريطة الحرارية
   h+=`<div class="sec-title head">🗺️ خريطتك الحرارية</div><div class="heat">`;
