@@ -350,6 +350,25 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .save-pill{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--bg-3);border:1px solid var(--gold);
   color:var(--text);padding:9px 18px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;transition:all .3s;z-index:90;pointer-events:none}
 .save-pill.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* الإعلانات */
+.ann-overlay{position:fixed;inset:0;z-index:200;background:rgba(4,6,14,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.ann-overlay.show{display:flex}
+.ann-box{width:100%;max-width:430px;background:linear-gradient(160deg,var(--bg-2),var(--bg-3));border:1px solid var(--gold);border-radius:18px;overflow:hidden;animation:rise .4s;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.ann-top{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1405;padding:14px 18px;font-family:'Cairo';font-weight:900;font-size:16px;display:flex;align-items:center;gap:8px}
+.ann-title{padding:16px 18px 4px;font-family:'Cairo';font-weight:900;font-size:18px;color:var(--gold-bright)}
+.ann-body{padding:6px 18px 12px;font-size:14px;line-height:1.95;color:var(--text);white-space:pre-wrap;max-height:50vh;overflow-y:auto}
+.ann-date{font-size:11px;color:var(--muted);padding:0 18px 12px}
+.ann-foot{padding:0 18px 18px;display:flex;gap:10px}
+.ann-close{flex:1;padding:13px;border:none;border-radius:12px;cursor:pointer;font-family:'Cairo';font-weight:800;font-size:15px;color:#1a1405;background:linear-gradient(180deg,var(--gold-bright),var(--gold))}
+.ann-cancel{flex:1;padding:13px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-family:'Tajawal';font-weight:700;font-size:14px;color:var(--muted);background:var(--bg-2)}
+.ann-field{padding:14px 18px 0}
+.ann-field input,.ann-field textarea{width:100%;padding:12px 14px;margin-bottom:10px;border-radius:11px;background:var(--bg);border:1.5px solid var(--line);color:var(--text);font-family:'Tajawal';font-size:14px}
+.ann-field textarea{min-height:140px;resize:vertical;line-height:1.8}
+.ann-field input:focus,.ann-field textarea:focus{outline:none;border-color:var(--gold)}
+.ann-fab{position:fixed;bottom:18px;right:18px;z-index:80;padding:12px 18px;border-radius:99px;border:none;cursor:pointer;
+  font-family:'Cairo';font-weight:800;font-size:14px;color:#1a1405;background:linear-gradient(180deg,var(--gold-bright),var(--gold));box-shadow:0 6px 20px rgba(212,169,60,.4);display:none;align-items:center;gap:6px}
+.ann-fab.show{display:flex}
 </style>
 </head>
 <body>
@@ -481,6 +500,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 </div>
 
 <div class="save-pill" id="savePill"></div>
+
+<button class="ann-fab" id="annFab" onclick="openCompose()">📢 نشر إعلان</button>
+<div class="ann-overlay" id="annOverlay"></div>
 
 <script>
 /* ===== Supabase ===== */
@@ -1055,7 +1077,7 @@ function viewFriend(uid){
     const dayKey=m.tm.m+"/"+m.tm.d;
     if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
       h+=`<div class="day-head"><span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span></div>`;}
-const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
+    const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
     const started=matchStarted(m); // لا نكشف توقّع مباراة لم تبدأ (منع النسخ)
     const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
@@ -1337,6 +1359,68 @@ function renderMyteam(){
   host.innerHTML=h;
 }
 
+/* ===== الإعلانات ===== */
+const ADMIN_EMAIL='raeed66@gmail.com';
+let latestAnn=null;
+async function loadAnnouncements(){
+  try{
+    const {data}=await sb.from('announcements').select('*').order('id',{ascending:false}).limit(1);
+    latestAnn=(data&&data[0])||null;
+  }catch(e){latestAnn=null;}
+}
+function maybeShowAnnouncement(){
+  if(!latestAnn)return;
+  const seen=state.seenAnn||0;
+  if(latestAnn.id>seen)showAnnouncementPopup(latestAnn);
+}
+function showAnnouncementPopup(a){
+  const ov=document.getElementById('annOverlay');
+  let dt='';try{dt=new Date(a.created_at).toLocaleDateString('ar-SA');}catch(e){}
+  ov.innerHTML=`<div class="ann-box">
+    <div class="ann-top">📢 إعلان من اللجنة المنظّمة</div>
+    <div class="ann-title">${esc(a.title)}</div>
+    <div class="ann-body">${esc(a.body)}</div>
+    <div class="ann-date">${dt}</div>
+    <div class="ann-foot"><button class="ann-close" onclick="closeAnnouncement(${a.id})">فهمت ✓</button></div>
+  </div>`;
+  ov.classList.add('show');
+}
+function closeAnnouncement(id){
+  document.getElementById('annOverlay').classList.remove('show');
+  state.seenAnn=id;queueSave();
+}
+function openCompose(){
+  const ov=document.getElementById('annOverlay');
+  ov.innerHTML=`<div class="ann-box">
+    <div class="ann-top">📢 نشر إعلان جديد</div>
+    <div class="ann-field">
+      <input id="annT" type="text" placeholder="عنوان الإعلان" maxlength="80">
+      <textarea id="annB" placeholder="نص الإعلان..."></textarea>
+    </div>
+    <div class="ann-foot">
+      <button class="ann-cancel" onclick="document.getElementById('annOverlay').classList.remove('show')">إلغاء</button>
+      <button class="ann-close" onclick="publishAnnouncement()">نشر 📢</button>
+    </div>
+  </div>`;
+  ov.classList.add('show');
+}
+async function publishAnnouncement(){
+  const t=document.getElementById('annT').value.trim();
+  const b=document.getElementById('annB').value.trim();
+  if(!t||!b){alert('اكتب العنوان والنص');return;}
+  try{
+    const {error}=await sb.from('announcements').insert({title:t,body:b});
+    if(error)throw error;
+    document.getElementById('annOverlay').classList.remove('show');
+    pill('تم النشر ✓');
+  }catch(e){alert('تعذّر النشر: '+(e.message||''));}
+}
+function setupAdmin(){
+  if(user&&user.email===ADMIN_EMAIL){
+    const f=document.getElementById('annFab');if(f)f.classList.add('show');
+  }
+}
+
 /* ===== الدخول والتنقّل ===== */
 let signupMode=false;
 function authMsg(msg,type){const m=document.getElementById('authMsg');m.textContent=msg;m.className='auth-msg '+(type||'');}
@@ -1373,6 +1457,8 @@ async function enterApp(){
   await loadState();
   await loadLive();
   renderPredict();renderNext();renderMatches();startLiveRefresh();startLockTimer();
+  setupAdmin();
+  await loadAnnouncements();maybeShowAnnouncement();
 }
 // مؤقّت يقفل المباريات تلقائياً عند بدئها (بدون تحديث يدوي)
 let lockTimer=null;
