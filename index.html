@@ -1272,7 +1272,11 @@ function renderPoints(){
     🟢 الفائز + فارق الأهداف صحيح = <b>3 نقاط</b><br>
     🟢 توقّعت تعادل وصار تعادل (نتيجة مختلفة) = <b>3 نقاط</b><br>
     🟡 الفائز صحيح بس الفارق مختلف = <b>2 نقطة</b><br>
-    🔴 خطأ = <b>0</b></div>`;
+    🔴 خطأ = <b>0</b><br><br>
+    <b>⚡ نقاط إضافية:</b><br>
+    🃏 <b>الجوكر:</b> عندك <b>${MAX_JOKERS} جوكرات</b> — حط جوكر على توقّع (من صفحة توقعاتي) ونقاط تلك المباراة <b>×2</b>. يُحط قبل بداية المباراة فقط.<br>
+    🔥 <b>السلسلة:</b> كل <b>3 توقّعات صحيحة متتالية</b> (تصيب الفائز على الأقل) = <b>+${STREAK_BONUS} بونص</b>.<br>
+    🎯 <b>توقّع البطل:</b> اختر بطل العالم المتوقّع، لو صح = <b>+${CHAMP_BONUS} نقطة</b>. يُقفل مع بداية الأدوار الإقصائية.</div>`;
 
   host.innerHTML=h;
 }
@@ -1478,33 +1482,36 @@ function renderMyteam(){
 
 /* ===== الإعلانات ===== */
 const ADMIN_EMAIL='raeed66@gmail.com';
-let latestAnn=null;
+let annQueue=[];   // الإعلانات اللي ما شافها اللاعب (طابور)
 async function loadAnnouncements(){
   try{
-    const {data}=await sb.from('announcements').select('*').order('id',{ascending:false}).limit(1);
-    latestAnn=(data&&data[0])||null;
-  }catch(e){latestAnn=null;}
+    const seen=state.seenAnn||0;
+    // كل إعلان رقمه أكبر من آخر واحد شافه، من الأقدم للأحدث
+    const {data}=await sb.from('announcements').select('*').gt('id',seen).order('id',{ascending:true});
+    annQueue=data||[];
+  }catch(e){annQueue=[];}
 }
 function maybeShowAnnouncement(){
-  if(!latestAnn)return;
-  const seen=state.seenAnn||0;
-  if(latestAnn.id>seen)showAnnouncementPopup(latestAnn);
+  if(annQueue.length)showAnnouncementPopup(annQueue[0]);
 }
 function showAnnouncementPopup(a){
   const ov=document.getElementById('annOverlay');
   let dt='';try{dt=new Date(a.created_at).toLocaleDateString('ar-SA');}catch(e){}
+  const more=annQueue.length>1?`<span style="font-size:11px;color:var(--muted);font-family:Tajawal">+${annQueue.length-1} إعلان آخر</span>`:'';
   ov.innerHTML=`<div class="ann-box">
     <div class="ann-top">📢 إعلان من اللجنة المنظّمة</div>
     <div class="ann-title">${esc(a.title)}</div>
     <div class="ann-body">${esc(a.body)}</div>
-    <div class="ann-date">${dt}</div>
-    <div class="ann-foot"><button class="ann-close" onclick="closeAnnouncement(${a.id})">فهمت ✓</button></div>
+    <div class="ann-date">${dt} ${more}</div>
+    <div class="ann-foot"><button class="ann-close" onclick="closeAnnouncement(${a.id})">${annQueue.length>1?'التالي ›':'فهمت ✓'}</button></div>
   </div>`;
   ov.classList.add('show');
 }
 function closeAnnouncement(id){
-  document.getElementById('annOverlay').classList.remove('show');
-  state.seenAnn=id;queueSave();
+  state.seenAnn=Math.max(state.seenAnn||0,id);queueSave();
+  annQueue.shift(); // نشيل اللي قراه
+  if(annQueue.length){showAnnouncementPopup(annQueue[0]);} // نعرض اللي بعده
+  else{document.getElementById('annOverlay').classList.remove('show');}
 }
 function openCompose(){
   const ov=document.getElementById('annOverlay');
