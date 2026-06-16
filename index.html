@@ -507,7 +507,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <div class="progress-wrap">
       <div class="progress-top">
         <div class="progress-label">🔮 توقّعاتك لدور المجموعات</div>
-        <div class="progress-count"><span id="predCount">0</span><small>/72</small></div>
+        <div class="progress-count"><span id="predCount">0</span><small id="predTotal">/68</small></div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="predFill" style="width:0%"></div></div>
     </div>
@@ -793,7 +793,7 @@ function accBadge(pts){
 }
 
 function filled(r){return r&&r.h!==""&&r.h!=null&&r.a!==""&&r.a!=null;}
-function predCount(){return GM.filter(m=>filled(state.g[m.id])).length;}
+function predCount(){return GM.filter(m=>counts(m)&&filled(state.g[m.id])).length;}
 
 /* ===== توقعاتي ===== */
 function matchStarted(m){
@@ -870,7 +870,8 @@ function renderPredict(){
 function updateProgress(){
   const c=predCount();
   document.getElementById('predCount').textContent=c;
-  document.getElementById('predFill').style.width=(c/72*100)+"%";
+  const tot=document.getElementById('predTotal');if(tot)tot.textContent='/'+COUNTED_TOTAL;
+  document.getElementById('predFill').style.width=(c/COUNTED_TOTAL*100)+"%";
 }
 
 /* ===== بطاقة المباراة القادمة ===== */
@@ -1126,6 +1127,8 @@ function renderPredStatsHtml(){
 // بداية احتساب النقاط: مباراة قطر×سويسرا (13 يونيو 22:00). أي مباراة قبلها لا تُحسب للجميع.
 const SCORING_START=new Date(2026,5,13,22,0,0).getTime();
 function counts(m){const d=matchDate(m.tm);return d?d.getTime()>=SCORING_START:true;}
+// عدد المباريات المحسوبة في التوقّعات (من قطر×سويسرا فأكثر)
+const COUNTED_TOTAL=GM.filter(m=>counts(m)).length;
 const MAX_JOKERS=3;
 const STREAK_BONUS=10;         // بونص كل 3 توقّعات مطابقة تماماً متتالية
 const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
@@ -1165,9 +1168,9 @@ function computePointsForG(g,champ){
   // البطل
   let champBonus=0;const ac=actualChampion();
   if(champ&&ac&&champ===ac){champBonus=CHAMP_BONUS;total+=CHAMP_BONUS;}
-  // أنماط التوقّع (من كل التوقّعات المعبّأة)
+  // أنماط التوقّع (من التوقّعات المحسوبة فقط — من قطر×سويسرا)
   let predTotal=0,bigBets=0,drawBets=0;
-  GM.forEach(m=>{const r=g[m.id];if(filled(r)){predTotal++;
+  GM.forEach(m=>{if(!counts(m))return;const r=g[m.id];if(filled(r)){predTotal++;
     if(((+r.h)+(+r.a))>=4)bigBets++;
     if(+r.h===+r.a)drawBets++;}});
   return {total,scored,exact,good,ok,wrong,per,jokerBonus,streakBonus,bestStreak,curStreak:streak,champBonus,champ:champ||null,predTotal,bigBets,drawBets};
