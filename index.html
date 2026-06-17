@@ -11,14 +11,27 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --bg:#070A18;--bg-2:#0E1430;--bg-3:#18203F;--line:#283156;
-  --gold:#E5B838;--gold-bright:#FFD968;--gold-deep:#A6801E;
+  --bg:#070A18;--bg-2:#0E1430;--bg-3:#18203F;--line:#283156;  --gold:#E5B838;--gold-bright:#FFD968;--gold-deep:#A6801E;
   --can:#E61D25;--mex:#3CAC3B;--usa:#2A398D;
   --can-soft:rgba(230,29,37,.14);--mex-soft:rgba(60,172,59,.14);--usa-soft:rgba(42,57,141,.18);
   --text:#F7F5EE;--muted:#9AA2C0;--muted-2:#5E668C;
   --ok:#34C76F;--warn:#E8B53A;--bad:#E61D25;
   --radius:18px;--radius-sm:12px;
 }
+/* الوضع الفاتح */
+body.light{
+  --bg:#EEF1FA;--bg-2:#FFFFFF;--bg-3:#F3F5FC;--line:#D7DDEE;
+  --text:#141A2E;--muted:#5A627F;--muted-2:#8A92AE;
+}
+body.light{background:var(--bg);
+  background-image:radial-gradient(1100px 560px at 82% -12%,rgba(229,184,56,.10),transparent 60%),
+    radial-gradient(820px 520px at -8% 8%,rgba(42,57,141,.08),transparent 55%);}
+/* مؤشّر التحميل */
+.spin-overlay{position:fixed;inset:0;z-index:300;background:rgba(7,10,24,.4);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center}
+.spin-overlay.show{display:flex}
+.spinner{width:42px;height:42px;border:4px solid rgba(229,184,56,.25);border-top-color:var(--gold-bright);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.theme-btn{background:var(--bg-3);border:1px solid var(--line);color:var(--text);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;margin-right:6px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
@@ -483,9 +496,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
         <div class="mini-title">مونديال <span>السعودية</span></div>
       </div>
       <button class="logout-btn" onclick="doLogout()" title="تسجيل الخروج">خروج</button>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="الوضع">🌙</button>
     </div>
     <div class="tricolor"></div>
   </div>
+
+  <div class="spin-overlay" id="spin"><div class="spinner"></div></div>
 
   <div class="next-card" id="nextCard">
     <div class="tricolor"></div>
@@ -1661,11 +1677,17 @@ async function enterApp(){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
   window.scrollTo(0,0);
+  try{applyTheme(localStorage.getItem('theme')||'dark');}catch(e){}
+  spin(1);
   await loadState();
   await loadLive();
+  spin(0);
   renderPredict();renderNext();renderMatches();startLiveRefresh();startLockTimer();
   setupAdmin();
   await loadAnnouncements();maybeShowAnnouncement();
+  // استرجاع آخر تاب
+  let lt='matches';try{lt=localStorage.getItem('lastTab')||'matches';}catch(e){}
+  if(lt!=='matches'&&document.getElementById('page-'+lt))showTab(lt);
 }
 // مؤقّت يقفل المباريات تلقائياً عند بدئها (بدون تحديث يدوي)
 let lockTimer=null;
@@ -1677,17 +1699,36 @@ function startLockTimer(){clearInterval(lockTimer);lockTimer=setInterval(()=>{
   else if(id==='page-predict'||id==='page-myteam'){}
   renderNext();
 },30000);}
+/* الوضع الفاتح/الداكن */
+function applyTheme(t){
+  document.body.classList.toggle('light',t==='light');
+  const b=document.getElementById('themeBtn');if(b)b.textContent=t==='light'?'☀️':'🌙';
+}
+function toggleTheme(){
+  const cur=document.body.classList.contains('light')?'light':'dark';
+  const nxt=cur==='light'?'dark':'light';
+  try{localStorage.setItem('theme',nxt);}catch(e){}
+  applyTheme(nxt);
+}
+/* مؤشّر التحميل */
+function spin(on){const s=document.getElementById('spin');if(s)s.classList.toggle('show',!!on);}
+/* حفظ التاب */
+function saveTab(name){try{localStorage.setItem('lastTab',name);}catch(e){}}
+function tabBtn(name){return [...document.querySelectorAll('.tab')].find(t=>(t.getAttribute('onclick')||'').includes("'"+name+"'"));}
+
 function showTab(name,btn){
+  if(!btn)btn=tabBtn(name);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='standings'){if(standMode==='real')loadLive().then(renderStandings);else renderStandings();}
-  if(name==='matches'){loadLive().then(renderMatches);startLiveRefresh();}else stopLiveRefresh();
-  if(name==='predict'){loadLive().then(renderPredict);}
-  if(name==='stats'){loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(renderStats);else renderStats();});}
-  if(name==='points'){loadLive().then(renderPoints);}
-  if(name==='board'){loadBoard().then(renderBoard);}
+  if(btn)btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
+  saveTab(name);
+  if(name==='standings'){if(standMode==='real'){spin(1);loadLive().then(()=>{spin(0);renderStandings();});}else renderStandings();}
+  if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});startLiveRefresh();}else stopLiveRefresh();
+  if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
+  if(name==='stats'){spin(1);loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(()=>{spin(0);renderStats();});else{spin(0);renderStats();}});}
+  if(name==='points'){spin(1);loadLive().then(()=>{spin(0);renderPoints();});}
+  if(name==='board'){spin(1);loadBoard().then(()=>{spin(0);renderBoard();});}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
 let liveTimer=null;
