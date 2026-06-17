@@ -32,6 +32,11 @@ body.light{background:var(--bg);
 .spinner{width:42px;height:42px;border:4px solid rgba(229,184,56,.25);border-top-color:var(--gold-bright);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .theme-btn{background:var(--bg-3);border:1px solid var(--line);color:var(--text);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;margin-right:6px}
+/* بانر التذكير */
+.remind-bar{margin:12px 16px 0;background:linear-gradient(135deg,rgba(229,184,56,.18),var(--bg-2));border:1px solid var(--gold);border-radius:13px;padding:12px 14px;font-size:13px;display:flex;align-items:center;gap:10px;line-height:1.6}
+.remind-bar .rb-txt{flex:1}
+.remind-bar button{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:99px;padding:7px 13px;font-family:'Cairo';font-weight:800;font-size:12px;cursor:pointer;flex:none}
+.remind-bar .rb-x{background:none;border:none;color:var(--muted);font-size:18px;padding:0 4px;cursor:pointer}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
@@ -74,7 +79,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .topbar-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
 .mini-mark{display:flex;align-items:center;gap:9px}
 .mini-emblem{height:42px;width:42px;flex:none;filter:drop-shadow(0 2px 6px rgba(212,169,60,.3))}
-.mini-title{font-family:'Cairo';font-weight:900;font-size:15px}.mini-title span{color:var(--gold-bright)}
+.mini-title{font-family:'Cairo';font-weight:900;font-size:15px;color:#F7F5EE}.mini-title span{color:var(--gold-bright)}
 .icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);font-size:16px;cursor:pointer;display:grid;place-items:center}
 .logout-btn{padding:9px 16px;border-radius:11px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);
   font-family:'Tajawal';font-weight:700;font-size:13px;cursor:pointer;transition:border-color .2s,color .2s}
@@ -338,7 +343,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .stat-val{font-family:'Anton';font-size:18px;color:var(--gold-bright);flex:none}
 .stat-val small{font-family:'Tajawal';font-size:11px;color:var(--muted)}
 .stat-cards{display:flex;gap:8px;flex:none;align-items:center}
-.cardpill{display:flex;align-items:center;gap:3px;font-family:'Anton';font-size:14px}
+.cardpill{display:flex;align-items:center;gap:3px;font-family:'Anton';font-size:18px;color:var(--gold-bright)}
 .susp-warn{display:inline-block;font-family:'Cairo';font-weight:800;font-size:9px;padding:1px 7px;border-radius:99px;margin-inline-start:6px;background:rgba(232,181,58,.16);color:var(--warn);border:1px solid rgba(232,181,58,.4);white-space:nowrap}
 .susp-ban{background:rgba(224,83,61,.16);color:var(--bad);border-color:rgba(224,83,61,.4)}
 .cards-note{background:var(--bg-2);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin:6px 2px 14px;font-size:11px;color:var(--muted);line-height:1.7}
@@ -502,6 +507,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   </div>
 
   <div class="spin-overlay" id="spin"><div class="spinner"></div></div>
+
+  <div class="remind-bar" id="remind" style="display:none"></div>
 
   <div class="next-card" id="nextCard">
     <div class="tricolor"></div>
@@ -1684,6 +1691,7 @@ async function enterApp(){
   spin(0);
   renderPredict();renderNext();renderMatches();startLiveRefresh();startLockTimer();
   setupAdmin();
+  renderReminder();
   await loadAnnouncements();maybeShowAnnouncement();
   // استرجاع آخر تاب
   let lt='matches';try{lt=localStorage.getItem('lastTab')||'matches';}catch(e){}
@@ -1716,6 +1724,26 @@ function spin(on){const s=document.getElementById('spin');if(s)s.classList.toggl
 function saveTab(name){try{localStorage.setItem('lastTab',name);}catch(e){}}
 function tabBtn(name){return [...document.querySelectorAll('.tab')].find(t=>(t.getAttribute('onclick')||'').includes("'"+name+"'"));}
 
+/* تذكير المباريات القريبة غير المتوقّعة */
+let remindHidden=false;
+function upcomingUnpredicted(hoursWindow){
+  const now=Date.now(),lim=now+hoursWindow*3600*1000,out=[];
+  GM.forEach(m=>{if(!counts(m))return;const d=matchDate(m.tm);if(!d)return;
+    const t=d.getTime();if(t>now&&t<=lim&&!filled(state.g[m.id]))out.push(m);});
+  return out;
+}
+function renderReminder(){
+  const el=document.getElementById('remind');if(!el)return;
+  if(remindHidden){el.style.display='none';return;}
+  const soon=upcomingUnpredicted(12);
+  if(!soon.length){el.style.display='none';return;}
+  const n=soon.length;
+  el.style.display='flex';
+  el.innerHTML=`<span class="rb-txt">⏰ عندك <b>${n}</b> ${n===1?'مباراة قريبة':'مباريات قريبة'} ما توقّعتها — توقّعها قبل القفل!</span>
+    <button onclick="showTab('predict')">توقّع الآن</button>
+    <button class="rb-x" onclick="remindHidden=true;document.getElementById('remind').style.display='none'" title="إخفاء">×</button>`;
+}
+
 function showTab(name,btn){
   if(!btn)btn=tabBtn(name);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1724,7 +1752,8 @@ function showTab(name,btn){
   if(btn)btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   saveTab(name);
   if(name==='standings'){if(standMode==='real'){spin(1);loadLive().then(()=>{spin(0);renderStandings();});}else renderStandings();}
-  if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});startLiveRefresh();}else stopLiveRefresh();
+  if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});}
+  startLiveRefresh();
   if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
   if(name==='stats'){spin(1);loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(()=>{spin(0);renderStats();});else{spin(0);renderStats();}});}
   if(name==='points'){spin(1);loadLive().then(()=>{spin(0);renderPoints();});}
@@ -1732,8 +1761,18 @@ function showTab(name,btn){
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
 
 let liveTimer=null;
-function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(()=>{
-  loadLive().then(()=>{if(document.getElementById('page-matches').classList.contains('active'))renderMatches();});
+function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(async()=>{
+  const active=document.querySelector('.page.active');if(!active)return;
+  const id=active.id;
+  try{
+    await loadLive();
+    if(id==='page-matches')renderMatches();
+    else if(id==='page-points')renderPoints();
+    else if(id==='page-standings'){if(typeof standMode!=='undefined'&&standMode==='real')renderStandings();}
+    else if(id==='page-board'){await loadBoard();renderBoard();}
+    else if(id==='page-stats'){if(statSub==='predictions')await loadBoard();renderStats();}
+    renderNext();renderReminder();
+  }catch(e){}
 },60000);}
 function stopLiveRefresh(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}}
 
