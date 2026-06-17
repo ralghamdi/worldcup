@@ -51,6 +51,30 @@ body.light{background:var(--bg);
 .h2h-v{flex:1;text-align:center;font-family:'Anton';font-size:19px;color:var(--muted)}
 .h2h-v.win{color:var(--gold-bright)}
 .h2h-l{flex:1;text-align:center;font-size:12px;color:var(--muted)}
+/* شارات */
+.badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:6px}
+.badge{display:flex;align-items:center;gap:9px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;opacity:.45}
+.badge.on{opacity:1;border-color:var(--gold-deep);background:linear-gradient(135deg,rgba(229,184,56,.12),var(--bg-2))}
+.badge .bd-ic{font-size:22px;flex:none;filter:grayscale(1)}
+.badge.on .bd-ic{filter:none}
+.badge .bd-t{font-size:12px;font-weight:700;line-height:1.3}
+/* تحليل */
+.ana-sum{background:var(--bg-2);border:1px solid var(--gold-deep);border-radius:11px;padding:11px 13px;font-size:13px;line-height:1.7;margin-bottom:9px}
+.ana-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.ana-t{flex:none;width:130px;font-size:12px}
+.ana-t small{color:var(--muted-2)}
+.ana-bar{flex:1;height:9px;background:var(--bg-3);border-radius:99px;overflow:hidden}
+.ana-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));border-radius:99px}
+.ana-p{flex:none;width:42px;text-align:left;font-size:14px;color:var(--gold-bright)}
+/* رسم */
+.spark-box{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:14px}
+.spark{width:100%;height:90px;display:block}
+.spark-lbl{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
+/* مشاركة */
+.share-wrap{margin-top:14px;text-align:center}
+.share-btn{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:99px;padding:13px 26px;font-family:'Cairo';font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(212,169,60,.35)}
+.mt-majority{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+.mt-majority b{color:var(--gold-bright)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
@@ -1397,6 +1421,58 @@ function viewFriend(uid){
   });
   host.innerHTML=h;window.scrollTo(0,0);
 }
+// تاريخ النقاط (لقطة يومية) للرسم البياني
+function recordPointsHistory(total){
+  let hist=[];try{hist=JSON.parse(localStorage.getItem('ptsHist')||'[]');}catch(e){}
+  const today=new Date().toISOString().slice(0,10);const last=hist[hist.length-1];
+  if(last&&last.d===today)last.t=total;else hist.push({d:today,t:total});
+  if(hist.length>30)hist=hist.slice(-30);
+  try{localStorage.setItem('ptsHist',JSON.stringify(hist));}catch(e){}
+  return hist;
+}
+function sparkSvg(hist){
+  if(hist.length<2)return `<div class="pts-note" style="margin:0">📊 رسم تطوّر نقاطك يبدأ من اليوم — ارجع بكرة وبعده لتشوف منحنى تقدّمك.</div>`;
+  const w=300,hgt=90,pad=8;const vals=hist.map(x=>x.t);const mx=Math.max(...vals,1),mn=Math.min(...vals,0);
+  const rng=(mx-mn)||1;
+  const pts=hist.map((x,i)=>{const px=pad+i*((w-2*pad)/(hist.length-1));const py=hgt-pad-((x.t-mn)/rng)*(hgt-2*pad);return px.toFixed(1)+','+py.toFixed(1);}).join(' ');
+  const last=vals[vals.length-1],first=vals[0];const up=last>=first;
+  return `<svg viewBox="0 0 ${w} ${hgt}" class="spark" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="${up?'#34C76F':'#E5B838'}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg><div class="spark-lbl">من ${first} إلى <b>${last}</b> نقطة · ${hist.length} يوم</div>`;
+}
+// بطاقة مشاركة (صورة)
+function shareCard(){
+  const r=computePoints();const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
+  let rank=0;if(boardData&&boardData.length){const i=boardData.findIndex(x=>x.uid===user.id);if(i>=0)rank=i+1;}
+  const c=document.createElement('canvas');c.width=720;c.height=480;const x=c.getContext('2d');
+  // خلفية
+  const grd=x.createLinearGradient(0,0,720,480);grd.addColorStop(0,'#0E1430');grd.addColorStop(1,'#070A18');
+  x.fillStyle=grd;x.fillRect(0,0,720,480);
+  // شريط علوي ثلاثي
+  x.fillStyle='#E61D25';x.fillRect(0,0,240,8);x.fillStyle='#3CAC3B';x.fillRect(240,0,240,8);x.fillStyle='#2A398D';x.fillRect(480,0,240,8);
+  x.textAlign='center';
+  x.fillStyle='#FFD968';x.font='bold 30px Tajawal,sans-serif';x.fillText('🏆 توقّعاتي · مونديال 2026',360,70);
+  x.fillStyle='#F7F5EE';x.font='bold 40px Tajawal,sans-serif';x.fillText(esc2(state.name||'لاعب'),360,135);
+  // النقاط الكبيرة
+  x.fillStyle='#FFD968';x.font='bold 130px Anton,sans-serif';x.fillText(String(r.total),360,290);
+  x.fillStyle='#9AA2C0';x.font='24px Tajawal,sans-serif';x.fillText('نقطة',360,330);
+  // صف إحصائيات
+  const stats=[['المركز',rank?'#'+rank:'—'],['مطابقات',r.exact],['الدقّة',acc+'%'],['سلسلة',r.bestStreak]];
+  const bw=720/4;
+  stats.forEach((s,i)=>{const cx=bw*i+bw/2;
+    x.fillStyle='#FFD968';x.font='bold 36px Anton,sans-serif';x.fillText(String(s[1]),cx,410);
+    x.fillStyle='#9AA2C0';x.font='18px Tajawal,sans-serif';x.fillText(s[0],cx,440);});
+  x.fillStyle='#5E668C';x.font='16px Tajawal,sans-serif';x.fillText('ralghamdi.github.io/worldcup',360,470);
+  c.toBlob(blob=>{
+    if(!blob){alert('تعذّر إنشاء البطاقة');return;}
+    const file=new File([blob],'my-card.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'توقّعاتي'}).catch(()=>{});
+    }else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='توقعاتي.png';a.click();}
+  },'image/png');
+}
+function esc2(s){return String(s).slice(0,22);}
+
 function renderPoints(){
   const host=document.getElementById('pointsHost');
   const r=computePoints();
@@ -1471,6 +1547,50 @@ function renderPoints(){
     });
   }
 
+  // 🏅 شارات الإنجازات
+  const jc=jokerCount(state.g);
+  const badges=[
+    {ic:'🎯',t:'أول مطابقة',got:r.exact>=1},
+    {ic:'🎯',t:'قنّاص · 5 مطابقات',got:r.exact>=5},
+    {ic:'🔥',t:'سلسلة نار · 3 متتالية',got:r.bestStreak>=3},
+    {ic:'🃏',t:'مقامر · استخدمت جوكر',got:jc>=1},
+    {ic:'💯',t:'دقّة عالية · 70%+',got:r.scored>=5&&acc>=70},
+    {ic:'⚡',t:'نشيط · 30+ توقّع',got:r.predTotal>=30},
+  ];
+  h+=`<div class="sec-title head">🏅 شاراتك (${badges.filter(b=>b.got).length}/${badges.length})</div>`;
+  h+=`<div class="badge-grid">`+badges.map(b=>`<div class="badge ${b.got?'on':''}"><span class="bd-ic">${b.ic}</span><span class="bd-t">${b.t}</span></div>`).join('')+`</div>`;
+
+  // 📉 تحليل أداءك
+  let dT=0,dH=0,cT=0,cH=0,bT=0,bH=0,sT=0,sH=0;
+  GM.forEach(m=>{if(!counts(m))return;const pred=state.g[m.id],rec=liveFor(m.A,m.B);
+    if(!filled(pred)||!rec||rec.status!=='post')return;
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
+    const pts=scorePred(pred.h,pred.a,aS,bS);if(pts==null)return;const ok=pts>=2;
+    if(+pred.h===+pred.a){dT++;if(ok)dH++;}else{cT++;if(ok)cH++;}
+    if(((+pred.h)+(+pred.a))>=4){bT++;if(ok)bH++;}else{sT++;if(ok)sH++;}});
+  if(dT+cT>0){
+    const pc=(hit,tot)=>tot?Math.round(hit/tot*100):null;
+    const cats=[
+      {t:'🤝 التعادلات',p:pc(dH,dT),n:dT},
+      {t:'⚔️ الحسم (فائز)',p:pc(cH,cT),n:cT},
+      {t:'💥 النتائج الكبيرة (4+)',p:pc(bH,bT),n:bT},
+      {t:'🔒 النتائج الصغيرة',p:pc(sH,sT),n:sT},
+    ].filter(c=>c.p!==null);
+    const valid=cats.slice().sort((a,b)=>b.p-a.p);
+    h+=`<div class="sec-title head">📉 تحليل أداءك</div>`;
+    if(valid.length>=2){h+=`<div class="ana-sum">💪 أقوى نمط: <b>${valid[0].t}</b> (${valid[0].p}%) · 😅 أضعف: <b>${valid[valid.length-1].t}</b> (${valid[valid.length-1].p}%)</div>`;}
+    cats.forEach(c=>{h+=`<div class="ana-row"><span class="ana-t">${c.t} <small>(${c.n})</small></span>
+      <span class="ana-bar"><span style="width:${c.p}%"></span></span><span class="ana-p num">${c.p}%</span></div>`;});
+  }
+
+  // 📊 تطوّر نقاطك
+  const hist=recordPointsHistory(r.total);
+  h+=`<div class="sec-title head">📊 تطوّر نقاطك</div><div class="spark-box">${sparkSvg(hist)}</div>`;
+
+  // 📸 بطاقة مشاركة
+  h+=`<div class="share-wrap"><button class="share-btn" onclick="shareCard()">📸 بطاقة مشاركة</button></div>`;
+
+
   if(r.scored===0){
     h+=`<div class="pts-note">🔮 نقاطك تبدأ مع <b style="color:var(--gold-bright)">أول مباراة تنتهي</b> توقّعت نتيجتها.<br>كل ما تخلص مباراة، تنحسب نقاطك تلقائياً.</div>`;
   }
@@ -1518,6 +1638,18 @@ function renderMatches(){
     host.appendChild(matchCard(m));
   });
 }
+function majorityFor(m){
+  if(!boardData||!boardData.length)return null;
+  let hw=0,dr=0,aw=0,tot=0;const sc={};
+  boardData.forEach(p=>{const pr=p.g[m.id];if(!pr||pr.h===''||pr.h==null||pr.a===''||pr.a==null)return;
+    tot++;const hh=+pr.h,aa=+pr.a;if(hh>aa)hw++;else if(aa>hh)aw++;else dr++;
+    const k=hh+'-'+aa;sc[k]=(sc[k]||0)+1;});
+  if(!tot)return null;
+  const top=Math.max(hw,dr,aw);let lbl;
+  if(hw===top)lbl='فوز '+nm(m.A);else if(aw===top)lbl='فوز '+nm(m.B);else lbl='تعادل';
+  let ts=null,tn=0;Object.keys(sc).forEach(k=>{if(sc[k]>tn){tn=sc[k];ts=k;}});
+  return {tot,lbl,pct:Math.round(top/tot*100),ts,tsPct:Math.round(tn/tot*100)};
+}
 function matchCard(m){
   const A=m.A,B=m.B,rec=liveFor(A,B);
   const isKsa=(A===myTeam()||B===myTeam());
@@ -1544,6 +1676,9 @@ function matchCard(m){
   if(status==='post'&&hasActual&&hasPred&&counts(m)){
     const pts=scorePred(pred.h,pred.a,aS,bS);acc=accBadge(pts);
   }
+  // توقّع الأغلبية (للمباريات اللي بدأت فقط — منع التأثير على التوقّع)
+  const maj=started?majorityFor(m):null;
+  const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب</div>`:'';
 
   el.innerHTML=`${badge}
     <div class="mt-row">
@@ -1554,7 +1689,7 @@ function matchCard(m){
         ${acc}
       </div>
       <div class="mt-side away"><span class="mt-flag">${fl(B)}</span><span class="mt-name">${nm(B)}</span></div>
-    </div>`;
+    </div>${majHtml}`;
 
   // الأحداث (عمودين) لو فيه
   const evs=(rec&&rec.events)?rec.events:[];
@@ -1854,7 +1989,7 @@ function showTab(name,btn){
   if(btn)btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   saveTab(name);
   if(name==='standings'){if(standMode==='real'){spin(1);loadLive().then(()=>{spin(0);renderStandings();});}else renderStandings();}
-  if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});}
+  if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});loadBoard().then(()=>{if(document.getElementById('page-matches').classList.contains('active'))renderMatches();});}
   startLiveRefresh();
   if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
   if(name==='stats'){spin(1);loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(()=>{spin(0);renderStats();});else{spin(0);renderStats();}});}
