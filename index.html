@@ -1438,7 +1438,8 @@ function realPointsHistory(){
     const key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
     if(!byDay[key])byDay[key]={d,t:0,n:0};byDay[key].t+=p;byDay[key].n++;});
   return Object.keys(byDay).map(k=>byDay[k]).sort((a,b)=>a.d-b.d)
-    .map(o=>({label:o.d.getDate()+'/'+(o.d.getMonth()+1),day:o.d.getDate(),t:o.t,n:o.n}));
+    .map(o=>({label:o.d.getDate()+'/'+(o.d.getMonth()+1),day:o.d.getDate(),t:o.t,n:o.n}))
+    .slice(-14);
 }
 function sparkSvg(hist){
   if(!hist.length)return `<div class="pts-note" style="margin:0">📊 رسم نقاطك اليومي يظهر بعد ما تنتهي مباريات توقّعتها.</div>`;
@@ -2064,3 +2065,4 @@ function applyLogo(){
 </script>
 </body>
 </html>
+ 
