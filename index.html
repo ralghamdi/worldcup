@@ -1934,20 +1934,24 @@ async function doLogout(){
   document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}
 async function enterApp(){
   document.getElementById('auth').style.display='none';
+  try{applyTheme(localStorage.getItem('theme')||'dark');}catch(e){}
+  // حدّد آخر تاب وفعّله قبل العرض (بدون وميض المباريات)
+  let lt='matches';try{lt=localStorage.getItem('lastTab')||'matches';}catch(e){}
+  if(!document.getElementById('page-'+lt))lt='matches';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+lt).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const tb=tabBtn(lt);if(tb)tb.classList.add('active');
   document.getElementById('app').style.display='block';
   window.scrollTo(0,0);
-  try{applyTheme(localStorage.getItem('theme')||'dark');}catch(e){}
   spin(1);
   await loadState();
   await loadLive();
   spin(0);
-  renderPredict();renderNext();renderMatches();startLiveRefresh();startLockTimer();
-  setupAdmin();
-  renderReminder();
+  renderNext();renderMatches();startLiveRefresh();startLockTimer();
+  setupAdmin();renderReminder();
+  if(lt!=='matches')showTab(lt); // يرسم محتوى التاب الصحيح
   await loadAnnouncements();maybeShowAnnouncement();
-  // استرجاع آخر تاب
-  let lt='matches';try{lt=localStorage.getItem('lastTab')||'matches';}catch(e){}
-  if(lt!=='matches'&&document.getElementById('page-'+lt))showTab(lt);
 }
 // مؤقّت يقفل المباريات تلقائياً عند بدئها (بدون تحديث يدوي)
 let lockTimer=null;
