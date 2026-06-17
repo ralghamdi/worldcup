@@ -67,9 +67,13 @@ body.light{background:var(--bg);
 .ana-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));border-radius:99px}
 .ana-p{flex:none;width:42px;text-align:left;font-size:14px;color:var(--gold-bright)}
 /* رسم */
-.spark-box{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:14px}
-.spark{width:100%;height:90px;display:block}
-.spark-lbl{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
+.spark-box{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:16px 12px 12px}
+.bars{display:flex;align-items:flex-end;justify-content:space-around;gap:5px;height:130px;padding:0 2px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:0;max-width:46px}
+.bar-val{font-family:'Anton';font-size:13px;color:var(--gold-bright)}
+.bar{width:100%;background:linear-gradient(180deg,#5BCB86,#34C76F);border-radius:6px 6px 0 0;transition:height .4s;min-height:4px}
+.bar-day{font-size:10px;color:var(--muted);white-space:nowrap}
+.spark-lbl{text-align:center;font-size:12px;color:var(--muted);margin-top:12px}
 /* مشاركة */
 .share-wrap{margin-top:14px;text-align:center}
 .share-btn{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:99px;padding:13px 26px;font-family:'Cairo';font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(212,169,60,.35)}
@@ -1422,34 +1426,33 @@ function viewFriend(uid){
   host.innerHTML=h;window.scrollTo(0,0);
 }
 // تاريخ النقاط الحقيقي: تراكمي يوم بيوم من النتائج الفعلية
-function totalUpTo(cutoff){
-  const g=state.g;let total=0,streak=0;const jok=validJokers(g);
-  const cutTime=new Date(cutoff.getFullYear(),cutoff.getMonth(),cutoff.getDate(),23,59,59).getTime();
-  GM.forEach(m=>{if(!counts(m))return;const d=matchDate(m.tm);if(!d||d.getTime()>cutTime)return;
-    const pred=g[m.id],rec=liveFor(m.A,m.B);if(!filled(pred)||!rec||rec.status!=='post')return;
-    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
-    const base=scorePred(pred.h,pred.a,aS,bS);if(base==null)return;
-    let p=base;if(jok.has(m.id))p=base*2;total+=p;
-    if(base===5){streak++;if(streak%3===0)total+=STREAK_BONUS;}else streak=0;});
-  return total;
-}
+// تاريخ النقاط الحقيقي: نقاط كل يوم لوحده
 function realPointsHistory(){
-  const seen={};
+  // نقاط كل يوم لوحده (مو تراكمي)
+  const byDay={};const jok=validJokers(state.g);
   GM.forEach(m=>{if(!counts(m))return;const rec=liveFor(m.A,m.B);if(!(rec&&rec.status==='post'))return;
     const pred=state.g[m.id];if(!filled(pred))return;const d=matchDate(m.tm);if(!d)return;
-    const key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!seen[key])seen[key]=d;});
-  const days=Object.keys(seen).map(k=>seen[k]).sort((a,b)=>a-b);
-  return days.map(d=>({label:d.getDate()+' '+monName(d.getMonth()+1),t:totalUpTo(d)}));
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
+    const base=scorePred(pred.h,pred.a,aS,bS);if(base==null)return;
+    let p=base;if(jok.has(m.id))p=base*2;
+    const key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(!byDay[key])byDay[key]={d,t:0,n:0};byDay[key].t+=p;byDay[key].n++;});
+  return Object.keys(byDay).map(k=>byDay[k]).sort((a,b)=>a.d-b.d)
+    .map(o=>({label:o.d.getDate()+'/'+(o.d.getMonth()+1),day:o.d.getDate(),t:o.t,n:o.n}));
 }
 function sparkSvg(hist){
-  if(hist.length<2)return `<div class="pts-note" style="margin:0">📊 رسم تطوّر نقاطك يظهر بعد ما تنتهي مباريات في <b>يومين أو أكثر</b> توقّعتها.</div>`;
-  const w=300,hgt=90,pad=8;const vals=hist.map(x=>x.t);const mx=Math.max(...vals,1),mn=Math.min(...vals,0);
-  const rng=(mx-mn)||1;
-  const pts=hist.map((x,i)=>{const px=pad+i*((w-2*pad)/(hist.length-1));const py=hgt-pad-((x.t-mn)/rng)*(hgt-2*pad);return px.toFixed(1)+','+py.toFixed(1);}).join(' ');
-  const last=vals[vals.length-1],first=vals[0];const up=last>=first;
-  return `<svg viewBox="0 0 ${w} ${hgt}" class="spark" preserveAspectRatio="none">
-    <polyline points="${pts}" fill="none" stroke="${up?'#34C76F':'#E5B838'}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-  </svg><div class="spark-lbl">من ${first} إلى <b>${last}</b> نقطة · ${hist.length} يوم</div>`;
+  if(!hist.length)return `<div class="pts-note" style="margin:0">📊 رسم نقاطك اليومي يظهر بعد ما تنتهي مباريات توقّعتها.</div>`;
+  const mx=Math.max(...hist.map(x=>x.t),1);
+  const best=hist.reduce((a,b)=>b.t>a.t?b:a,hist[0]);
+  let bars=hist.map(x=>{
+    const h=Math.max(4,Math.round(x.t/mx*100));const isBest=(x.t===best.t&&best.t>0);
+    return `<div class="bar-col">
+      <div class="bar-val">${x.t}</div>
+      <div class="bar" style="height:${h}px;${isBest?'background:linear-gradient(180deg,var(--gold-bright),var(--gold))':''}"></div>
+      <div class="bar-day">${x.label}</div>
+    </div>`;}).join('');
+  return `<div class="bars">${bars}</div>
+    <div class="spark-lbl">🔥 أفضل يوم: <b>${best.t} نقطة</b> (${best.label}) · ${hist.length} يوم</div>`;
 }
 // بطاقة مشاركة (صورة)
 function shareCard(){
