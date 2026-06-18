@@ -905,6 +905,7 @@ function renderPredict(){
     host.appendChild(e);updateProgress();return;
   }
   let lastDay="";
+  const jokSet=validJokers(state.g);
   list.forEach(m=>{
     const dayKey=m.tm.m+"/"+m.tm.d;
     if(dayKey!==lastDay){lastDay=dayKey;
