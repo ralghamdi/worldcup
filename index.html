@@ -1118,16 +1118,13 @@ function renderStats(){
 
   // الكروت الصفراء (مع تنبيه الإيقاف حسب قانون فيفا)
   h+=`<div class="sec-title head" id="sec-yellows">🟨 الكروت الصفراء</div>`;
-  h+=`<div class="cards-note">قانون فيفا 2026: <b>إنذاران في مباراتين مختلفتين = إيقاف مباراة</b>. الإنذارات الفردية تُلغى بعد دور المجموعات وبعد ربع النهائي.<br><span class="yw">⚠️ إنذار</span> = على حافة الإيقاف · <span style="color:var(--bad);font-weight:800">⛔ معرّض للإيقاف</span> = جمع إنذارين</div>`;
+  h+=`<div class="cards-note">قانون فيفا 2026: <b>إنذاران في مباراتين مختلفتين = إيقاف مباراة</b>. الإنذارات الفردية تُلغى بعد دور المجموعات وبعد ربع النهائي.</div>`;
   if(s.yellows.length){
     const base=(statPages.yellows-1)*STAT_PER;
     pageSlice('yellows',s.yellows).forEach((x,i)=>{const rank=base+i+1;
-      let warn='';
-      if(x.y>=2)warn='<span class="susp-warn susp-ban">⛔ معرّض للإيقاف</span>';
-      else if(x.y===1)warn='<span class="susp-warn">⚠️ إنذار</span>';
       h+=`<div class="stat-row"><span class="stat-rank num ${rank<=3?'top':''}">${rank}</span>
         <span class="stat-flag">${fl(x.team)}</span>
-        <span class="stat-name">${esc(x.name)} <span class="stat-team">${nm(x.team)}</span></span>${warn}
+        <span class="stat-name">${esc(x.name)} <span class="stat-team">${nm(x.team)}</span></span>
         <span class="stat-cards"><span class="cardpill">🟨 ${x.y}</span></span></div>`;
     });
     h+=pagerHtml('yellows',s.yellows.length);
