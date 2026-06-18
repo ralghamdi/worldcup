@@ -185,6 +185,18 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .m-score input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,60,.12)}
 .m-score input.filled{border-color:var(--gold-deep)}
 .m-score input:disabled{opacity:.45;cursor:not-allowed;background:var(--bg-2)}
+/* مربّع التوقّع المقفل في السابقة (يطابق الخانة) */
+.m-box{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;font-family:'Anton';font-size:21px;background:var(--bg-2);border:1.5px solid var(--gold-deep);border-radius:10px;color:var(--gold-bright)}
+/* سطر النتيجة الصغير تحت التوقّع */
+.res-line{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.res-line.live{border-color:rgba(229,72,77,.4)}
+.res-line .rl-lbl{color:var(--muted-2)}
+.res-line .rl-sc{font-family:'Anton';font-size:17px;color:var(--text);letter-spacing:.5px}
+.res-line .rl-pts{font-family:'Cairo';font-weight:800;font-size:11px;padding:2px 9px;border-radius:99px}
+.rl-pts.p5{background:rgba(52,199,111,.18);color:#5BCB86;border:1px solid rgba(52,199,111,.45)}
+.rl-pts.p3{background:rgba(229,184,56,.18);color:var(--gold-bright);border:1px solid rgba(229,184,56,.45)}
+.rl-pts.p2{background:rgba(154,162,192,.14);color:var(--muted);border:1px solid var(--line)}
+.rl-pts.p0{background:rgba(229,72,77,.12);color:#E5777A;border:1px solid rgba(229,72,77,.3)}
 .match.locked{opacity:.78}
 .match.locked .m-time{color:var(--bad);font-weight:700}
 .m-dash{color:var(--muted-2);font-family:'Anton'}
@@ -927,21 +939,24 @@ function renderPredict(){
     const hasPred=(r.h!=null&&r.h!=="");
     const rec=liveFor(m.A,m.B);const fin=!!(rec&&rec.status==='post');const liveNow=!!(rec&&rec.status==='in');
  
-    // ===== المباريات السابقة (المنتهية): بطاقة نتيجة نظيفة =====
+    // ===== المباريات السابقة: نفس شكل القادمة (المربعين بتوقّعك) + سطر النتيجة الصغير تحت =====
     if(predSub==='past'){
       const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
       let pts=null;const jok=jokSet.has(m.id);
       if(hasPred){pts=scorePred(r.h,r.a,aS,bS);if(pts!=null&&jok)pts=pts*2;}
       const cls=pts>=5?'p5':(pts>=3?'p3':(pts>=2?'p2':'p0'));
-      const predTxt=hasPred?`🔮 توقّعك <b>${r.h}-${r.a}</b>${jok?' 🃏':''}`:'🔮 ما توقّعت';
-      const ptsBadge=(hasPred&&pts!=null)?`<span class="mr-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة</span>`:'';
-      const el=document.createElement('div');el.className='match pcard'+(isKsa?' ksa':'')+(jok?' jok':'');
-      el.innerHTML=`<div class="pc-top">
-          <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
-          <div class="pc-score num">${aS} <span class="d">−</span> ${bS}</div>
-          <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
+      const ptsTxt=(hasPred&&pts!=null)?`<span class="rl-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة${jok&&pts>0?' 🃏':''}</span>`:'';
+      const el=document.createElement('div');el.className='match locked'+(isKsa?' ksa':'')+(jok?' jok':'');
+      el.innerHTML=`<div class="m-row">
+        <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
+        <div class="m-score">
+          <span class="m-box">${hasPred?r.h:'-'}</span>
+          <span class="m-dash">−</span>
+          <span class="m-box">${hasPred?r.a:'-'}</span>
         </div>
-        <div class="pc-foot"><span class="pc-pred">${predTxt}</span>${ptsBadge}</div>`;
+        <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
+      </div>
+      <div class="res-line"><span class="rl-lbl">النتيجة</span><span class="rl-sc num">${aS} − ${bS}</span>${ptsTxt}</div>`;
       host.appendChild(el);
       return;
     }
@@ -949,11 +964,10 @@ function renderPredict(){
     // ===== المباريات القادمة: خانات الإدخال =====
     const locked=predLocked(m);
     const dis=locked?'disabled':'';
-    // لو المباراة جارية الآن، اعرض النتيجة اللحظية
     let liveHtml='';
     if(liveNow){
       const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
-      if(aS!=null&&bS!=null)liveHtml=`<div class="m-result live"><span class="mr-lbl">🔴 جارية الآن</span><span class="mr-score num">${aS} <span class="d">−</span> ${bS}</span></div>`;
+      if(aS!=null&&bS!=null)liveHtml=`<div class="res-line live"><span class="rl-lbl">🔴 جارية</span><span class="rl-sc num">${aS} − ${bS}</span></div>`;
     }
     const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'')+(hasJoker?' jok':'');
     el.innerHTML=`<div class="m-row">
