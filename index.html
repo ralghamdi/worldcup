@@ -398,6 +398,15 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .mr-pts.p3{background:rgba(229,184,56,.18);color:var(--gold-bright);border:1px solid rgba(229,184,56,.45)}
 .mr-pts.p2{background:rgba(154,162,192,.16);color:var(--muted);border:1px solid var(--line)}
 .mr-pts.p0{background:rgba(229,72,77,.14);color:#E5777A;border:1px solid rgba(229,72,77,.35)}
+/* بطاقة المباراة السابقة (نظيفة) */
+.pcard{padding:16px 16px 14px}
+.pc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pc-score{font-family:'Anton';font-size:30px;color:#fff;letter-spacing:1px;flex:none;min-width:96px;text-align:center}
+.pc-score .d{color:var(--muted-2);font-size:24px;margin:0 2px}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.pc-pred{font-size:13px;color:var(--muted)}
+.pc-pred b{color:var(--text);font-family:'Anton';font-size:15px;letter-spacing:.5px}
+.pcard.jok{border-color:var(--gold-deep)}
 .susp-ban{background:rgba(224,83,61,.16);color:var(--bad);border-color:rgba(224,83,61,.4)}
 .cards-note{background:var(--bg-2);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin:6px 2px 14px;font-size:11px;color:var(--muted);line-height:1.7}
 .cards-note b{color:var(--gold-bright)}
@@ -884,8 +893,9 @@ let predSub='upcoming';
 function setPredSub(s){predSub=s;renderPredict();}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
-  const upc=GM.filter(m=>!matchFinished(m));
-  const past=GM.filter(m=>matchFinished(m));
+  const pool=GM.filter(m=>counts(m)); // من قطر×سويسرا فقط
+  const upc=pool.filter(m=>!matchFinished(m));
+  const past=pool.filter(m=>matchFinished(m));
   const list=predSub==='upcoming'?upc:past;
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${predSub==='upcoming'?'on':''}" onclick="setPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
@@ -913,27 +923,37 @@ function renderPredict(){
       dh.innerHTML=`<span class="day-num num">${wdName(m.tm.m,m.tm.d)}</span><span class="day-date head">${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span>`;
       host.appendChild(dh);}
     const r=state.g[m.id]||{};const isKsa=(m.A===myTeam()||m.B===myTeam());
-    const locked=predLocked(m);
-    const dis=locked?'disabled':'';
     const hasJoker=!!(state.g[m.id]&&state.g[m.id].j);
     const hasPred=(r.h!=null&&r.h!=="");
-    // النتيجة الحقيقية تحت التوقّع
     const rec=liveFor(m.A,m.B);const fin=!!(rec&&rec.status==='post');const liveNow=!!(rec&&rec.status==='in');
-    let resultHtml='';
-    if(fin||liveNow){
+ 
+    // ===== المباريات السابقة (المنتهية): بطاقة نتيجة نظيفة =====
+    if(predSub==='past'){
       const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
-      if(aS!=null&&bS!=null){
-        let ptsHtml='';
-        if(fin&&hasPred&&counts(m)){
-          let pts=scorePred(r.h,r.a,aS,bS);const jok=jokSet.has(m.id);if(jok)pts=pts*2;
-          const cls=pts>=5?'p5':(pts>=3?'p3':(pts>=2?'p2':'p0'));
-          ptsHtml=`<span class="mr-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة${jok&&pts>0?' 🃏':''}</span>`;
-        }
-        resultHtml=`<div class="m-result${liveNow?' live':''}">
-          <span class="mr-lbl">${liveNow?'🔴 جارية الآن':'النتيجة الحقيقية'}</span>
-          <span class="mr-score num">${aS} <span class="d">−</span> ${bS}</span>
-          ${ptsHtml}</div>`;
-      }
+      let pts=null;const jok=jokSet.has(m.id);
+      if(hasPred){pts=scorePred(r.h,r.a,aS,bS);if(pts!=null&&jok)pts=pts*2;}
+      const cls=pts>=5?'p5':(pts>=3?'p3':(pts>=2?'p2':'p0'));
+      const predTxt=hasPred?`🔮 توقّعك <b>${r.h}-${r.a}</b>${jok?' 🃏':''}`:'🔮 ما توقّعت';
+      const ptsBadge=(hasPred&&pts!=null)?`<span class="mr-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة</span>`:'';
+      const el=document.createElement('div');el.className='match pcard'+(isKsa?' ksa':'')+(jok?' jok':'');
+      el.innerHTML=`<div class="pc-top">
+          <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
+          <div class="pc-score num">${aS} <span class="d">−</span> ${bS}</div>
+          <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
+        </div>
+        <div class="pc-foot"><span class="pc-pred">${predTxt}</span>${ptsBadge}</div>`;
+      host.appendChild(el);
+      return;
+    }
+ 
+    // ===== المباريات القادمة: خانات الإدخال =====
+    const locked=predLocked(m);
+    const dis=locked?'disabled':'';
+    // لو المباراة جارية الآن، اعرض النتيجة اللحظية
+    let liveHtml='';
+    if(liveNow){
+      const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
+      if(aS!=null&&bS!=null)liveHtml=`<div class="m-result live"><span class="mr-lbl">🔴 جارية الآن</span><span class="mr-score num">${aS} <span class="d">−</span> ${bS}</span></div>`;
     }
     const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'')+(hasJoker?' jok':'');
     el.innerHTML=`<div class="m-row">
@@ -945,8 +965,8 @@ function renderPredict(){
       </div>
       <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
     </div>
-    ${resultHtml}
-    ${locked?(resultHtml?'':`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`)
+    ${liveHtml}
+    ${locked?(liveHtml?'':`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`)
       :`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJoker('${m.id}')">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>
         <div class="m-time">⏱ ${m.tm.t}</div>`}`;
     host.appendChild(el);
