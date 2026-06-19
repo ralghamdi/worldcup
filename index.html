@@ -253,7 +253,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 /* مباراة */
 .match{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;position:relative}
 .match.ksa{border-color:rgba(212,169,60,.5);background:linear-gradient(135deg,rgba(212,169,60,.07),var(--bg-2))}
-.match.ksa::before{content:"🇸🇦 مباراتك";position:absolute;top:-9px;right:14px;background:var(--gold);color:#1a1405;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
+.match.ksa::before{content:attr(data-mybadge);position:absolute;top:-9px;right:14px;background:var(--gold);color:#1a1405;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
 .m-row{display:flex;align-items:center;gap:8px}
 .m-side{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
 .m-side.away{flex-direction:row-reverse;text-align:left}
@@ -401,6 +401,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .mt-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:11px;position:relative}
 .mt-card.live{border-color:var(--bad);box-shadow:0 0 0 1px rgba(230,29,37,.4),0 0 22px rgba(230,29,37,.18)}
 .mt-card.ksa{border-color:rgba(229,184,56,.5);background:linear-gradient(135deg,rgba(229,184,56,.06),var(--bg-2))}
+.mt-card.ksa::before{content:attr(data-mybadge);position:absolute;top:-9px;left:14px;background:var(--gold);color:#1a1405;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
 .mt-status{position:absolute;top:-9px;right:14px;font-family:'Cairo';font-weight:800;font-size:10px;padding:2px 9px;border-radius:99px}
 .st-live{background:var(--bad);color:#fff;animation:pulse 1.5s infinite}
 .st-post{background:var(--bg-3);color:var(--muted);border:1px solid var(--line)}
@@ -1035,6 +1036,7 @@ function renderPredict(){
       const cls=pts>=5?'p5':(pts>=3?'p3':(pts>=2?'p2':'p0'));
       const ptsTxt=(hasPred&&pts!=null)?`<span class="rl-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة${jok&&pts>0?' 🃏':''}</span>`:'';
       const el=document.createElement('div');el.className='match locked'+(isKsa?' ksa':'')+(jok?' jok':'');
+      if(isKsa)el.setAttribute('data-mybadge',fl(myTeam())+' مباراتك');
       el.innerHTML=`<div class="m-row">
         <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
         <div class="m-score">
@@ -1058,6 +1060,7 @@ function renderPredict(){
       if(aS!=null&&bS!=null)liveHtml=`<div class="res-line live"><span class="rl-lbl">🔴 جارية</span><span class="rl-sc num">${aS} − ${bS}</span></div>`;
     }
     const el=document.createElement('div');el.className='match'+(isKsa?' ksa':'')+(locked?' locked':'')+(hasJoker?' jok':'');
+    if(isKsa)el.setAttribute('data-mybadge',fl(myTeam())+' مباراتك');
     el.innerHTML=`<div class="m-row">
       <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
       <div class="m-score">
@@ -1876,6 +1879,7 @@ function matchCard(m){
   const status=rec?rec.status:'pre';
   const el=document.createElement('div');
   el.className='mt-card'+(status==='in'?' live':'')+(isKsa?' ksa':'');
+  if(isKsa)el.setAttribute('data-mybadge',fl(myTeam())+' مباراتك');
  
   // شارة الحالة
   let badge='';
