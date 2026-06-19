@@ -1986,13 +1986,14 @@ async function loadAnnouncements(){
     const {data}=await sb.from('announcements').select('*').order('id',{ascending:false});
     allNotifs=data||[];
     const seen=state.seenAnn||0;
-    annQueue=allNotifs.filter(a=>a.id>seen).sort((x,y)=>x.id-y.id); // الجديدة من الأقدم للأحدث
+    // النوافذ المنبثقة: فقط إعلانات اللجنة (مو الإنجازات)
+    annQueue=allNotifs.filter(a=>a.id>seen&&a.kind!=='achievement').sort((x,y)=>x.id-y.id);
   }catch(e){allNotifs=[];annQueue=[];}
   updateBellDot();
 }
 function updateBellDot(){
-  const seen=state.seenAnn||0;
-  const unread=allNotifs.filter(a=>a.id>seen).length;
+  const seenB=state.seenBell||0;
+  const unread=allNotifs.filter(a=>a.id>seenB).length;
   const d=document.getElementById('bellDot');if(d)d.style.display=unread>0?'block':'none';
 }
 function openBell(){
@@ -2015,7 +2016,7 @@ function openBell(){
     <div class="bell-list">${items}</div>
   </div>`;
   ov.classList.add('show');
-  if(allNotifs.length){const mx=Math.max(...allNotifs.map(a=>a.id));state.seenAnn=Math.max(state.seenAnn||0,mx);queueSave();updateBellDot();}
+  if(allNotifs.length){const mx=Math.max(...allNotifs.map(a=>a.id));state.seenBell=Math.max(state.seenBell||0,mx);queueSave();updateBellDot();}
 }
 function closeBell(){document.getElementById('bellOverlay').classList.remove('show');}
 function maybeShowAnnouncement(){
