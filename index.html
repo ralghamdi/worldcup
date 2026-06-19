@@ -949,11 +949,11 @@ function renderPredict(){
   st.innerHTML=`<button class="subtab ${predSub==='upcoming'?'on':''}" onclick="setPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
     <button class="subtab ${predSub==='past'?'on':''}" onclick="setPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
   host.appendChild(st);
-  // شريط الجوكرات (في القادمة فقط)
+  // شريط الجواكر (في القادمة فقط)
   if(predSub==='upcoming'){
     const used=jokerCount(state.g);const left=Math.max(0,MAX_JOKERS-used);
     const jb=document.createElement('div');jb.className='joker-bar';
-    jb.innerHTML=`<div class="jb-t">🃏 الجوكرات<small>حط جوكر على توقّع = نقاطه ×2 (لمباراة ما بدأت)</small></div>
+    jb.innerHTML=`<div class="jb-t">🃏 الجواكر<small>حط جوكر على توقّع = نقاطه ×2 (لمباراة ما بدأت)</small></div>
       <div class="jb-n">${left}<small style="font-family:Tajawal;font-size:11px;color:var(--muted)">/${MAX_JOKERS}</small></div>`;
     host.appendChild(jb);
   }
@@ -1298,7 +1298,7 @@ const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
 // قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
 const CHAMP_LOCK=new Date(2026,5,28,0,0,0).getTime();
 function champLocked(){return Date.now()>=CHAMP_LOCK;}
-// الجوكرات الصالحة لمجموعة توقّعات g (أول 3 بالترتيب الزمني، لمنع أي تلاعب)
+// الجواكر الصالحة لمجموعة توقّعات g (أول 3 بالترتيب الزمني، لمنع أي تلاعب)
 function validJokers(g){
   const ids=GM.filter(m=>g[m.id]&&g[m.id].j&&counts(m)).slice(0,MAX_JOKERS).map(m=>m.id);
   return new Set(ids);
@@ -1391,7 +1391,7 @@ function toggleJoker(id){
   if(!state.g[id]||state.g[id].h===""||state.g[id].h==null){pill('توقّع النتيجة أول');return;}
   if(state.g[id].j){delete state.g[id].j;}
   else{
-    if(jokerCount(state.g)>=MAX_JOKERS){pill('خلصت جوكراتك ('+MAX_JOKERS+')');return;}
+    if(jokerCount(state.g)>=MAX_JOKERS){pill('خلصت جواكرك ('+MAX_JOKERS+')');return;}
     state.g[id].j=1;
   }
   queueSave();renderPredict();
@@ -1760,7 +1760,7 @@ function renderPoints(){
     🟡 الفائز صحيح بس الفارق مختلف = <b>2 نقطة</b><br>
     🔴 خطأ = <b>0</b><br><br>
     <b>⚡ نقاط إضافية:</b><br>
-    🃏 <b>الجوكر:</b> عندك <b>${MAX_JOKERS} جوكرات</b> — حط جوكر على توقّع (من صفحة توقعاتي) ونقاط تلك المباراة <b>×2</b>. يُحط قبل بداية المباراة فقط.<br>
+    🃏 <b>الجوكر:</b> عندك <b>${MAX_JOKERS} جواكر</b> — حط جوكر على توقّع (من صفحة توقعاتي) ونقاط تلك المباراة <b>×2</b>. يُحط قبل بداية المباراة فقط.<br>
     🔥 <b>السلسلة:</b> كل <b>3 توقّعات مطابقة تماماً (🎯) متتالية</b> = <b>+${STREAK_BONUS} بونص</b>.<br>
     🎯 <b>توقّع البطل:</b> اختر بطل العالم المتوقّع، لو صح = <b>+${CHAMP_BONUS} نقطة</b>. يُقفل مع بداية الأدوار الإقصائية.</div>`;
  
