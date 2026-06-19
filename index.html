@@ -2094,7 +2094,8 @@ function openBell(){
     <div class="bell-list">${items}</div>
   </div>`;
   ov.classList.add('show');
-  if(allNotifs.length){const mx=Math.max(...allNotifs.map(a=>a.id));state.seenBell=Math.max(state.seenBell||0,mx);queueSave();updateBellDot();}
+  if(allNotifs.length){const mx=Math.max(...allNotifs.map(a=>a.id));
+    if(mx>(state.seenBell||0)){state.seenBell=mx;queueSave();updateBellDot();}}
 }
 function closeBell(){document.getElementById('bellOverlay').classList.remove('show');}
 function maybeShowAnnouncement(){
