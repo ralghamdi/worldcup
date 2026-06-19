@@ -110,6 +110,8 @@ body.light{background:var(--bg);
 .share-btn{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:99px;padding:13px 26px;font-family:'Cairo';font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(212,169,60,.35)}
 .mt-majority{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
 .mt-majority b{color:var(--gold-bright)}
+.mt-jokhype{margin-top:10px;padding:9px 12px;border-radius:10px;background:linear-gradient(135deg,rgba(229,184,56,.18),var(--bg-3));border:1px solid var(--gold);font-size:12px;color:var(--text);text-align:center;line-height:1.6}
+.mt-jokhype b{font-family:'Anton';color:var(--gold-bright);font-size:15px;margin:0 2px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
@@ -1796,15 +1798,22 @@ function renderMatches(){
 }
 function majorityFor(m){
   if(!boardData||!boardData.length)return null;
-  let hw=0,dr=0,aw=0,tot=0;const sc={};
+  let hw=0,dr=0,aw=0,tot=0,jokers=0;const sc={};
   boardData.forEach(p=>{const pr=p.g[m.id];if(!pr||pr.h===''||pr.h==null||pr.a===''||pr.a==null)return;
     tot++;const hh=+pr.h,aa=+pr.a;if(hh>aa)hw++;else if(aa>hh)aw++;else dr++;
+    if(pr.j)jokers++;
     const k=hh+'-'+aa;sc[k]=(sc[k]||0)+1;});
   if(!tot)return null;
   const top=Math.max(hw,dr,aw);let lbl;
   if(hw===top)lbl='فوز '+nm(m.A);else if(aw===top)lbl='فوز '+nm(m.B);else lbl='تعادل';
   let ts=null,tn=0;Object.keys(sc).forEach(k=>{if(sc[k]>tn){tn=sc[k];ts=k;}});
-  return {tot,lbl,pct:Math.round(top/tot*100),ts,tsPct:Math.round(tn/tot*100)};
+  return {tot,lbl,pct:Math.round(top/tot*100),ts,tsPct:Math.round(tn/tot*100),jokers};
+}
+// عدد الجواكر على مباراة (يشتغل قبل البداية كمان — للتحميس)
+function jokersOn(m){
+  if(!boardData||!boardData.length)return 0;
+  let j=0;boardData.forEach(p=>{const pr=p.g[m.id];if(pr&&pr.j)j++;});
+  return j;
 }
 function matchCard(m){
   const A=m.A,B=m.B,rec=liveFor(A,B);
@@ -1834,7 +1843,16 @@ function matchCard(m){
   }
   // توقّع الأغلبية (للمباريات اللي بدأت فقط — منع التأثير على التوقّع)
   const maj=started?majorityFor(m):null;
-  const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب</div>`:'';
+  const jokTxt=(maj&&maj.jokers>0)?` · 🃏 ${maj.jokers} ${maj.jokers===1?'جوكر':'جواكر'}`:'';
+  const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب${jokTxt}</div>`:'';
+  // شارة تحميس الجوكر: للمباريات اللي بتبدأ خلال ساعة (قبل القفل) وعليها جواكر
+  let jokHype='';
+  if(!started){
+    const d=matchDate(m.tm);
+    if(d){const hrs=(d.getTime()-Date.now())/3600000;
+      if(hrs>0&&hrs<=1){const jc=jokersOn(m);
+        if(jc>0)jokHype=`<div class="mt-jokhype">🃏 <b>${jc}</b> ${jc===1?'لاعب حطّ':'لاعبين حطّوا'} جوكر على هالمباراة! 🔥</div>`;}}
+  }
  
   el.innerHTML=`${badge}
     <div class="mt-row">
@@ -1843,7 +1861,7 @@ function matchCard(m){
         <div class="mt-actual num">${actualHtml}</div>
       </div>
       <div class="mt-side away"><span class="mt-flag">${fl(B)}</span><span class="mt-name">${nm(B)}</span></div>
-    </div>${majHtml}`;
+    </div>${jokHype}${majHtml}`;
  
   // الأحداث (عمودين) لو فيه
   const evs=(rec&&rec.events)?rec.events:[];
