@@ -85,6 +85,19 @@ body.light{background:var(--bg);
 .adm-ann{display:flex;align-items:center;gap:10px;padding:11px;background:var(--bg-3);border-radius:10px;margin-bottom:7px}
 .adm-ab{flex:1;min-width:0}.adm-ab b{font-size:13px}
 .adm-adate{font-size:11px;color:var(--muted-2);margin-top:3px}
+.adm-stats{display:flex;gap:8px;margin-bottom:12px}
+.ast{flex:1;background:var(--bg-3);border:1px solid var(--line);border-radius:11px;padding:12px 6px;text-align:center}
+.ast-n{font-family:'Anton';font-size:24px;color:var(--gold-bright)}
+.ast-l{font-size:10px;color:var(--muted);margin-top:2px}
+.adm-miss{background:var(--bg-3);border:1px solid rgba(229,72,77,.3);border-radius:10px;padding:11px;font-size:12px;line-height:1.9;color:var(--text)}
+.adm-jrow{display:flex;justify-content:space-between;gap:10px;padding:8px 11px;background:var(--bg-3);border-radius:8px;margin-bottom:6px;font-size:12px}
+.adm-jrow>span:first-child{color:var(--muted);flex:none}
+.adm-jwho{color:var(--gold-bright);text-align:left;font-size:11px}
+.adm-toggles{display:flex;gap:8px;margin-bottom:6px}
+.adm-tgl{flex:1;padding:10px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line);color:var(--text);font-family:'Cairo';font-weight:700;font-size:12px;cursor:pointer}
+.adm-tgl.on{background:rgba(229,184,56,.15);border-color:var(--gold)}
+.adm-tgl.danger{border-color:rgba(229,72,77,.4);color:#E5777A}
+.frozen-banner{background:linear-gradient(135deg,rgba(229,72,77,.15),var(--bg-3));border:1px solid #E5484D;border-radius:14px;padding:24px;text-align:center;font-size:15px;line-height:1.8;color:var(--text);font-family:'Cairo';font-weight:700}
 /* الاحتفال بالإنجاز */
 .celebrate-overlay{position:fixed;inset:0;z-index:340;background:rgba(7,10,24,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;overflow:hidden}
 .celebrate-overlay.show{display:flex}
@@ -979,6 +992,7 @@ let predSub='upcoming';
 function setPredSub(s){predSub=s;renderPredict();}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
+  if(myFrozen){host.innerHTML=`<div class="frozen-banner">🔒 حسابك مجمّد من الإدارة مؤقتاً. لا يمكنك التوقّع حالياً. تواصل مع اللجنة.</div>`;return;}
   const pool=GM.filter(m=>counts(m)); // من قطر×سويسرا فقط
   const upc=pool.filter(m=>!matchFinished(m));
   const past=pool.filter(m=>matchFinished(m));
@@ -2035,12 +2049,14 @@ function renderMyteam(){
  
 /* ===== الإعلانات ===== */
 const ADMIN_EMAIL='raeed66@gmail.com';
+let myFrozen=false;
 let annQueue=[];   // الإعلانات اللي ما شافها اللاعب (طابور)
 let allNotifs=[];  // كل التنبيهات (إعلانات + إنجازات لاحقاً) للجرس
 async function loadAnnouncements(){
   try{
     const {data}=await sb.from('announcements').select('*').order('id',{ascending:false});
-    allNotifs=data||[];
+    const now=Date.now();
+    allNotifs=(data||[]).filter(a=>!a.show_at||new Date(a.show_at).getTime()<=now);
     const seen=state.seenAnn||0;
     // النوافذ المنبثقة: فقط إعلانات اللجنة (مو الإنجازات)
     annQueue=allNotifs.filter(a=>a.id>seen&&a.kind!=='achievement').sort((x,y)=>x.id-y.id);
@@ -2105,6 +2121,8 @@ function openCompose(){
     <div class="ann-field">
       <input id="annT" type="text" placeholder="عنوان الإعلان" maxlength="80">
       <textarea id="annB" placeholder="نص الإعلان..."></textarea>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-top:8px">⏰ جدولة (اختياري — اتركه فارغاً للنشر فوراً):</label>
+      <input id="annWhen" type="datetime-local" style="margin-top:5px">
     </div>
     <div class="ann-foot">
       <button class="ann-cancel" onclick="document.getElementById('annOverlay').classList.remove('show')">إلغاء</button>
@@ -2116,12 +2134,14 @@ function openCompose(){
 async function publishAnnouncement(){
   const t=document.getElementById('annT').value.trim();
   const b=document.getElementById('annB').value.trim();
+  const whenEl=document.getElementById('annWhen');
+  const when=whenEl&&whenEl.value?new Date(whenEl.value).toISOString():null;
   if(!t||!b){alert('اكتب العنوان والنص');return;}
   try{
-    const {error}=await sb.from('announcements').insert({title:t,body:b});
+    const {error}=await sb.from('announcements').insert({title:t,body:b,show_at:when});
     if(error)throw error;
     document.getElementById('annOverlay').classList.remove('show');
-    pill('تم النشر ✓');
+    pill(when?'تمت الجدولة ✓':'تم النشر ✓');
     await loadAnnouncements();
   }catch(e){alert('تعذّر النشر: '+(e.message||''));}
 }
@@ -2135,7 +2155,12 @@ function isAdmin(){return user&&user.email===ADMIN_EMAIL;}
  
 /* ===== لوحة الأدمن ===== */
 let adminSub='players';
-function openAdmin(){if(!isAdmin())return;adminSub='players';renderAdmin();document.getElementById('adminOverlay').classList.add('show');}
+let admActivity=[];
+async function openAdmin(){if(!isAdmin())return;adminSub='players';
+  await loadAdminFlags();
+  try{const {data}=await sb.from('tracker_data').select('data,updated_at').order('updated_at',{ascending:false}).limit(12);
+    admActivity=(data||[]).map(r=>({name:(r.data&&r.data.name)||'؟',at:r.updated_at}));}catch(e){admActivity=[];}
+  renderAdmin();document.getElementById('adminOverlay').classList.add('show');}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('show');}
 function setAdminSub(s){adminSub=s;renderAdmin();}
 async function renderAdmin(){
@@ -2143,11 +2168,13 @@ async function renderAdmin(){
   const head=`<div class="adm-head"><span>🛠️ لوحة الأدمن</span><button class="bell-x" onclick="closeAdmin()">✕</button></div>
     <div class="adm-tabs">
       <button class="adm-tab ${adminSub==='players'?'on':''}" onclick="setAdminSub('players')">👥 اللاعبين</button>
-      <button class="adm-tab ${adminSub==='cheat'?'on':''}" onclick="setAdminSub('cheat')">🔍 كشف الغش</button>
-      <button class="adm-tab ${adminSub==='anns'?'on':''}" onclick="setAdminSub('anns')">📢 الإعلانات</button>
+      <button class="adm-tab ${adminSub==='tools'?'on':''}" onclick="setAdminSub('tools')">🛠️ أدوات</button>
+      <button class="adm-tab ${adminSub==='cheat'?'on':''}" onclick="setAdminSub('cheat')">🔍 غش</button>
+      <button class="adm-tab ${adminSub==='anns'?'on':''}" onclick="setAdminSub('anns')">📢 إعلانات</button>
     </div>`;
   let body='';
   if(adminSub==='players')body=adminPlayersHtml();
+  else if(adminSub==='tools')body=adminToolsHtml();
   else if(adminSub==='cheat')body=adminCheatHtml();
   else if(adminSub==='anns')body=adminAnnsHtml();
   ov.innerHTML=`<div class="adm-panel">${head}<div class="adm-body">${body}</div></div>`;
@@ -2166,6 +2193,15 @@ function adminPlayersHtml(){
   h+=`<div class="adm-field"><label>الاسم:</label>
     <div class="adm-inline"><input id="admName" value="${esc(p.name)}">
     <button class="adm-btn" onclick="adminSaveName()">حفظ</button></div></div>`;
+  // علم/ملاحظة + تجميد + حذف
+  const fobj=admFlags[p.uid]||{};
+  h+=`<div class="adm-field"><label>🚩 ملاحظة/علم (للمتابعة):</label>
+    <div class="adm-inline"><input id="admNote" placeholder="ملاحظة..." value="${esc(fobj.note||'')}">
+    <button class="adm-btn" onclick="adminSaveFlag()">${fobj.flagged?'محفوظ':'حفظ'}</button></div></div>
+  <div class="adm-toggles">
+    <button class="adm-tgl ${fobj.frozen?'on':''}" onclick="adminToggleFreeze(${!fobj.frozen})">${fobj.frozen?'🔒 مجمّد (فك)':'🔓 تجميد التوقّع'}</button>
+    <button class="adm-tgl danger" onclick="adminDeletePlayer('${esc(p.name)}')">🗑️ حذف الحساب</button>
+  </div>`;
   // توقّعاته
   h+=`<div class="adm-sec">توقّعاته (${p.scored} محتسبة · ${p.exact} مطابقة)</div>`;
   const preds=GM.filter(m=>counts(m)&&p.g[m.id]&&p.g[m.id].h!=null&&p.g[m.id].h!=='');
@@ -2201,6 +2237,85 @@ async function adminDelJoker(mkey){
   try{const {error}=await sb.rpc('admin_delete_joker',{target_uid:admSelUid,mkey});
     if(error)throw error;pill('تم مسح الجوكر ✓');await loadBoard();renderAdmin();
   }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminSaveFlag(){
+  const note=document.getElementById('admNote').value.trim();
+  try{const {error}=await sb.rpc('admin_set_flag',{target_uid:admSelUid,is_flag:!!note,the_note:note});
+    if(error)throw error;pill('تم حفظ الملاحظة ✓');await loadAdminFlags();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminToggleFreeze(val){
+  try{const {error}=await sb.rpc('admin_set_frozen',{target_uid:admSelUid,is_frozen:val});
+    if(error)throw error;pill(val?'تم التجميد ✓':'تم فك التجميد ✓');await loadAdminFlags();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminDeletePlayer(name){
+  if(!confirm('حذف حساب «'+name+'» وكل توقّعاته نهائياً؟ لا يمكن التراجع.'))return;
+  if(!confirm('متأكد ١٠٠٪؟ هذا إجراء نهائي.'))return;
+  try{const {error}=await sb.rpc('admin_delete_player',{target_uid:admSelUid});
+    if(error)throw error;pill('تم الحذف ✓');admSelUid='';await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+ 
+/* --- أدوات الأدمن --- */
+let admFlags={};
+async function loadAdminFlags(){try{const {data}=await sb.from('admin_flags').select('*');admFlags={};(data||[]).forEach(f=>admFlags[f.user_id]=f);}catch(e){admFlags={};}}
+function adminToolsHtml(){
+  // إحصائيات سريعة
+  const np=boardData.length;
+  let totPreds=0,sumPts=0,active=null;
+  boardData.forEach(p=>{totPreds+=p.predTotal||0;sumPts+=p.total;if(!active||(p.predTotal||0)>(active.predTotal||0))active=p;});
+  const avg=np?Math.round(sumPts/np):0;
+  let h=`<div class="adm-stats">
+    <div class="ast"><div class="ast-n num">${np}</div><div class="ast-l">لاعب</div></div>
+    <div class="ast"><div class="ast-n num">${totPreds}</div><div class="ast-l">توقّع</div></div>
+    <div class="ast"><div class="ast-n num">${avg}</div><div class="ast-l">متوسط النقاط</div></div>
+  </div>
+  ${active?`<div class="adm-note">⚡ الأنشط: <b>${esc(active.name)}</b> (${active.predTotal} توقّع)</div>`:''}`;
+  // أزرار الأدوات
+  h+=`<div class="adm-sec">إجراءات</div>
+    <button class="adm-btn full" style="margin-bottom:8px" onclick="adminRefreshNow()">🔄 تحديث النتائج فوراً (ESPN)</button>
+    <button class="adm-btn full" style="margin-bottom:8px" onclick="adminRunAch()">🏆 تشغيل كشف الإنجازات</button>
+    <button class="adm-btn full" style="margin-bottom:8px" onclick="adminExportCSV()">📤 تصدير البيانات (CSV)</button>`;
+  // مين ما توقّع المباريات القادمة القريبة
+  const soon=GM.filter(m=>counts(m)&&!matchStarted(m)).slice(0,1)[0];
+  if(soon){
+    const missing=boardData.filter(p=>{const pr=p.g[soon.id];return !pr||pr.h==null||pr.h==='';});
+    h+=`<div class="adm-sec">👁️ ما توقّعوا القادمة (${nm(soon.A)} × ${nm(soon.B)})</div>`;
+    h+= missing.length?`<div class="adm-miss">${missing.map(p=>esc(p.name)).join(' · ')}</div>`
+      :`<div class="nf-empty">✅ الكل توقّع.</div>`;
+  }
+  // نظرة الجواكر
+  h+=`<div class="adm-sec">🃏 الجواكر</div>`;
+  const jrows=[];
+  GM.forEach(m=>{if(!counts(m))return;
+    const who=boardData.filter(p=>p.g[m.id]&&p.g[m.id].j);
+    if(who.length)jrows.push(`<div class="adm-jrow"><span>${nm(m.A)} × ${nm(m.B)}</span><span class="adm-jwho">${who.map(p=>esc(p.name)).join('، ')}</span></div>`);});
+  h+= jrows.length?jrows.join(''):`<div class="nf-empty">ما فيه جواكر بعد.</div>`;
+  // سجلّ النشاط
+  h+=`<div class="adm-sec">📈 آخر النشاط</div>`;
+  if(admActivity.length){
+    h+=admActivity.map(a=>{let t='';try{t=new Date(a.at).toLocaleString('ar-SA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}catch(e){}
+      return `<div class="adm-jrow"><span>${esc(a.name)}</span><span class="adm-jwho">${t}</span></div>`;}).join('');
+  }else h+=`<div class="nf-empty">—</div>`;
+  return h;
+}
+async function adminRefreshNow(){
+  pill('جارٍ التحديث...');
+  try{await sb.functions.invoke('fetch-espn');await loadLive();pill('تم تحديث النتائج ✓');renderAdmin();}
+  catch(e){alert('تعذّر: '+(e.message||'')+'\n(تأكد أن fetch-espn متاحة)');}
+}
+async function adminRunAch(){
+  pill('جارٍ الفحص...');
+  try{const r=await sb.functions.invoke('detect-achievements');await loadAnnouncements();
+    const d=r.data||{};pill('تم ✓ ('+(d.announced||0)+' إنجاز)');}
+  catch(e){alert('تعذّر: '+(e.message||''));}
+}
+function adminExportCSV(){
+  let csv='الاسم,النقاط,محتسبة,مطابقة,دقة,أطول سلسلة\n';
+  boardData.forEach(p=>{csv+=`"${(p.name||'').replace(/"/g,'')}",${p.total},${p.scored},${p.exact},${p.acc},${p.bestStreak}\n`;});
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='worldcup_data.csv';a.click();
 }
  
 /* --- كشف الغش --- */
@@ -2293,6 +2408,8 @@ async function enterApp(){
   spin(0);
   renderNext();renderMatches();startLiveRefresh();startLockTimer();
   setupAdmin();renderReminder();
+  // حالة التجميد (لو الأدمن جمّد اللاعب)
+  try{const {data}=await sb.from('admin_flags').select('frozen').eq('user_id',user.id).maybeSingle();myFrozen=!!(data&&data.frozen);}catch(e){myFrozen=false;}
   if(lt!=='matches')showTab(lt); // يرسم محتوى التاب الصحيح
   await loadAnnouncements();
   const celebrated=checkCelebration();
