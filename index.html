@@ -49,6 +49,42 @@ body.light{background:var(--bg);
 .nf-title{font-family:'Cairo';font-weight:800;font-size:14px;color:var(--text);margin-bottom:4px}
 .nf-text{font-size:13px;line-height:1.6;color:var(--muted);white-space:pre-wrap;word-wrap:break-word}
 .nf-date{font-size:11px;color:var(--muted-2);margin-top:6px}
+/* لوحة الأدمن */
+.admin-fab{position:fixed;bottom:84px;left:18px;z-index:90;width:52px;height:52px;border-radius:50%;background:linear-gradient(180deg,#3a4170,#222a52);border:1px solid var(--gold-deep);color:#fff;font-size:22px;cursor:pointer;display:none;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.admin-fab.show{display:block}
+.admin-overlay{position:fixed;inset:0;z-index:330;background:rgba(7,10,24,.6);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:50px 14px 14px}
+.admin-overlay.show{display:flex}
+.adm-panel{width:100%;max-width:480px;max-height:88vh;background:var(--bg-2);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.adm-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-family:'Cairo';font-weight:900;font-size:17px;color:var(--gold-bright)}
+.adm-tabs{display:flex;gap:6px;padding:10px;border-bottom:1px solid var(--line)}
+.adm-tab{flex:1;padding:9px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line);color:var(--muted);font-family:'Cairo';font-weight:700;font-size:12px;cursor:pointer}
+.adm-tab.on{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border-color:var(--gold)}
+.adm-body{overflow-y:auto;padding:14px}
+.adm-field{margin-bottom:14px}
+.adm-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.adm-field select,.adm-field input{width:100%;padding:11px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line);color:var(--text);font-family:'Tajawal';font-size:14px}
+.adm-inline{display:flex;gap:8px}.adm-inline input{flex:1}
+.adm-btn{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:10px;padding:11px 18px;font-family:'Cairo';font-weight:800;font-size:13px;cursor:pointer;flex:none}
+.adm-btn.full{width:100%}
+.adm-sec{font-family:'Cairo';font-weight:800;font-size:14px;color:var(--gold-bright);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.adm-pred{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg-3);border-radius:9px;margin-bottom:7px;font-size:12px}
+.adm-pmatch{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.adm-pval{font-family:'Anton';font-size:14px;color:var(--text);flex:none}
+.adm-jok{margin-inline-start:3px}
+.adm-res{color:var(--gold-bright);margin-inline-start:4px;font-size:12px}
+.adm-pacts{display:flex;gap:5px;flex:none}
+.adm-mini{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:var(--text)}
+.adm-mini.del{border-color:rgba(229,72,77,.4);color:#E5777A}
+.adm-note,.adm-cheat{margin-bottom:10px}
+.adm-note{background:var(--bg-3);border:1px solid var(--gold-deep);border-radius:10px;padding:11px;font-size:12px;line-height:1.6;color:var(--muted)}
+.adm-cheat{background:var(--bg-3);border:1px solid var(--line);border-radius:11px;padding:12px}
+.adm-cheat.hot{border-color:#E5484D}
+.adm-cname{font-family:'Cairo';font-weight:800;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.adm-ccount{font-size:11px;background:rgba(229,72,77,.16);color:#E5777A;padding:2px 8px;border-radius:99px}
+.adm-citem{font-size:12px;color:var(--muted);padding:3px 0}
+.adm-ann{display:flex;align-items:center;gap:10px;padding:11px;background:var(--bg-3);border-radius:10px;margin-bottom:7px}
+.adm-ab{flex:1;min-width:0}.adm-ab b{font-size:13px}
+.adm-adate{font-size:11px;color:var(--muted-2);margin-top:3px}
 /* الاحتفال بالإنجاز */
 .celebrate-overlay{position:fixed;inset:0;z-index:340;background:rgba(7,10,24,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;overflow:hidden}
 .celebrate-overlay.show{display:flex}
@@ -680,6 +716,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 <div class="ann-overlay" id="annOverlay"></div>
 <div class="bell-overlay" id="bellOverlay" onclick="if(event.target===this)closeBell()"></div>
 <div class="celebrate-overlay" id="celebrateOverlay"></div>
+<button class="admin-fab" id="adminFab" onclick="openAdmin()">🛠️</button>
+<div class="admin-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdmin()"></div>
  
 <script>
 /* ===== Supabase ===== */
@@ -2090,7 +2128,122 @@ async function publishAnnouncement(){
 function setupAdmin(){
   if(user&&user.email===ADMIN_EMAIL){
     const f=document.getElementById('annFab');if(f)f.classList.add('show');
+    const a=document.getElementById('adminFab');if(a)a.classList.add('show');
   }
+}
+function isAdmin(){return user&&user.email===ADMIN_EMAIL;}
+ 
+/* ===== لوحة الأدمن ===== */
+let adminSub='players';
+function openAdmin(){if(!isAdmin())return;adminSub='players';renderAdmin();document.getElementById('adminOverlay').classList.add('show');}
+function closeAdmin(){document.getElementById('adminOverlay').classList.remove('show');}
+function setAdminSub(s){adminSub=s;renderAdmin();}
+async function renderAdmin(){
+  const ov=document.getElementById('adminOverlay');
+  const head=`<div class="adm-head"><span>🛠️ لوحة الأدمن</span><button class="bell-x" onclick="closeAdmin()">✕</button></div>
+    <div class="adm-tabs">
+      <button class="adm-tab ${adminSub==='players'?'on':''}" onclick="setAdminSub('players')">👥 اللاعبين</button>
+      <button class="adm-tab ${adminSub==='cheat'?'on':''}" onclick="setAdminSub('cheat')">🔍 كشف الغش</button>
+      <button class="adm-tab ${adminSub==='anns'?'on':''}" onclick="setAdminSub('anns')">📢 الإعلانات</button>
+    </div>`;
+  let body='';
+  if(adminSub==='players')body=adminPlayersHtml();
+  else if(adminSub==='cheat')body=adminCheatHtml();
+  else if(adminSub==='anns')body=adminAnnsHtml();
+  ov.innerHTML=`<div class="adm-panel">${head}<div class="adm-body">${body}</div></div>`;
+}
+ 
+/* --- إدارة اللاعبين --- */
+let admSelUid='';
+function adminPlayersHtml(){
+  if(!boardData.length)return `<div class="nf-empty">جارٍ تحميل اللاعبين... افتح «الترتيب العام» مرة ثم ارجع.</div>`;
+  const opts=boardData.map(p=>`<option value="${p.uid}" ${p.uid===admSelUid?'selected':''}>${esc(p.name)} (${p.total} نقطة)</option>`).join('');
+  let h=`<div class="adm-field"><label>اختر لاعباً:</label>
+    <select onchange="admSelUid=this.value;renderAdmin()"><option value="">— اختر —</option>${opts}</select></div>`;
+  if(!admSelUid)return h;
+  const p=boardData.find(x=>x.uid===admSelUid);if(!p)return h;
+  // تعديل الاسم
+  h+=`<div class="adm-field"><label>الاسم:</label>
+    <div class="adm-inline"><input id="admName" value="${esc(p.name)}">
+    <button class="adm-btn" onclick="adminSaveName()">حفظ</button></div></div>`;
+  // توقّعاته
+  h+=`<div class="adm-sec">توقّعاته (${p.scored} محتسبة · ${p.exact} مطابقة)</div>`;
+  const preds=GM.filter(m=>counts(m)&&p.g[m.id]&&p.g[m.id].h!=null&&p.g[m.id].h!=='');
+  if(!preds.length)h+=`<div class="nf-empty">ما عنده توقّعات.</div>`;
+  else h+=preds.map(m=>{
+    const pr=p.g[m.id];const rec=liveFor(m.A,m.B);const fin=rec&&rec.status==='post';
+    let res='';if(fin){const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS!=null)res=`<span class="adm-res">${aS}-${bS}</span>`;}
+    const jok=pr.j?'<span class="adm-jok">🃏</span>':'';
+    return `<div class="adm-pred">
+      <span class="adm-pmatch">${fl(m.A)}${nm(m.A)} × ${nm(m.B)}${fl(m.B)}</span>
+      <span class="adm-pval">${pr.h}-${pr.a}${jok} ${res}</span>
+      <span class="adm-pacts">
+        ${pr.j?`<button class="adm-mini" onclick="adminDelJoker('${m.id}')" title="مسح الجوكر">🃏✕</button>`:''}
+        <button class="adm-mini del" onclick="adminDelPred('${m.id}','${esc(nm(m.A))} × ${esc(nm(m.B))}')" title="مسح التوقّع">🗑️</button>
+      </span></div>`;
+  }).join('');
+  return h;
+}
+async function adminSaveName(){
+  const v=document.getElementById('admName').value.trim();if(!v)return;
+  try{const {error}=await sb.rpc('admin_set_name',{target_uid:admSelUid,new_name:v});
+    if(error)throw error;pill('تم تعديل الاسم ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminDelPred(mkey,label){
+  if(!confirm('مسح توقّع هذا اللاعب في «'+label+'»؟ (يُخصم آلياً)'))return;
+  try{const {error}=await sb.rpc('admin_delete_pred',{target_uid:admSelUid,mkey});
+    if(error)throw error;pill('تم مسح التوقّع ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminDelJoker(mkey){
+  if(!confirm('مسح الجوكر من هذه المباراة؟'))return;
+  try{const {error}=await sb.rpc('admin_delete_joker',{target_uid:admSelUid,mkey});
+    if(error)throw error;pill('تم مسح الجوكر ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+ 
+/* --- كشف الغش --- */
+function adminCheatHtml(){
+  if(!boardData.length)return `<div class="nf-empty">افتح «الترتيب العام» مرة ثم ارجع.</div>`;
+  // لكل مباراة منتهية: نسبة من طابق النتيجة بالضبط. المطابقات النادرة = مشبوهة.
+  const flags={};
+  GM.forEach(m=>{if(!counts(m))return;const rec=liveFor(m.A,m.B);if(!(rec&&rec.status==='post'))return;
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
+    let exactPlayers=[],tot=0;
+    boardData.forEach(p=>{const pr=p.g[m.id];if(!pr||pr.h==null||pr.h==='')return;tot++;
+      if(+pr.h===aS&&+pr.a===bS)exactPlayers.push(p);});
+    if(!tot)return;
+    // نادرة: طابقها <=2 لاعبين، أو أقل من 20%
+    if(exactPlayers.length>0&&(exactPlayers.length<=2||exactPlayers.length/tot<0.2)){
+      exactPlayers.forEach(p=>{if(!flags[p.uid])flags[p.uid]={name:p.name,items:[]};
+        flags[p.uid].items.push(`${nm(m.A)} ${aS}-${bS} ${nm(m.B)} (طابقها ${exactPlayers.length} فقط)`);});
+    }
+  });
+  const arr=Object.values(flags).sort((a,b)=>b.items.length-a.items.length);
+  if(!arr.length)return `<div class="nf-empty">✅ ما فيه مطابقات نادرة مشبوهة.</div>`;
+  let h=`<div class="adm-note">⚠️ لاعبون طابقوا نتائج <b>نادرة</b> (قلّة طابقوها). كثرة المطابقات النادرة = مؤشّر (مو دليل قاطع). راجع نمطهم.</div>`;
+  h+=arr.map(f=>`<div class="adm-cheat ${f.items.length>=3?'hot':''}">
+    <div class="adm-cname">${esc(f.name)} <span class="adm-ccount">${f.items.length} نادرة</span></div>
+    ${f.items.map(i=>`<div class="adm-citem">🎯 ${i}</div>`).join('')}</div>`).join('');
+  return h;
+}
+ 
+/* --- إدارة الإعلانات --- */
+function adminAnnsHtml(){
+  let h=`<div class="adm-field"><button class="adm-btn full" onclick="closeAdmin();openCompose()">📢 نشر إعلان جديد</button></div>`;
+  const anns=allNotifs.filter(a=>a.kind!=='achievement');
+  if(!anns.length)return h+`<div class="nf-empty">ما فيه إعلانات.</div>`;
+  h+=anns.map(a=>{let dt='';try{dt=new Date(a.created_at).toLocaleDateString('ar-SA',{day:'numeric',month:'long'});}catch(e){}
+    return `<div class="adm-ann"><div class="adm-ab"><b>${esc(a.title)}</b><div class="adm-adate">${dt}</div></div>
+      <button class="adm-mini del" onclick="adminDelAnn(${a.id})">🗑️</button></div>`;}).join('');
+  return h;
+}
+async function adminDelAnn(id){
+  if(!confirm('حذف هذا الإعلان نهائياً؟'))return;
+  try{const {error}=await sb.from('announcements').delete().eq('id',id);
+    if(error)throw error;pill('تم الحذف ✓');await loadAnnouncements();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
 }
  
 /* ===== الدخول والتنقّل ===== */
