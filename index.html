@@ -2407,7 +2407,7 @@ async function enterApp(){
   window.scrollTo(0,0);
   spin(1);
   await loadState();
-  await loadLive();
+  await loadBoard(); // يحمّل live + boardData معاً (عشان عدّاد الجواكر صحيح من البداية)
   spin(0);
   renderNext();renderMatches();startLiveRefresh();startLockTimer();
   setupAdmin();renderReminder();
@@ -2487,7 +2487,7 @@ function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(async()=>{
   const id=active.id;
   try{
     await loadLive();
-    if(id==='page-matches')renderMatches();
+    if(id==='page-matches'){await loadBoard();renderMatches();}
     else if(id==='page-points')renderPoints();
     else if(id==='page-standings'){if(typeof standMode!=='undefined'&&standMode==='real')renderStandings();}
     else if(id==='page-board'){await loadBoard();renderBoard();}
