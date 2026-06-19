@@ -1401,7 +1401,9 @@ function checkCelebration(){
   }
   const newExact=r.exact-(state.seenExact||0);
   const newStreak=(r.bestStreak>(state.seenStreak||0))?r.bestStreak:0;
-  state.seenExact=r.exact;state.seenStreak=r.bestStreak;queueSave();
+  const changed=(state.seenExact!==r.exact)||(state.seenStreak!==r.bestStreak);
+  state.seenExact=r.exact;state.seenStreak=r.bestStreak;
+  if(changed)queueSave(); // نحفظ فقط لو تغيّر شي (نتجنّب «تم الحفظ» العشوائي)
   if(newExact>0||newStreak>0){showCelebration(newExact,newStreak);return true;}
   return false;
 }
@@ -2157,6 +2159,7 @@ function isAdmin(){return user&&user.email===ADMIN_EMAIL;}
 let adminSub='players';
 let admActivity=[];
 async function openAdmin(){if(!isAdmin())return;adminSub='players';
+  await loadBoard(); // نحمّل اللاعبين بأنفسنا (بدون الحاجة لزيارة الترتيب العام)
   await loadAdminFlags();
   try{const {data}=await sb.from('tracker_data').select('data,updated_at').order('updated_at',{ascending:false}).limit(12);
     admActivity=(data||[]).map(r=>({name:(r.data&&r.data.name)||'؟',at:r.updated_at}));}catch(e){admActivity=[];}
