@@ -2225,7 +2225,7 @@ function adminPlayersHtml(){
     <button class="adm-btn" onclick="adminSaveFlag()">${fobj.flagged?'محفوظ':'حفظ'}</button></div></div>
   <div class="adm-toggles">
     <button class="adm-tgl ${fobj.frozen?'on':''}" onclick="adminToggleFreeze(${!fobj.frozen})">${fobj.frozen?'🔒 مجمّد (فك)':'🔓 تجميد التوقّع'}</button>
-    <button class="adm-tgl danger" onclick="adminDeletePlayer('${esc(p.name)}')">🗑️ حذف الحساب</button>
+    <button class="adm-tgl danger" onclick="adminDeletePlayer()">🗑️ حذف الحساب</button>
   </div>`;
   // تفصيل النقاط (من وين جت)
   const baseP=cp.total-cp.jokerBonus-cp.streakBonus-cp.champBonus;
@@ -2289,7 +2289,9 @@ async function adminToggleFreeze(val){
     if(error)throw error;pill(val?'تم التجميد ✓':'تم فك التجميد ✓');await loadAdminFlags();renderAdmin();
   }catch(e){alert('فشل: '+(e.message||''));}
 }
-async function adminDeletePlayer(name){
+async function adminDeletePlayer(){
+  const _p=boardData.find(x=>x.uid===admSelUid);const name=_p?_p.name:'';
+  if(!admSelUid)return;
   if(!confirm('حذف حساب «'+name+'» وكل توقّعاته نهائياً؟ لا يمكن التراجع.'))return;
   if(!confirm('متأكد ١٠٠٪؟ هذا إجراء نهائي.'))return;
   try{const {error}=await sb.rpc('admin_delete_player',{target_uid:admSelUid});
