@@ -1148,13 +1148,13 @@ function renderStandings(){
     const arr=standings(g);
     const card=document.createElement('div');card.className='gcard';
     let h=`<div class="gcard-head"><span class="gcard-let num">${g}</span><span class="gcard-title head">المجموعة ${g}</span></div>`;
-    h+=`<table class="stbl"><tr><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>له</th><th>عليه</th><th>+/−</th><th>نقاط</th></tr>`;
+    h+=`<table class="stbl"><tr><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>+/−</th><th>نقاط</th></tr>`;
     arr.forEach((s,i)=>{
       const cls=i===0?'q1':i===1?'q2':i===2?'q3':'';
       const dot=i<2?'<span class="pos-dot dot-q"></span>':i===2?'<span class="pos-dot dot-t"></span>':'';
       const gd=s.gf-s.ga;
       h+=`<tr class="${cls}"><td class="t-name">${dot}<span class="fl">${fl(s.k)}</span>${nm(s.k)}</td>
-      <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td>
+      <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
       <td>${gd>0?'+':''}${gd}</td><td class="pts">${s.pts}</td></tr>`;
     });
     h+=`</table>`;card.innerHTML=h;host.appendChild(card);
