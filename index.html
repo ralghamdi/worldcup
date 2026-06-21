@@ -2138,6 +2138,7 @@ function closeAnnouncement(id){
   updateBellDot();
 }
 function openCompose(){
+  if(!isAdmin())return;
   const ov=document.getElementById('annOverlay');
   ov.innerHTML=`<div class="ann-box">
     <div class="ann-top">📢 نشر إعلان جديد</div>
@@ -2169,11 +2170,11 @@ async function publishAnnouncement(){
   }catch(e){alert('تعذّر النشر: '+(e.message||''));}
 }
 async function setupAdmin(){
+  // أخفِ الأزرار افتراضياً (حالة آمنة) قبل سؤال الخادم
+  const f=document.getElementById('annFab');const a=document.getElementById('adminFab');
+  _isAdmin=false; if(f)f.classList.remove('show'); if(a)a.classList.remove('show');
   try{const {data}=await sb.rpc('is_admin');_isAdmin=(data===true);}catch(e){_isAdmin=false;}
-  if(_isAdmin){
-    const f=document.getElementById('annFab');if(f)f.classList.add('show');
-    const a=document.getElementById('adminFab');if(a)a.classList.add('show');
-  }
+  if(_isAdmin){ if(f)f.classList.add('show'); if(a)a.classList.add('show'); }
 }
 function isAdmin(){return _isAdmin;}
  
