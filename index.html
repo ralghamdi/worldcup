@@ -1620,12 +1620,16 @@ function viewFriend(uid){
       ${row('أطول سلسلة 🔥',me.bestStreak,p.bestStreak)}
     </div>`;
   }
-  let lastDay="",dayCount=0;
+  let lastDay="";
   const fjok=validJokers(p.g);
-  GM.forEach(m=>{
+  const dayNo={};let dn=0;
+  GM.forEach(m=>{const k=m.tm.m+"/"+m.tm.d;if(!(k in dayNo)){dn++;dayNo[k]=dn;}});
+  const shownF=GM.filter(m=>matchStarted(m)).reverse();
+  if(!shownF.length){h+=`<div class="stat-empty">لا توقّعات ظاهرة بعد.</div>`;}
+  shownF.forEach(m=>{
     const dayKey=m.tm.m+"/"+m.tm.d;
-    if(dayKey!==lastDay){lastDay=dayKey;dayCount++;
-      h+=`<div class="day-head"><span class="day-num num">يوم ${dayCount}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span></div>`;}
+    if(dayKey!==lastDay){lastDay=dayKey;
+      h+=`<div class="day-head"><span class="day-num num">يوم ${dayNo[dayKey]}</span><span class="day-date head">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)}</span><span class="day-line"></span></div>`;}
     const pred=p.g[m.id]||{};const rec=liveFor(m.A,m.B);
     const started=matchStarted(m); // لا نكشف توقّع مباراة لم تبدأ (منع النسخ)
     const hasPred=(pred.h!==""&&pred.h!=null&&pred.a!==""&&pred.a!=null);
