@@ -316,6 +316,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .champ-card .tricolor{position:absolute;top:0;left:0}
 .champ-h{font-family:'Cairo';font-weight:900;font-size:15px;color:var(--gold-bright);margin-bottom:4px;display:flex;align-items:center;gap:7px}
 .champ-sub{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.lb-status{font-size:11px;color:var(--gold-bright);margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.fp-status{font-size:13px;color:var(--gold-bright);font-style:italic;margin-top:4px}
+.status-edit{display:flex;gap:8px;margin-top:10px}
+.status-edit input{flex:1;padding:12px 13px;border-radius:11px;background:var(--bg-3);border:1.5px solid var(--gold-deep);color:var(--text);font-size:14px;font-family:inherit}
+.status-edit input:focus{outline:none;border-color:var(--gold)}
+.status-edit button{padding:0 18px;border-radius:11px;background:var(--gold);border:none;color:#0a0e1a;font-weight:700;cursor:pointer;font-family:inherit}
 .champ-pick select{width:100%;padding:13px 14px;border-radius:11px;background:var(--bg-3);border:1.5px solid var(--gold-deep);
   color:var(--text);font-family:'Tajawal';font-size:15px;font-weight:700;cursor:pointer}
 .champ-pick select:focus{outline:none;border-color:var(--gold)}
@@ -1474,6 +1480,11 @@ function toggleJoker(id){
   queueSave();renderPredict();
 }
 // اختيار البطل
+function saveStatus(){
+  let v=(document.getElementById('statusInput').value||'').replace(/[\n\r\t]/g,' ').trim().slice(0,60);
+  state.status=v;if(!v)delete state.status;
+  queueSave();pill('تم حفظ حالتك ✓');
+}
 function setChampion(code){
   if(champLocked()){pill('قفل اختيار البطل');return;}
   state.champion=code||'';if(!code)delete state.champion;
@@ -1524,7 +1535,7 @@ async function loadBoard(){
       const g=row.g||{};
       const r=computePointsForG(g,row.champion);
       const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      return {uid:row.uid,name:(row.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
+      return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
         bestStreak:r.bestStreak,jokerBonus:r.jokerBonus,wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
@@ -1559,6 +1570,7 @@ function renderBoard(){
       <div class="lb-info">
         <div class="lb-name">${esc(p.name)}${me?'<span class="youtag">(أنت)</span>':''} ${arrow}</div>
         <div class="lb-sub">${p.scored} مباراة · ${p.exact} مطابقة · دقّة ${p.acc}%</div>
+        ${p.status?`<div class="lb-status">${esc(p.status)}</div>`:''}
       </div>
       <div class="lb-pts num">${p.total}<small> نقطة</small></div>
       <span class="lb-arrow">‹</span>
@@ -1600,7 +1612,7 @@ function viewFriend(uid){
   const host=document.getElementById('boardHost');
   let h=`<div class="fp-head">
     <button class="fp-back" onclick="renderBoard()">‹ رجوع</button>
-    <div class="fp-name">${esc(p.name)}<div class="sub">${p.scored} مباراة · دقّة ${p.acc}%</div></div>
+    <div class="fp-name">${esc(p.name)}<div class="sub">${p.scored} مباراة · دقّة ${p.acc}%</div>${p.status?`<div class="fp-status">${esc(p.status)}</div>`:''}</div>
     <div class="fp-pts num">${p.total}</div>
   </div>`;
   // مواجهة مباشرة (أنت ضد هذا اللاعب)
@@ -1745,6 +1757,17 @@ function renderPoints(){
   h+=`<div class="bonus-row"><span class="br-ico">🎯</span>
     <span class="br-t">توقّع البطل <small>${r.champ?fl(r.champ)+' '+nm(r.champ):'لم تختر بعد'} · +${CHAMP_BONUS} لو صح</small></span>
     <span class="br-v">${r.champBonus?'+'+r.champBonus:'—'}</span></div>`;
+
+  // حالتي (تظهر تحت اسمك في الترتيب العام)
+  h+=`<div class="champ-card"><div class="tricolor"></div>
+    <div class="champ-h">✍️ حالتي</div>
+    <div class="champ-sub">رسالة قصيرة تظهر تحت اسمك في الترتيب العام (٦٠ حرف).</div>
+    <div class="status-edit">
+      <input id="statusInput" maxlength="60" value="${esc(state.status||'')}" placeholder="اكتب حالتك..." oninput="document.getElementById('statusCount').textContent=this.value.length+'/60'">
+      <button onclick="saveStatus()">حفظ</button>
+    </div>
+    <div id="statusCount" style="font-size:11px;color:var(--muted);text-align:left;margin-top:4px">${(state.status||'').length}/60</div>
+  </div>`;
 
   // اختيار البطل
   h+=`<div class="champ-card"><div class="tricolor"></div>
@@ -2286,6 +2309,11 @@ function adminPlayersHtml(){
   h+=`<div class="adm-field"><label>الاسم:</label>
     <div class="adm-inline"><input id="admName" value="${esc(p.name)}">
     <button class="adm-btn" onclick="adminSaveName()">حفظ</button></div></div>`;
+  // الحالة (تعديل/مسح)
+  h+=`<div class="adm-field"><label>✍️ الحالة:</label>
+    <div class="adm-inline"><input id="admStatus" maxlength="60" placeholder="(فاضية)" value="${esc(p.status||'')}">
+    <button class="adm-btn" onclick="adminSaveStatus()">حفظ</button>
+    <button class="adm-btn danger" onclick="adminClearStatus()">مسح</button></div></div>`;
   // علم/ملاحظة + تجميد + حذف
   const fobj=admFlags[p.uid]||{};
   h+=`<div class="adm-field"><label>🚩 ملاحظة/علم (للمتابعة):</label>
@@ -2327,6 +2355,18 @@ function adminPlayersHtml(){
       </span></div>`;
   }).join('');
   return h;
+}
+async function adminSaveStatus(){
+  const v=(document.getElementById('admStatus').value||'').slice(0,60);
+  try{const {error}=await sb.rpc('admin_set_status',{target_uid:admSelUid,val:v});
+    if(error)throw error;pill('تم حفظ الحالة ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminClearStatus(){
+  if(!confirm('مسح حالة هذا اللاعب؟'))return;
+  try{const {error}=await sb.rpc('admin_set_status',{target_uid:admSelUid,val:''});
+    if(error)throw error;pill('تم المسح ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
 }
 async function adminSaveName(){
   const v=document.getElementById('admName').value.trim();if(!v)return;
