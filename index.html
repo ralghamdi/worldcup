@@ -2666,10 +2666,13 @@ async function loadChallenges(){
   try{const {data}=await sb.rpc('get_challenges');challenges=data||[];}catch(e){challenges=[];}
   updateChalDot();
 }
+let prevRecv=-1;
 function updateChalDot(){
   const dot=document.getElementById('chalDot');if(!dot)return;
   const recv=challenges.filter(c=>c.status==='pending'&&c.challenger_uid!==user.id&&(c.invited_uids||[]).includes(user.id)).length;
   dot.style.display=recv>0?'inline-block':'none';
+  if(prevRecv>=0 && recv>prevRecv){pill('⚔️ وصلك تحدّي جديد!');}
+  prevRecv=recv;
 }
  
 function renderChallenges(){
@@ -2856,6 +2859,8 @@ function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(async()=>{
     else if(id==='page-standings'){if(typeof standMode!=='undefined'&&standMode==='real')renderStandings();}
     else if(id==='page-board'){await loadBoard();renderBoard();}
     else if(id==='page-stats'){if(statSub==='predictions')await loadBoard();renderStats();}
+    await loadChallenges();
+    if(id==='page-challenges'){await loadBoard();renderChallenges();}
     renderNext();renderReminder();
   }catch(e){}
 },60000);}
