@@ -323,8 +323,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .chal-new-btn{width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));border:none;color:#1a1405;font-weight:800;font-family:inherit;font-size:15px;cursor:pointer;margin-bottom:16px}
 .chal-sec{font-family:'Cairo';font-weight:800;font-size:14px;margin:16px 0 8px;color:var(--gold-bright)}
 .chal-cnt{background:#ff4d4d;color:#fff;border-radius:10px;padding:0 7px;font-size:11px;margin-inline-start:4px}
-.chal-empty{color:var(--muted);font-size:12px;padding:6px 2px}
-.chal-card{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:9px}
+.chal-empty{color:var(--muted);font-size:12.5px;padding:14px;text-align:center;background:var(--bg-2);border:1px dashed var(--line);border-radius:11px}
+.chal-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
 .chal-card.recv{border-color:var(--gold-deep)}
 .chal-card.done.win{border-color:#7BD88F}
 .chal-card.done.lose{border-color:#e06c6c}
@@ -342,9 +342,33 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .chal-cancel{padding:8px 16px;border-radius:10px;background:transparent;border:1px solid #e06c6c;color:#e06c6c;font-family:inherit;cursor:pointer}
 .chal-lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
 .chal-sel{width:100%;padding:11px;border-radius:10px;background:var(--bg-3);border:1.5px solid var(--gold-deep);color:var(--text);font-family:inherit;font-size:13px}
-.chal-picks{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto}
-.chal-pick{display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--bg-3);border-radius:9px;font-size:14px;cursor:pointer}
-.chal-pick input{width:18px;height:18px;accent-color:var(--gold)}
+.chal-modal .ann-field{max-height:62vh;overflow-y:auto}
+.chal-mlist{display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow-y:auto;padding:2px}
+.chal-mrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;background:var(--bg-3);border:1.5px solid transparent;border-radius:11px;cursor:pointer}
+.chal-mrow:has(input:checked){border-color:var(--gold);background:rgba(212,169,60,.10)}
+.cm-main{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;text-align:right}
+.cm-teams{font-family:'Cairo';font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-time{font-size:11px;color:var(--muted)}
+.cm-x{color:var(--muted-2);font-weight:400;margin:0 3px}
+.chal-mrow input,.chal-pick input{width:20px;height:20px;accent-color:var(--gold);flex:none}
+.chal-picks{display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow-y:auto;padding:2px}
+.chal-pick{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;background:var(--bg-3);border:1.5px solid transparent;border-radius:11px;font-size:14px;cursor:pointer}
+.chal-pick:has(input:checked){border-color:var(--gold);background:rgba(212,169,60,.10)}
+.cp-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;font-weight:600}
+.cc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.cc-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--bg-3);color:var(--muted)}
+.cc-badge.recv{background:rgba(212,169,60,.16);color:var(--gold-bright)}
+.cc-badge.act{background:rgba(123,180,255,.14);color:#8fbaff}
+.cc-badge.win{background:rgba(123,216,143,.16);color:#7BD88F}
+.cc-badge.lose{background:rgba(224,108,108,.16);color:#e06c6c}
+.cc-badge.tie{background:var(--bg-3);color:var(--muted)}
+.cc-day{font-size:11px;color:var(--muted)}
+.cc-vs{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 9px}
+.cc-p{font-family:'Cairo';font-weight:800;font-size:15px;max-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-p.you{color:var(--gold-bright)}
+.cc-x2{font-size:18px}
+.cc-match{text-align:center;font-family:'Cairo';font-weight:700;font-size:13.5px;background:var(--bg-3);border-radius:9px;padding:9px;margin-bottom:9px}
+.cc-match .cm-x{color:var(--muted-2);margin:0 4px}
 .lb-status{font-size:11px;color:var(--gold-bright);margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
 .fp-status{font-size:13px;color:var(--gold-bright);font-style:italic;margin-top:4px}
 .status-edit{display:flex;gap:8px;margin-top:10px}
@@ -2675,6 +2699,9 @@ function updateChalDot(){
   prevRecv=recv;
 }
  
+function chalTeams(c){return `${fl(c.team_a)} ${nm(c.team_a)} <span class="cm-x">×</span> ${nm(c.team_b)} ${fl(c.team_b)}`;}
+function chalEmpty(t){return `<div class="chal-empty">${t}</div>`;}
+ 
 function renderChallenges(){
   const host=document.getElementById('chalHost');if(!host)return;
   const me=user.id;
@@ -2684,46 +2711,46 @@ function renderChallenges(){
   const active=challenges.filter(c=>c.status==='active'&&(c.challenger_uid===me||c.opponent_uid===me));
   const done=challenges.filter(c=>c.status==='done'&&(c.challenger_uid===me||c.opponent_uid===me));
  
-  let h=`<div class="chal-intro">⚔️ تحدَّ لاعباً في مباراة: الأعلى نقاطاً يسرق نقاط الخصم! <b>تحدّي نشط واحد لكل يوم</b>.</div>
-    <button class="chal-new-btn" onclick="openNewChallenge()">+ تحدّي جديد</button>`;
+  let h=`<div class="chal-intro">⚔️ تحدَّ لاعباً في توقّع مباراة. الأعلى نقاطاً يسرق نقاط خصمه! <b>تحدّي نشط واحد لكل يوم</b>.</div>
+    <button class="chal-new-btn" onclick="openNewChallenge()">⚔️ تحدّي جديد</button>`;
  
   // وصلتك
   h+=`<div class="chal-sec">🔔 دعوات وصلتك ${received.length?`<span class="chal-cnt">${received.length}</span>`:''}</div>`;
-  if(!received.length)h+=`<div class="chal-empty">ما فيه دعوات.</div>`;
+  if(!received.length)h+=chalEmpty('ما وصلك أي تحدّي.');
   received.forEach(c=>{h+=`<div class="chal-card recv">
-    <div class="chal-top"><b>${esc(c.challenger_name)}</b> تحدّاك ⚔️</div>
-    <div class="chal-match">${chalMatchLabel(c)}</div>
-    <div class="chal-day">${chalDayLabel(c)}</div>
-    <button class="chal-accept" onclick="acceptChallenge(${c.id})">قبول التحدّي</button>
+    <div class="cc-head"><span class="cc-badge recv">🔔 دعوة تحدّي</span><span class="cc-day">${chalDayLabel(c)}</span></div>
+    <div class="cc-vs"><span class="cc-p them">${esc(c.challenger_name)}</span><span class="cc-x2">⚔️</span><span class="cc-p you">أنت</span></div>
+    <div class="cc-match">${chalTeams(c)}</div>
+    <button class="chal-accept" onclick="acceptChallenge(${c.id})">قبول التحدّي ✅</button>
   </div>`;});
  
   // نشط
   h+=`<div class="chal-sec">⏳ نشط</div>`;
-  if(!active.length)h+=`<div class="chal-empty">ما فيه تحدّي نشط.</div>`;
+  if(!active.length)h+=chalEmpty('ما عندك تحدّي نشط.');
   active.forEach(c=>{
-    const opp=c.challenger_uid===me?c.opponent_name:c.challenger_name;
-    const oppUid=c.challenger_uid===me?c.opponent_uid:c.challenger_uid;
+    const iAmC=c.challenger_uid===me;
+    const opp=iAmC?c.opponent_name:c.challenger_name;
+    const oppUid=iAmC?c.opponent_uid:c.challenger_uid;
     const myP=predStr(state.g,c.match_key);
     const oppRow=(boardData.find(x=>x.uid===oppUid)||{});
     const oppP=predStr(oppRow.g,c.match_key);
     h+=`<div class="chal-card active">
-      <div class="chal-top">⚔️ ضد <b>${esc(opp||'—')}</b></div>
-      <div class="chal-match">${chalMatchLabel(c)}</div>
-      <div class="chal-day">${chalDayLabel(c)}</div>
+      <div class="cc-head"><span class="cc-badge act">⏳ نشط</span><span class="cc-day">${chalDayLabel(c)}</span></div>
+      <div class="cc-vs"><span class="cc-p you">أنت</span><span class="cc-x2">⚔️</span><span class="cc-p them">${esc(opp||'—')}</span></div>
+      <div class="cc-match">${chalTeams(c)}</div>
       ${c.started
-        ? `<div class="chal-preds"><span>توقّعك: <b>${myP||'—'}</b></span><span>توقّعه: <b>${oppP||'🔒'}</b></span></div>`
+        ? `<div class="chal-preds"><span>توقّعك <b>${myP||'—'}</b></span><span>توقّعه <b>${oppP||'🔒'}</b></span></div>`
         : `<div class="chal-lock">🔒 مقفل · ينتظر انتهاء المباراة</div>`}
     </div>`;});
  
   // مُرسَلة
   h+=`<div class="chal-sec">📤 دعوات مُرسَلة</div>`;
-  if(!sent.length)h+=`<div class="chal-empty">ما أرسلت دعوات.</div>`;
+  if(!sent.length)h+=chalEmpty('ما أرسلت دعوات.');
   sent.forEach(c=>{h+=`<div class="chal-card sent">
-    <div class="chal-top">📤 بانتظار القبول</div>
-    <div class="chal-match">${chalMatchLabel(c)}</div>
-    <div class="chal-day">${chalDayLabel(c)}</div>
-    <div class="chal-invited">لـ: ${(c.invited_names||[]).map(esc).join('، ')}</div>
-    <button class="chal-cancel" onclick="cancelChallenge(${c.id})">إلغاء</button>
+    <div class="cc-head"><span class="cc-badge sent">📤 بانتظار القبول</span><span class="cc-day">${chalDayLabel(c)}</span></div>
+    <div class="cc-match">${chalTeams(c)}</div>
+    <div class="chal-invited">دعوت: ${(c.invited_names||[]).map(esc).join('، ')}</div>
+    <button class="chal-cancel" onclick="cancelChallenge(${c.id})">إلغاء الدعوة</button>
   </div>`;});
  
   // منتهية
@@ -2735,13 +2762,14 @@ function renderChallenges(){
       const myAct=iAmC?c.c_actual:c.o_actual, oppAct=iAmC?c.o_actual:c.c_actual;
       let verdict,cls;
       if(!c.winner_uid){verdict='🤝 تعادل · لا سرقة';cls='tie';}
-      else if(c.winner_uid===me){verdict=`✅ ربحت ⚔️ +${c.transferred}`;cls='win';}
-      else{verdict=`❌ خسرت ⚔️ −${c.transferred}`;cls='lose';}
+      else if(c.winner_uid===me){verdict=`✅ ربحت · +${c.transferred} نقطة`;cls='win';}
+      else{verdict=`❌ خسرت · −${c.transferred} نقطة`;cls='lose';}
       h+=`<div class="chal-card done ${cls}">
-        <div class="chal-top">⚔️ ضد <b>${esc(opp||'—')}</b></div>
-        <div class="chal-match">${chalMatchLabel(c)}</div>
+        <div class="cc-head"><span class="cc-badge ${cls}">🏁 منتهي</span><span class="cc-day">${chalDayLabel(c)}</span></div>
+        <div class="cc-vs"><span class="cc-p you">أنت</span><span class="cc-x2">⚔️</span><span class="cc-p them">${esc(opp||'—')}</span></div>
+        <div class="cc-match">${chalTeams(c)}</div>
         <div class="chal-verdict ${cls}">${verdict}</div>
-        <div class="chal-preds"><span>نقاطك: <b>${myAct==null?'—':myAct}</b></span><span>نقاطه: <b>${oppAct==null?'—':oppAct}</b></span></div>
+        <div class="chal-preds"><span>نقاطك <b>${myAct==null?'—':myAct}</b></span><span>نقاطه <b>${oppAct==null?'—':oppAct}</b></span></div>
       </div>`;});
   }
   host.innerHTML=h;
@@ -2754,15 +2782,21 @@ function openNewChallenge(){
   const others=boardData.filter(p=>p.uid!==user.id);
   if(!others.length){pill('ما فيه لاعبين');return;}
   const ov=document.getElementById('chalOverlay');
-  const mOpts=ups.map(m=>`<option value="${m.id}">${nm(m.A)} × ${nm(m.B)} — ${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} ${m.tm.t}</option>`).join('');
-  const pOpts=others.map(p=>`<label class="chal-pick"><input type="checkbox" value="${p.uid}" onchange="limitPicks(this)"> ${esc(p.name)}</label>`).join('');
-  ov.innerHTML=`<div class="ann-box">
+  const mRows=ups.map((m,i)=>`<label class="chal-mrow">
+    <span class="cm-main"><span class="cm-teams">${fl(m.A)} ${nm(m.A)} <span class="cm-x">×</span> ${nm(m.B)} ${fl(m.B)}</span><span class="cm-time">${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} · ${m.tm.t}</span></span>
+    <input type="radio" name="chalMatch" value="${m.id}" ${i===0?'checked':''}>
+  </label>`).join('');
+  const pRows=others.map(p=>`<label class="chal-pick">
+    <span class="cp-name">${esc(p.name)}</span>
+    <input type="checkbox" value="${p.uid}" onchange="limitPicks(this)">
+  </label>`).join('');
+  ov.innerHTML=`<div class="ann-box chal-modal">
     <div class="ann-top">⚔️ تحدّي جديد</div>
     <div class="ann-field">
-      <div class="chal-lbl">المباراة (أكثر من ٣٠ دقيقة قبل البداية):</div>
-      <select id="chalMatchSel" class="chal-sel">${mOpts}</select>
-      <div class="chal-lbl" style="margin-top:12px">اختر حتى ٥ لاعبين (أول من يقبل):</div>
-      <div class="chal-picks">${pOpts}</div>
+      <div class="chal-lbl">١) اختر المباراة <small>(أكثر من ٣٠ دقيقة قبل البداية)</small></div>
+      <div class="chal-mlist">${mRows}</div>
+      <div class="chal-lbl" style="margin-top:14px">٢) اختر حتى ٥ لاعبين <small>(أول من يقبل يبدأ التحدّي)</small></div>
+      <div class="chal-picks">${pRows}</div>
     </div>
     <div class="ann-foot">
       <button class="ann-cancel" onclick="document.getElementById('chalOverlay').classList.remove('show')">إلغاء</button>
@@ -2776,7 +2810,8 @@ function limitPicks(box){
   if(checked.length>5){box.checked=false;pill('الحد ٥ لاعبين');}
 }
 async function sendChallenge(){
-  const mk=document.getElementById('chalMatchSel').value;
+  const mkEl=document.querySelector('#chalOverlay input[name=chalMatch]:checked');
+  const mk=mkEl?mkEl.value:'';
   const uids=[...document.querySelectorAll('#chalOverlay input[type=checkbox]:checked')].map(x=>x.value);
   if(!mk){pill('اختر مباراة');return;}
   if(!uids.length){pill('اختر لاعباً واحداً على الأقل');return;}
