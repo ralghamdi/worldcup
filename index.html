@@ -1346,7 +1346,7 @@ function renderPredStatsHtml(){
   h+=card('🛡️','المحافظ','أكثر من يتوقّع التعادلات',leader('drawBets'),p=>p.drawBets+' تعادل');
   // إحصائيات عامة
   const avg=Math.round(B.reduce((s,x)=>s+x.total,0)/B.length);
-  const cc={};B.forEach(x=>{if(x.champ)cc[x.champ]=(cc[x.champ]||0)+1;});
+  const cc=championCounts||{}; // عدّ تجميعي من الخادم (البطل الفردي محجوب)
   let topChamp=null,topC=0;Object.keys(cc).forEach(k=>{if(cc[k]>topC){topC=cc[k];topChamp=k;}});
   h+=`<div class="sec-title head">📈 إحصائيات عامة</div>`;
   h+=`<div class="gstat-grid">
@@ -1477,6 +1477,7 @@ function setChampion(code){
 /* ===== لوحة الترتيب العام ===== */
 let boardData=[];
 let upcomingJokers={}; // عدد جواكر المباريات القادمة (تجميعي من الخادم)
+let championCounts={}; // عدد من اختار كل بطل (تجميعي)
 let boardSub='overall';
 function setBoardSub(s){boardSub=s;renderBoard();}
 // أحدث يوم فيه مباريات منتهية
@@ -1512,6 +1513,7 @@ async function loadBoard(){
     const {data:bd}=await sb.rpc('get_board');
     const players=(bd&&bd.players)||[];
     upcomingJokers=(bd&&bd.upcomingJokers)||{};
+    championCounts=(bd&&bd.championCounts)||{};
     boardData=players.map(row=>{
       const g=row.g||{};
       const r=computePointsForG(g,row.champion);
