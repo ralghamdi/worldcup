@@ -2711,7 +2711,7 @@ function renderChallenges(){
   const active=challenges.filter(c=>c.status==='active'&&(c.challenger_uid===me||c.opponent_uid===me));
   const done=challenges.filter(c=>c.status==='done'&&(c.challenger_uid===me||c.opponent_uid===me));
  
-  let h=`<div class="chal-intro">⚔️ تحدَّ لاعباً في توقّع مباراة. الأعلى نقاطاً يسرق نقاط خصمه! <b>تحدّي نشط واحد لكل يوم</b>.</div>
+  let h=`<div class="chal-intro">⚔️ تحدَّ لاعباً في توقّع مباراة. الأعلى نقاطاً يفوز، والخاسر يخسر نقاط تلك المباراة! <b>تحدّي نشط واحد لكل يوم</b>.</div>
     <button class="chal-new-btn" onclick="openNewChallenge()">⚔️ تحدّي جديد</button>`;
  
   // وصلتك
@@ -2761,8 +2761,8 @@ function renderChallenges(){
       const opp=iAmC?c.opponent_name:c.challenger_name;
       const myAct=iAmC?c.c_actual:c.o_actual, oppAct=iAmC?c.o_actual:c.c_actual;
       let verdict,cls;
-      if(!c.winner_uid){verdict='🤝 تعادل · لا سرقة';cls='tie';}
-      else if(c.winner_uid===me){verdict=`✅ ربحت · +${c.transferred} نقطة`;cls='win';}
+      if(!c.winner_uid){verdict='🤝 تعادل · لا تغيير';cls='tie';}
+      else if(c.winner_uid===me){verdict='✅ فزت · حافظت على نقاطك';cls='win';}
       else{verdict=`❌ خسرت · −${c.transferred} نقطة`;cls='lose';}
       h+=`<div class="chal-card done ${cls}">
         <div class="cc-head"><span class="cc-badge ${cls}">🏁 منتهي</span><span class="cc-day">${chalDayLabel(c)}</span></div>
