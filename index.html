@@ -1476,6 +1476,7 @@ function setChampion(code){
  
 /* ===== لوحة الترتيب العام ===== */
 let boardData=[];
+let upcomingJokers={}; // عدد جواكر المباريات القادمة (تجميعي من الخادم)
 let boardSub='overall';
 function setBoardSub(s){boardSub=s;renderBoard();}
 // أحدث يوم فيه مباريات منتهية
@@ -1508,13 +1509,15 @@ function rankArrows(){
 async function loadBoard(){
   await loadLive();
   try{
-    const {data}=await sb.from('tracker_data').select('user_id,data');
-    boardData=(data||[]).map(row=>{
-      const d=row.data||{};const g=d.g||{};
-      const r=computePointsForG(g,d.champion);
+    const {data:bd}=await sb.rpc('get_board');
+    const players=(bd&&bd.players)||[];
+    upcomingJokers=(bd&&bd.upcomingJokers)||{};
+    boardData=players.map(row=>{
+      const g=row.g||{};
+      const r=computePointsForG(g,row.champion);
       const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      return {uid:row.user_id,name:(d.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:d.champion||null,
-        bestStreak:r.bestStreak,jokerBonus:r.jokerBonus,wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets};
+      return {uid:row.uid,name:(row.name||'لاعب'),g,total:r.total,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
+        bestStreak:r.bestStreak,jokerBonus:r.jokerBonus,wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
   }catch(e){boardData=[];}
@@ -1625,7 +1628,7 @@ function viewFriend(uid){
     let predBox;
     const jokTag=(started&&fjok.has(m.id))?' <span class="adm-jok" title="جوكر ×2">🃏</span>':'';
     if(!started){
-      predBox = hasPred ? '<span class="nogame">🔒 محجوب</span>' : '<span class="nogame">— : —</span>';
+      predBox = '<span class="nogame">🔒 محجوب</span>';
     }else{
       predBox = hasPred ? `${pred.h} <span style="color:var(--muted-2)">−</span> ${pred.a}${jokTag}` : '<span class="nogame">— : —</span>';
     }
@@ -1884,9 +1887,12 @@ function majorityFor(m){
 }
 // عدد الجواكر على مباراة (يشتغل قبل البداية كمان — للتحميس)
 function jokersOn(m){
-  if(!boardData||!boardData.length)return 0;
-  let j=0;boardData.forEach(p=>{const pr=p.g[m.id];if(pr&&pr.j)j++;});
-  return j;
+  if(matchStarted(m)){
+    if(!boardData||!boardData.length)return 0;
+    let j=0;boardData.forEach(p=>{const pr=p.g[m.id];if(pr&&pr.j)j++;});
+    return j;
+  }
+  return (upcomingJokers&&upcomingJokers[m.id])||0;
 }
 function matchCard(m){
   const A=m.A,B=m.B,rec=liveFor(A,B);
@@ -2184,8 +2190,7 @@ let admActivity=[];
 async function openAdmin(){if(!isAdmin())return;adminSub='players';
   await loadBoard(); // نحمّل اللاعبين بأنفسنا (بدون الحاجة لزيارة الترتيب العام)
   await loadAdminFlags();
-  try{const {data}=await sb.from('tracker_data').select('data,updated_at').order('updated_at',{ascending:false}).limit(12);
-    admActivity=(data||[]).map(r=>({name:(r.data&&r.data.name)||'؟',at:r.updated_at}));}catch(e){admActivity=[];}
+  admActivity=boardData.slice().filter(p=>p.updated_at).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)).slice(0,12).map(p=>({name:p.name||'؟',at:p.updated_at}));
   renderAdmin();document.getElementById('adminOverlay').classList.add('show');}
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('show');}
 function setAdminSub(s){adminSub=s;renderAdmin();}
