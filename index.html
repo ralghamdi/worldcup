@@ -409,6 +409,31 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .toggle-btn.disabled{opacity:.5}
 .real-note{text-align:center;color:var(--muted);font-size:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
 .real-note b{color:var(--gold-bright)}
+/* أفضل الثوالث */
+.thirds-intro{background:var(--bg-2);border:1px solid var(--gold-deep);border-radius:12px;padding:12px 13px;font-size:12px;line-height:1.7;color:var(--muted);margin-bottom:12px}
+.thirds-intro b{color:var(--gold-bright)}
+.thirds-grid-head,.thirds-row{display:grid;grid-template-columns:26px 1fr 30px 36px 36px 28px 38px 44px;gap:2px;align-items:center}
+.thirds-grid-head{padding:6px 8px;font-size:10px;color:var(--muted-2);font-family:'Cairo';font-weight:700;border-bottom:1px solid var(--line);text-align:center}
+.thirds-grid-head .th-team{text-align:right}
+.thirds-row{padding:9px 8px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;margin-top:6px;font-size:13px}
+.thirds-row.q{border-color:rgba(47,191,113,.45);background:linear-gradient(90deg,rgba(47,191,113,.08),var(--bg-2))}
+.thirds-row.out{opacity:.62}
+.thirds-row.cut{margin-bottom:14px;position:relative}
+.thirds-row.cut::after{content:"───── حدّ التأهل (أفضل 8) ─────";position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--bad);white-space:nowrap;font-family:'Cairo';font-weight:700}
+.th-pos{text-align:center;font-family:'Anton';font-size:14px;color:var(--muted-2)}
+.th-ok{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#06210f;font-size:12px}
+.th-team{display:flex;align-items:center;gap:6px;min-width:0;text-align:right}
+.th-fl{font-size:18px;flex:none}
+.th-nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-grp{font-size:9px;color:var(--muted-2);background:var(--bg-3);border-radius:5px;padding:1px 5px;flex:none}
+.th-n{text-align:center;font-size:12px;color:var(--muted)}
+.th-pts{font-family:'Anton';font-size:15px;color:var(--gold-bright)}
+.th-fifa{font-family:'Anton';font-size:12px;color:var(--text)}
+.thirds-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:14px 2px 0}
+.thirds-legend span{display:flex;align-items:center;gap:5px}
+.thirds-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.thirds-legend .tl-q{background:var(--ok)}.thirds-legend .tl-o{background:var(--muted-2)}
+.thirds-note{background:var(--bg-2);border:1px dashed var(--line);border-radius:11px;padding:11px 12px;font-size:11px;line-height:1.8;color:var(--muted);margin-top:12px}
 .gcard{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 .gcard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .gcard-let{font-family:'Anton';font-size:22px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:9px;padding:1px 12px}
@@ -790,8 +815,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <!-- باقي التابات -->
   <div class="page" id="page-standings">
     <div class="toggle-wrap">
-      <button class="toggle-btn on" id="tgReal" onclick="setStandMode('real')">⚽ الترتيب الحقيقي</button>
-      <button class="toggle-btn" id="tgPred" onclick="setStandMode('pred')">🔮 ترتيبي المتوقّع</button>
+      <button class="toggle-btn on" id="tgReal" onclick="setStandMode('real')">⚽ الحقيقي</button>
+      <button class="toggle-btn" id="tgPred" onclick="setStandMode('pred')">🔮 المتوقّع</button>
+      <button class="toggle-btn" id="tgThird" onclick="setStandMode('thirds')">🥉 أفضل الثوالث</button>
     </div>
     <div class="legend">
       <span><i style="background:var(--ok)"></i> أول وثاني (متأهل مباشر)</span>
@@ -1251,9 +1277,11 @@ function setStandMode(mode){
   standMode=mode;
   document.getElementById('tgPred').classList.toggle('on',mode==='pred');
   document.getElementById('tgReal').classList.toggle('on',mode==='real');
-  if(mode==='real'){loadLive().then(renderStandings);}else renderStandings();
+  const t3=document.getElementById('tgThird');if(t3)t3.classList.toggle('on',mode==='thirds');
+  if(mode==='real'||mode==='thirds'){loadLive().then(renderStandings);}else renderStandings();
 }
 function renderStandings(){
+  if(standMode==='thirds'){renderThirds();return;}
   if(standMode==='real'){renderStandingsReal();return;}
   const host=document.getElementById('standHost');host.innerHTML="";
   Object.keys(GROUPS).forEach(g=>{
@@ -1299,6 +1327,102 @@ function renderStandingsReal(){
     });
     h+=`</table>`;card.innerHTML=h;host.appendChild(card);
   });
+}
+
+/* ===== أفضل الثوالث (محسوب محلياً بقانون فيفا) ===== */
+// نقاط فيفا الرسمية — نشرة 11 يونيو 2026 (نقطة الانطلاق الثابتة)
+const FIFA0={
+  MEX:1687,RSA:1428,KOR:1592,CZE:1506, CAN:1559,SUI:1650,QAT:1450,BIH:1387,
+  BRA:1766,MAR:1755,SCO:1503,HAI:1293, USA:1671,PAR:1505,AUS:1579,TUR:1606,
+  GER:1736,ECU:1599,CIV:1541,CUW:1295, NED:1754,JPN:1662,TUN:1476,SWE:1510,
+  BEL:1742,EGY:1562,IRN:1620,NZL:1276, ESP:1875,URU:1673,KSA:1424,CPV:1371,
+  FRA:1871,NOR:1557,SEN:1684,IRQ:1446, ARG:1877,AUT:1597,ALG:1571,JOR:1388,
+  POR:1768,COL:1698,COD:1474,UZB:1459, ENG:1828,CRO:1715,GHA:1347,PAN:1539};
+const FIFA_I=50; // أهمية مباريات دور المجموعات بكأس العالم
+// التصنيف الحي: نبدأ من نشرة 11 يونيو ونطبّق معادلة SUM على كل مباراة منتهية بالترتيب الزمني
+function fifaLiveRatings(){
+  const r={};Object.keys(FIFA0).forEach(k=>r[k]=FIFA0[k]);
+  const done=GM.filter(m=>{const rec=liveFor(m.A,m.B);return rec&&rec.status==='post';})
+    .sort((a,b)=>sortKey(a.tm)-sortKey(b.tm));
+  done.forEach(m=>{
+    const rec=liveFor(m.A,m.B);const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
+    if(aS==null||bS==null)return;
+    const pa=r[m.A],pb=r[m.B];if(pa==null||pb==null)return;
+    const wa=aS>bS?1:(aS<bS?0:0.5);
+    const wea=1/(1+Math.pow(10,(pb-pa)/600));
+    const d=FIFA_I*(wa-wea);
+    r[m.A]=pa+d;r[m.B]=pb-d; // متناظر تماماً
+  });
+  return r;
+}
+// نقاط السلوك (الكروت): أصفر −1 · إنذاران (أحمر غير مباشر) −3 · أحمر مباشر −4
+function fifaConduct(){
+  const c={};
+  Object.values(live.matches||{}).forEach(rec=>{
+    if(rec.status!=='post')return;
+    (rec.events||[]).forEach(e=>{const t=e.team;if(!t)return;
+      if(c[t]==null)c[t]=0;
+      if(e.kind==='yellow')c[t]-=1;else if(e.kind==='yellowred')c[t]-=3;else if(e.kind==='red')c[t]-=4;});
+  });
+  return c;
+}
+// إحصائيات مجموعة من النتائج الحقيقية المنتهية
+function realGroupStats(g){
+  const teams=GROUPS[g];const st={};teams.forEach(k=>st[k]={k,pts:0,gf:0,ga:0,gd:0,pld:0});
+  GM.forEach(m=>{if(m.g!==g)return;const rec=liveFor(m.A,m.B);if(!(rec&&rec.status==='post'))return;
+    const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
+    st[m.A].gf+=aS;st[m.A].ga+=bS;st[m.B].gf+=bS;st[m.B].ga+=aS;st[m.A].pld++;st[m.B].pld++;
+    if(aS>bS)st[m.A].pts+=3;else if(aS<bS)st[m.B].pts+=3;else{st[m.A].pts++;st[m.B].pts++;}});
+  teams.forEach(k=>st[k].gd=st[k].gf-st[k].ga);
+  return st;
+}
+// ترتيب أفضل الثوالث بالمعايير الخمسة الرسمية
+function realThirds(){
+  const ratings=fifaLiveRatings();const conduct=fifaConduct();const out=[];
+  Object.keys(GROUPS).forEach(g=>{
+    const st=realGroupStats(g);const teams=GROUPS[g];
+    const anyPlayed=teams.some(k=>st[k].pld>0);if(!anyPlayed)return; // المجموعة ما بدأت
+    // ترتيب المجموعة: نستخدم ترتيب ESPN لو متاح (يطبّق المواجهة المباشرة)، وإلا نحسب
+    let order;const ls=live.standings[g];
+    if(ls&&ls.length>=4&&ls.every(e=>e.code)){
+      order=ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9)).map(e=>e.code);
+    }else{
+      order=teams.slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf||((ratings[y]||0)-(ratings[x]||0)));
+    }
+    const code=order[2];if(!code)return;const s=st[code];
+    const allPlayed=teams.every(k=>st[k].pld>=3);
+    out.push({code,g,pts:s.pts,gd:s.gd,gf:s.gf,pld:s.pld,conduct:conduct[code]||0,fifa:Math.round((ratings[code]||0)*100)/100,allPlayed});
+  });
+  // المعايير: نقاط ⬇ · فارق ⬇ · أهداف ⬇ · سلوك ⬇ (أقل كروت أفضل) · تصنيف فيفا الحي ⬇
+  out.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||b.conduct-a.conduct||b.fifa-a.fifa);
+  return out;
+}
+function renderThirds(){
+  const host=document.getElementById('standHost');
+  const arr=realThirds();
+  if(!arr.length){
+    host.innerHTML=`<div class="note-box">🥉 ترتيب أفضل الثوالث يظهر <b>أول ما تبدأ المباريات</b>. أفضل <b>8</b> ثوالث من أصل <b>12</b> يتأهلون لدور الـ32.</div>`;return;
+  }
+  const complete=arr.length===12&&arr.every(t=>t.allPlayed);
+  let h=`<div class="thirds-intro">🥉 أفضل <b>8</b> ثوالث من <b>12</b> يتأهلون لدور الـ32. الترتيب بقانون فيفا: النقاط ← الفارق ← الأهداف ← السلوك (الكروت) ← تصنيف فيفا الحي.${complete?'':' <b>(مؤقّت — يكتمل بنهاية دور المجموعات)</b>'}</div>`;
+  h+=`<div class="thirds-grid-head"><span class="th-pos">#</span><span class="th-team">المنتخب</span><span class="th-n">لعب</span><span class="th-n">نقاط</span><span class="th-n">+/−</span><span class="th-n">له</span><span class="th-n">سلوك</span><span class="th-n">فيفا</span></div>`;
+  arr.forEach((t,i)=>{
+    const rank=i+1;const qual=rank<=8;
+    const cls=qual?'q':'out';const line=(rank===8)?' cut':'';
+    h+=`<div class="thirds-row ${cls}${line}">
+      <span class="th-pos">${qual?'<span class="th-ok">'+rank+'</span>':rank}</span>
+      <span class="th-team"><span class="th-fl">${fl(t.code)}</span><span class="th-nm">${nm(t.code)}</span><span class="th-grp">${t.g}</span></span>
+      <span class="th-n">${t.pld}</span>
+      <span class="th-n th-pts">${t.pts}</span>
+      <span class="th-n">${t.gd>0?'+':''}${t.gd}</span>
+      <span class="th-n">${t.gf}</span>
+      <span class="th-n">${t.conduct}</span>
+      <span class="th-n th-fifa">${t.fifa.toFixed(0)}</span>
+    </div>`;
+  });
+  h+=`<div class="thirds-legend"><span><i class="tl-q"></i> متأهل (أفضل 8)</span><span><i class="tl-o"></i> خارج</span><span>📏 الخط = حدّ التأهل</span></div>`;
+  h+=`<div class="thirds-note">💡 «السلوك» = نقاط الكروت (أصفر −1 · إنذاران −3 · أحمر −4). «فيفا» = تصنيفك الحي المحسوب بمعادلة فيفا الرسمية، يتحدّث بعد كل مباراة. المعياران الأخيران يفصلان فقط عند تعادل تام في النقاط والفارق والأهداف.</div>`;
+  host.innerHTML=h;
 }
 
 /* ===== الإحصائيات ===== */
@@ -2943,7 +3067,7 @@ function showTab(name,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   if(btn)btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});
   saveTab(name);
-  if(name==='standings'){if(standMode==='real'){spin(1);loadLive().then(()=>{spin(0);renderStandings();});}else renderStandings();}
+  if(name==='standings'){if(standMode==='real'||standMode==='thirds'){spin(1);loadLive().then(()=>{spin(0);renderStandings();});}else renderStandings();}
   if(name==='matches'){spin(1);loadLive().then(()=>{spin(0);renderMatches();});loadBoard().then(()=>{if(document.getElementById('page-matches').classList.contains('active'))renderMatches();});}
   startLiveRefresh();
   if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
@@ -2961,7 +3085,7 @@ function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(async()=>{
     await loadLive();
     if(id==='page-matches'){await loadBoard();renderMatches();}
     else if(id==='page-points')renderPoints();
-    else if(id==='page-standings'){if(typeof standMode!=='undefined'&&standMode==='real')renderStandings();}
+    else if(id==='page-standings'){if(typeof standMode!=='undefined'&&(standMode==='real'||standMode==='thirds'))renderStandings();}
     else if(id==='page-board'){await loadBoard();renderBoard();}
     else if(id==='page-stats'){if(statSub==='predictions')await loadBoard();renderStats();}
     await loadChallenges();
