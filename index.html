@@ -1396,7 +1396,7 @@ function renderThirds(){
     host.innerHTML=`<div class="note-box">🥉 ترتيب أفضل الثوالث يظهر <b>أول ما تبدأ المباريات</b>. أفضل <b>8</b> ثوالث من أصل <b>12</b> يتأهلون لدور الـ32.</div>`;return;
   }
   const complete=arr.length===12&&arr.every(t=>t.allPlayed);
-  let h=`<div class="thirds-intro">🥉 أفضل <b>8</b> ثوالث من <b>12</b> يتأهلون لدور الـ32. الترتيب: النقاط ← الفارق ← الأهداف.${complete?'':' <b>(مؤقّت — يكتمل بنهاية دور المجموعات)</b>'}</div>`;
+  let h=`<div class="thirds-intro">🥉 أفضل <b>8</b> ثوالث من <b>12</b> يتأهلون لدور الـ32. الترتيب: النقاط ← الفارق ← الأهداف ← نقاط السلوك ← ترتيب الفيفا الحي.${complete?'':' <b>(مؤقّت — يكتمل بنهاية دور المجموعات)</b>'}</div>`;
   h+=`<div class="gcard"><table class="stbl thirds-tbl">
     <tr><th>#</th><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>+/−</th><th>له</th><th>نقاط</th></tr>`;
   arr.forEach((t,i)=>{
