@@ -404,7 +404,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 
 /* ترتيب المجموعات */
 .toggle-wrap{display:flex;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:5px;gap:5px;margin-bottom:14px}
-.toggle-btn{flex:1;padding:10px;border:none;border-radius:9px;background:none;color:var(--muted);font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.toggle-btn{flex:1;padding:10px 6px;border:none;border-radius:9px;background:none;color:var(--muted);font-family:'Cairo';font-weight:700;font-size:12.5px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .toggle-btn.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1405}
 .toggle-btn.disabled{opacity:.5}
 .real-note{text-align:center;color:var(--muted);font-size:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
@@ -412,28 +412,20 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 /* أفضل الثوالث */
 .thirds-intro{background:var(--bg-2);border:1px solid var(--gold-deep);border-radius:12px;padding:12px 13px;font-size:12px;line-height:1.7;color:var(--muted);margin-bottom:12px}
 .thirds-intro b{color:var(--gold-bright)}
-.thirds-grid-head,.thirds-row{display:grid;grid-template-columns:26px 1fr 30px 36px 36px 28px 38px 44px;gap:2px;align-items:center}
-.thirds-grid-head{padding:6px 8px;font-size:10px;color:var(--muted-2);font-family:'Cairo';font-weight:700;border-bottom:1px solid var(--line);text-align:center}
-.thirds-grid-head .th-team{text-align:right}
-.thirds-row{padding:9px 8px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;margin-top:6px;font-size:13px}
-.thirds-row.q{border-color:rgba(47,191,113,.45);background:linear-gradient(90deg,rgba(47,191,113,.08),var(--bg-2))}
-.thirds-row.out{opacity:.62}
-.thirds-row.cut{margin-bottom:14px;position:relative}
-.thirds-row.cut::after{content:"───── حدّ التأهل (أفضل 8) ─────";position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--bad);white-space:nowrap;font-family:'Cairo';font-weight:700}
-.th-pos{text-align:center;font-family:'Anton';font-size:14px;color:var(--muted-2)}
-.th-ok{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#06210f;font-size:12px}
-.th-team{display:flex;align-items:center;gap:6px;min-width:0;text-align:right}
-.th-fl{font-size:18px;flex:none}
-.th-nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.th-grp{font-size:9px;color:var(--muted-2);background:var(--bg-3);border-radius:5px;padding:1px 5px;flex:none}
-.th-n{text-align:center;font-size:12px;color:var(--muted)}
-.th-pts{font-family:'Anton';font-size:15px;color:var(--gold-bright)}
-.th-fifa{font-family:'Anton';font-size:12px;color:var(--text)}
-.thirds-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:14px 2px 0}
+.thirds-tbl{table-layout:auto}
+.thirds-tbl th{font-size:10px}
+.thirds-tbl td{padding:10px 4px;text-align:center}
+.thirds-tbl .t-name{white-space:normal;width:auto;text-align:right}
+.thirds-tbl tr.q td{background:rgba(47,191,113,.10)}
+.thirds-tbl tr.o td{opacity:.5}
+.thirds-tbl tr.cut td{border-bottom:2px solid var(--bad)}
+.th-rank{font-family:'Anton';font-size:14px;color:var(--muted-2)}
+.th-ok{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#06210f;font-size:12px;font-family:'Anton'}
+.th-grp{font-size:9px;color:var(--muted-2);background:var(--bg-3);border-radius:5px;padding:1px 5px;margin-inline-start:5px}
+.thirds-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:12px 2px 0;justify-content:center}
 .thirds-legend span{display:flex;align-items:center;gap:5px}
 .thirds-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .thirds-legend .tl-q{background:var(--ok)}.thirds-legend .tl-o{background:var(--muted-2)}
-.thirds-note{background:var(--bg-2);border:1px dashed var(--line);border-radius:11px;padding:11px 12px;font-size:11px;line-height:1.8;color:var(--muted);margin-top:12px}
 .gcard{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 .gcard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .gcard-let{font-family:'Anton';font-size:22px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:9px;padding:1px 12px}
@@ -817,7 +809,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
     <div class="toggle-wrap">
       <button class="toggle-btn on" id="tgReal" onclick="setStandMode('real')">⚽ الحقيقي</button>
       <button class="toggle-btn" id="tgPred" onclick="setStandMode('pred')">🔮 المتوقّع</button>
-      <button class="toggle-btn" id="tgThird" onclick="setStandMode('thirds')">🥉 أفضل الثوالث</button>
+      <button class="toggle-btn" id="tgThird" onclick="setStandMode('thirds')">🥉 الثوالث</button>
     </div>
     <div class="legend">
       <span><i style="background:var(--ok)"></i> أول وثاني (متأهل مباشر)</span>
@@ -1404,24 +1396,23 @@ function renderThirds(){
     host.innerHTML=`<div class="note-box">🥉 ترتيب أفضل الثوالث يظهر <b>أول ما تبدأ المباريات</b>. أفضل <b>8</b> ثوالث من أصل <b>12</b> يتأهلون لدور الـ32.</div>`;return;
   }
   const complete=arr.length===12&&arr.every(t=>t.allPlayed);
-  let h=`<div class="thirds-intro">🥉 أفضل <b>8</b> ثوالث من <b>12</b> يتأهلون لدور الـ32. الترتيب بقانون فيفا: النقاط ← الفارق ← الأهداف ← السلوك (الكروت) ← تصنيف فيفا الحي.${complete?'':' <b>(مؤقّت — يكتمل بنهاية دور المجموعات)</b>'}</div>`;
-  h+=`<div class="thirds-grid-head"><span class="th-pos">#</span><span class="th-team">المنتخب</span><span class="th-n">لعب</span><span class="th-n">نقاط</span><span class="th-n">+/−</span><span class="th-n">له</span><span class="th-n">سلوك</span><span class="th-n">فيفا</span></div>`;
+  let h=`<div class="thirds-intro">🥉 أفضل <b>8</b> ثوالث من <b>12</b> يتأهلون لدور الـ32. الترتيب: النقاط ← الفارق ← الأهداف.${complete?'':' <b>(مؤقّت — يكتمل بنهاية دور المجموعات)</b>'}</div>`;
+  h+=`<div class="gcard"><table class="stbl thirds-tbl">
+    <tr><th>#</th><th class="t-name" style="text-align:right">المنتخب</th><th>لعب</th><th>+/−</th><th>له</th><th>نقاط</th></tr>`;
   arr.forEach((t,i)=>{
     const rank=i+1;const qual=rank<=8;
-    const cls=qual?'q':'out';const line=(rank===8)?' cut':'';
-    h+=`<div class="thirds-row ${cls}${line}">
-      <span class="th-pos">${qual?'<span class="th-ok">'+rank+'</span>':rank}</span>
-      <span class="th-team"><span class="th-fl">${fl(t.code)}</span><span class="th-nm">${nm(t.code)}</span><span class="th-grp">${t.g}</span></span>
-      <span class="th-n">${t.pld}</span>
-      <span class="th-n th-pts">${t.pts}</span>
-      <span class="th-n">${t.gd>0?'+':''}${t.gd}</span>
-      <span class="th-n">${t.gf}</span>
-      <span class="th-n">${t.conduct}</span>
-      <span class="th-n th-fifa">${t.fifa.toFixed(0)}</span>
-    </div>`;
+    const cls=(qual?'q':'o')+(rank===8?' cut':'');
+    h+=`<tr class="${cls}">
+      <td class="th-rank">${qual?'<span class="th-ok">'+rank+'</span>':rank}</td>
+      <td class="t-name"><span class="fl">${fl(t.code)}</span>${nm(t.code)}<span class="th-grp">${t.g}</span></td>
+      <td>${t.pld}</td>
+      <td>${t.gd>0?'+':''}${t.gd}</td>
+      <td>${t.gf}</td>
+      <td class="pts">${t.pts}</td>
+    </tr>`;
   });
-  h+=`<div class="thirds-legend"><span><i class="tl-q"></i> متأهل (أفضل 8)</span><span><i class="tl-o"></i> خارج</span><span>📏 الخط = حدّ التأهل</span></div>`;
-  h+=`<div class="thirds-note">💡 «السلوك» = نقاط الكروت (أصفر −1 · إنذاران −3 · أحمر −4). «فيفا» = تصنيفك الحي المحسوب بمعادلة فيفا الرسمية، يتحدّث بعد كل مباراة. المعياران الأخيران يفصلان فقط عند تعادل تام في النقاط والفارق والأهداف.</div>`;
+  h+=`</table></div>`;
+  h+=`<div class="thirds-legend"><span><i class="tl-q"></i> متأهل (أفضل 8)</span><span><i class="tl-o"></i> خارج</span></div>`;
   host.innerHTML=h;
 }
 
