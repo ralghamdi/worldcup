@@ -283,6 +283,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .m-score input::-webkit-outer-spin-button,.m-score input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .m-score input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,169,60,.12)}
 .m-score input.filled{border-color:var(--gold-deep)}
+.score-stepper{display:flex;flex-direction:column;align-items:center;gap:4px}
+.step-btn{width:40px;height:28px;border:none;border-radius:8px;background:var(--bg-3);color:var(--gold-bright);font-size:19px;font-weight:800;font-family:inherit;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .12s}
+.step-btn:active{background:var(--gold-deep);color:#1a1405;transform:scale(.94)}
+.step-btn:disabled{opacity:.3;cursor:not-allowed}
 .m-score input:disabled{opacity:.45;cursor:not-allowed;background:var(--bg-2)}
 /* مربّع التوقّع المقفل في السابقة (يطابق الخانة) */
 .m-box{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;font-family:'Anton';font-size:21px;background:var(--bg-2);border:1.5px solid var(--gold-deep);border-radius:10px;color:var(--gold-bright)}
@@ -1154,9 +1158,17 @@ function renderPredict(){
     el.innerHTML=`<div class="m-row">
       <div class="m-side"><span class="m-flag">${fl(m.A)}</span><span class="m-name">${nm(m.A)}</span></div>
       <div class="m-score">
-        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="h" value="${r.h??""}" ${dis} class="${r.h!=null&&r.h!==""?'filled':''}">
+        <div class="score-stepper">
+          <button class="step-btn" onclick="stepScore('${m.id}','h',1)" ${dis}>+</button>
+          <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="h" value="${r.h??""}" ${dis} class="${r.h!=null&&r.h!==""?'filled':''}">
+          <button class="step-btn" onclick="stepScore('${m.id}','h',-1)" ${dis}>−</button>
+        </div>
         <span class="m-dash">−</span>
-        <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="a" value="${r.a??""}" ${dis} class="${r.a!=null&&r.a!==""?'filled':''}">
+        <div class="score-stepper">
+          <button class="step-btn" onclick="stepScore('${m.id}','a',1)" ${dis}>+</button>
+          <input type="number" min="0" inputmode="numeric" data-id="${m.id}" data-s="a" value="${r.a??""}" ${dis} class="${r.a!=null&&r.a!==""?'filled':''}">
+          <button class="step-btn" onclick="stepScore('${m.id}','a',-1)" ${dis}>−</button>
+        </div>
       </div>
       <div class="m-side away"><span class="m-flag">${fl(m.B)}</span><span class="m-name">${nm(m.B)}</span></div>
     </div>
@@ -1177,6 +1189,16 @@ function renderPredict(){
     updateProgress();queueSave();
   }));
   updateProgress();
+}
+function stepScore(id,s,delta){
+  const mm=GM.find(x=>x.id===id);
+  if(mm&&matchStarted(mm)){renderPredict();return;}
+  if(!state.g[id])state.g[id]={h:"",a:""};
+  let cur=state.g[id][s];cur=(cur===""||cur==null)?0:(parseInt(cur)||0);
+  let v=Math.max(0,Math.min(99,cur+delta));
+  state.g[id][s]=v;
+  document.querySelectorAll(`input[data-id="${id}"][data-s="${s}"]`).forEach(inp=>{inp.value=v;inp.classList.add('filled');});
+  updateProgress();queueSave();
 }
 function updateProgress(){
   const c=predCount();
