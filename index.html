@@ -3194,6 +3194,10 @@ function adminPlayersHtml(){
       return `<div class="adm-pred">
         <span class="adm-pmatch">${roundOf(m)}: ${fl(t.a)}${nm(t.a)} × ${nm(t.b)}${fl(t.b)}</span>
         <span class="adm-pval">${pr.hs}-${pr.as}${extra}${jok} ${res}</span>
+        <span class="adm-pacts">
+          ${pr.j?`<button class="adm-mini" onclick="adminDelKOJoker(${m})" title="مسح الجوكر">🃏✕</button>`:''}
+          <button class="adm-mini del" onclick="adminDelKOPred(${m},'${esc(nm(t.a))} × ${esc(nm(t.b))}')" title="مسح التوقّع">🗑️</button>
+        </span>
       </div>`;
     }).join('');
   }
@@ -3226,6 +3230,18 @@ async function adminDelPred(mkey,label){
 async function adminDelJoker(mkey){
   if(!confirm('مسح الجوكر من هذه المباراة؟'))return;
   try{const {error}=await sb.rpc('admin_delete_joker',{target_uid:admSelUid,mkey});
+    if(error)throw error;pill('تم مسح الجوكر ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminDelKOPred(m,label){
+  if(!confirm('مسح توقّع هذا اللاعب الإقصائي في «'+label+'»؟ (يُخصم آلياً)'))return;
+  try{const {error}=await sb.rpc('admin_delete_ko_pred',{target_uid:admSelUid,ko_num:String(m)});
+    if(error)throw error;pill('تم مسح التوقّع ✓');await loadBoard();renderAdmin();
+  }catch(e){alert('فشل: '+(e.message||''));}
+}
+async function adminDelKOJoker(m){
+  if(!confirm('مسح الجوكر من هذه المباراة الإقصائية؟'))return;
+  try{const {error}=await sb.rpc('admin_delete_ko_joker',{target_uid:admSelUid,ko_num:String(m)});
     if(error)throw error;pill('تم مسح الجوكر ✓');await loadBoard();renderAdmin();
   }catch(e){alert('فشل: '+(e.message||''));}
 }
@@ -3271,12 +3287,23 @@ function adminToolsHtml(){
     <button class="adm-btn full" style="margin-bottom:8px" onclick="adminRunAch()">🏆 تشغيل كشف الإنجازات</button>
     <button class="adm-btn full" style="margin-bottom:8px" onclick="adminExportCSV()">📤 تصدير البيانات (CSV)</button>`;
   // مين ما توقّع المباريات القادمة القريبة
-  const soon=GM.filter(m=>counts(m)&&!matchStarted(m)).slice(0,1)[0];
-  if(soon){
-    const missing=boardData.filter(p=>{const pr=p.g[soon.id];return !pr||pr.h==null||pr.h==='';});
-    h+=`<div class="adm-sec">👁️ ما توقّعوا القادمة (${nm(soon.A)} × ${nm(soon.B)})</div>`;
+  const _KOt=computeKOReal();
+  let soonKO=null;
+  if(_KOt.allDone){for(let m=73;m<=104;m++){const t=_KOt.teamsOf[m];if(t&&t.a&&t.b&&!koStartedM(m,t.a,t.b)){soonKO=m;break;}}}
+  if(soonKO){
+    const t=_KOt.teamsOf[soonKO];
+    const missing=boardData.filter(p=>{const pr=(p.ko||{})[soonKO];return !pr||pr.hs==null||pr.hs==='';});
+    h+=`<div class="adm-sec">👁️ ما توقّعوا القادمة (🏆 ${nm(t.a)} × ${nm(t.b)})</div>`;
     h+= missing.length?`<div class="adm-miss">${missing.map(p=>esc(p.name)).join(' · ')}</div>`
       :`<div class="nf-empty">✅ الكل توقّع.</div>`;
+  }else{
+    const soon=GM.filter(m=>counts(m)&&!matchStarted(m)).slice(0,1)[0];
+    if(soon){
+      const missing=boardData.filter(p=>{const pr=p.g[soon.id];return !pr||pr.h==null||pr.h==='';});
+      h+=`<div class="adm-sec">👁️ ما توقّعوا القادمة (${nm(soon.A)} × ${nm(soon.B)})</div>`;
+      h+= missing.length?`<div class="adm-miss">${missing.map(p=>esc(p.name)).join(' · ')}</div>`
+        :`<div class="nf-empty">✅ الكل توقّع.</div>`;
+    }
   }
   // نظرة الجواكر
   h+=`<div class="adm-sec">🃏 الجواكر</div>`;
@@ -3694,14 +3721,24 @@ function upcomingUnpredicted(hoursWindow){
     if(ms>now&&ms<=lim&&!(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null))out.push({ko:m});}
   return out;
 }
+function koUnpredictedCount(){
+  const KO=computeKOReal();if(!KO.allDone)return 0;
+  let n=0;for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    if(koStartedM(m,t.a,t.b))continue;const r=state.ko[m];
+    if(!(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null))n++;}
+  return n;
+}
 function renderReminder(){
   const el=document.getElementById('remind');if(!el)return;
   if(remindHidden){el.style.display='none';return;}
   const soon=upcomingUnpredicted(12);
-  if(!soon.length){el.style.display='none';return;}
-  const n=soon.length;
+  const koUnp=koUnpredictedCount();
+  if(!soon.length&&!koUnp){el.style.display='none';return;}
   el.style.display='flex';
-  el.innerHTML=`<span class="rb-txt">⏰ عندك <b>${n}</b> ${n===1?'مباراة قريبة':'مباريات قريبة'} ما توقّعتها — توقّعها قبل القفل!</span>
+  let txt;
+  if(soon.length){const n=soon.length;txt=`⏰ عندك <b>${n}</b> ${n===1?'مباراة قريبة':'مباريات قريبة'} ما توقّعتها — توقّعها قبل القفل!`;}
+  else{txt=`🏆 فيه <b>${koUnp}</b> ${koUnp===1?'مباراة إقصائية':'مباريات إقصائية'} ما توقّعتها — لا تفوّتها!`;}
+  el.innerHTML=`<span class="rb-txt">${txt}</span>
     <button onclick="showTab('predict')">توقّع الآن</button>
     <button class="rb-x" onclick="remindHidden=true;document.getElementById('remind').style.display='none'" title="إخفاء">×</button>`;
 }
