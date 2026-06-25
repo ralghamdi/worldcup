@@ -603,6 +603,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .hcell.h2{background:#7BA05B;border-color:#7BA05B}
 .hcell.h0{background:var(--bad);border-color:var(--bad)}
 .hcell.hp{background:var(--bg-3);border-color:var(--gold-deep)}
+.hcell.ko{border-style:dashed;border-width:2px}
+.heat-ko-sep{grid-column:1/-1;font-size:11px;color:var(--gold-bright);text-align:center;margin:6px 0 2px;font-weight:700;letter-spacing:.5px}
 .heat-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}
 .heat-legend span{display:flex;align-items:center;gap:5px}
 .heat-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
@@ -2525,15 +2527,17 @@ function renderPoints(){
     else if(pred&&pred.h!==""&&pred.h!=null){cls+=' hp';}
     h+=`<div class="${cls}"></div>`;
   });
-  // خلايا الإقصائيات
+  // خلايا الإقصائيات (قسم مميّز يكبر مع انطلاق الأدوار)
   const _KOh=computeKOReal();
+  let koCells='';
   for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(!t||!t.a||!t.b)continue;
     let cls='hcell ko';
     if(m in r.koPer){const p=r.koPer[m];cls+=p>=8?' h5':p>=5?' h3':p>=2?' h2':' h0';}
     else if(state.ko[m]&&state.ko[m].hs!==''&&state.ko[m].hs!=null){cls+=' hp';}
     else continue;
-    h+=`<div class="${cls}"></div>`;
+    koCells+=`<div class="${cls}"></div>`;
   }
+  if(koCells)h+=`<div class="heat-ko-sep">🏆 الأدوار الإقصائية</div>`+koCells;
   h+=`</div><div class="heat-legend">
     <span><i style="background:var(--gold)"></i> مطابق</span>
     <span><i style="background:var(--ok)"></i> فارق صح</span>
