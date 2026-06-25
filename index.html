@@ -827,7 +827,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="showTab('matches',this)">المباريات والنتائج</button>
     <button class="tab" onclick="showTab('standings',this)">ترتيب المجموعات</button>
-    <button class="tab" onclick="showTab('knockout',this)">الأدوار الإقصائية</button>
+    <button class="tab" onclick="showTab('knockout',this)">🏆 الأدوار الإقصائية</button>
     <button class="tab" onclick="showTab('stats',this)">الإحصائيات</button>
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
     <button class="tab" onclick="showTab('predict',this)">توقعاتي</button>
@@ -2668,10 +2668,11 @@ function koMatchCard(m,KO){
 function renderMatchesKOInto(host){
   const KO=computeKOReal();
   const playable=[];
-  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&(t.a||t.b))playable.push(m);}
+  // المباريات والنتائج: الحقيقية فقط (أطراف مؤكّدة نهائياً أو بدأت فعلاً) — لا أطراف مؤقتة
+  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&t.a&&t.b&&(KO.allDone||koStartedM(m,t.a,t.b)))playable.push(m);}
   if(!playable.length){
     const e=document.createElement('div');e.className='stat-empty';
-    e.innerHTML='🏆 مباريات الأدوار الإقصائية تظهر هنا أول ما تتحدّد أطرافها — بعد اكتمال المجموعات.';
+    e.innerHTML='🏆 مباريات الأدوار الإقصائية الحقيقية تظهر هنا بعد اكتمال دور المجموعات وتحدّد المتأهلين. <br>الأطراف المرشّحة تشوفها في تاب «الأدوار الإقصائية».';
     host.appendChild(e);return;
   }
   const upc=playable.filter(m=>{const t=KO.teamsOf[m];return !koStartedM(m,t.a,t.b);});
