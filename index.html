@@ -426,6 +426,48 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .thirds-legend span{display:flex;align-items:center;gap:5px}
 .thirds-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .thirds-legend .tl-q{background:var(--ok)}.thirds-legend .tl-o{background:var(--muted-2)}
+/* خارطة الأدوار الإقصائية */
+.ko-champ{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-radius:18px;padding:22px 16px 18px;text-align:center;margin-bottom:14px;color:#1a1405}
+.ko-champ .tricolor{position:absolute;top:0;left:0}
+.ko-champ-fl{font-size:54px;line-height:1}
+.ko-champ-t{font-family:'Cairo';font-weight:900;font-size:24px;margin-top:4px}
+.ko-champ-s{font-size:13px;font-weight:700;margin-top:2px}
+.ko-intro{background:var(--bg-2);border:1px solid var(--gold-deep);border-radius:12px;padding:11px 13px;font-size:12px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+.ko-round-h{font-family:'Cairo';font-weight:900;font-size:15px;color:var(--gold-bright);margin:18px 2px 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.ko-card{position:relative;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:9px 12px 12px;margin-bottom:8px}
+.ko-card.done{border-color:var(--gold-deep)}
+.ko-card.livecard{border-color:var(--bad);box-shadow:0 0 0 1px rgba(230,29,37,.35)}
+.ko-cap{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ko-stat{font-size:10px;font-weight:800;font-family:'Cairo';padding:2px 9px;border-radius:7px}
+.ko-stat.asis{background:rgba(229,184,56,.16);color:var(--gold-bright)}
+.ko-stat.sched{background:var(--bg-3);color:var(--muted)}
+.ko-stat.live{background:var(--bad);color:#fff;animation:pulse 1.5s infinite}
+.ko-stat.post{background:rgba(47,191,113,.16);color:var(--ok)}
+.ko-mn{font-size:9px;color:var(--muted-2);font-family:'Anton'}
+.ko-body{display:flex;align-items:center;gap:8px}
+.ko-side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
+.ko-side.b{flex-direction:row-reverse;text-align:left}
+.ko-fl{font-size:22px;flex:none}
+.ko-nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ko-nm.slot{color:var(--muted-2);font-style:italic;font-weight:500;font-size:11.5px}
+.ko-nm.win{color:var(--gold-bright)}
+.ko-mid{flex:none;min-width:54px;text-align:center}
+.ko-sc{font-family:'Anton';font-size:18px;color:var(--text);letter-spacing:1px}
+.ko-sc.live{color:var(--bad)}
+.ko-sc .ko-d{color:var(--muted-2)}
+.ko-vs{font-family:'Anton';font-size:13px;color:var(--muted-2)}
+/* توقّع الإقصائيات */
+.pred-modes{margin-bottom:12px}
+.ko-pred{display:block}
+.kop-round{font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:10px;font-family:'Cairo'}
+.kop-when{color:var(--muted-2);font-weight:500}
+.kop-stage{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.kop-lbl{font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px}
+.kop-lbl small{display:block;font-weight:500;color:var(--muted);font-size:10.5px;margin-top:2px}
+.pen-btns{display:flex;gap:8px}
+.pen-btn{flex:1;padding:11px 8px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg-2);color:var(--text);font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.pen-btn .m-flag{font-size:18px}
+.pen-btn.on{border-color:var(--gold);background:rgba(229,184,56,.14);color:var(--gold-bright)}
 .gcard{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 .gcard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .gcard-let{font-family:'Anton';font-size:22px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:9px;padding:1px 12px}
@@ -783,6 +825,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="showTab('matches',this)">المباريات والنتائج</button>
     <button class="tab" onclick="showTab('standings',this)">ترتيب المجموعات</button>
+    <button class="tab" onclick="showTab('knockout',this)">🏆 خارطة الأدوار</button>
     <button class="tab" onclick="showTab('stats',this)">الإحصائيات</button>
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
     <button class="tab" onclick="showTab('predict',this)">توقعاتي</button>
@@ -825,6 +868,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="page" id="page-points"><div id="pointsHost"></div></div>
   <div class="page" id="page-board"><div id="boardHost"></div></div>
   <div class="page" id="page-challenges"><div id="chalHost"></div></div>
+  <div class="page" id="page-knockout"><div id="koHost"></div></div>
   <div class="page" id="page-myteam">
     <div class="team-pick">
       <label>اختر منتخبك</label>
@@ -989,6 +1033,30 @@ function roundShort(m){return m<=88?'32':m<=96?'16':m<=100?'8':m<=102?'4':m===10
 function phText(slot){if(slot.t==='W')return"متصدّر "+slot.g;if(slot.t==='R')return"وصيف "+slot.g;
   if(slot.t==='3')return"ثالث ("+CLUS[slot.m].join("/")+")";if(slot.t==='WM')return"الفائز من م"+slot.m;
   if(slot.t==='LM')return"خاسر م"+slot.m;return"";}
+// مواعيد الأدوار الإقصائية الرسمية (توقيت السعودية +03) — مرجع ثابت من FIFA، الأطراف تبقى ديناميكية
+const KO_SCHEDULE={
+73:'2026-06-28T22:00',74:'2026-06-29T23:30',75:'2026-06-30T04:00',76:'2026-06-29T20:00',
+77:'2026-07-01T00:00',78:'2026-06-30T20:00',79:'2026-07-01T04:00',80:'2026-07-01T19:00',
+81:'2026-07-02T03:00',82:'2026-07-01T23:00',83:'2026-07-03T02:00',84:'2026-07-02T22:00',
+85:'2026-07-03T06:00',86:'2026-07-04T01:00',87:'2026-07-04T04:30',88:'2026-07-03T21:00',
+89:'2026-07-05T00:00',90:'2026-07-04T20:00',91:'2026-07-05T23:00',92:'2026-07-06T03:00',
+93:'2026-07-06T22:00',94:'2026-07-07T02:00',95:'2026-07-07T19:00',96:'2026-07-07T23:00',
+97:'2026-07-09T23:00',98:'2026-07-10T22:00',99:'2026-07-12T00:00',100:'2026-07-12T04:00',
+101:'2026-07-14T22:00',102:'2026-07-15T22:00',103:'2026-07-19T00:00',104:'2026-07-19T22:00'};
+function koKickoffMs(m){const s=KO_SCHEDULE[m];return s?new Date(s+':00+03:00').getTime():null;}
+// بدأت المباراة؟ نفضّل حالة live_matches (ديناميكي)، ثم الموعد الرسمي
+function koStartedM(m,a,b){
+  if(a&&b){const rec=liveFor(a,b);if(rec&&(rec.status==='in'||rec.status==='post'))return true;}
+  const t=koKickoffMs(m);return t?Date.now()>=t:false;
+}
+function koDateLabel(m){
+  const s=KO_SCHEDULE[m];if(!s)return'';
+  const [dp,tp]=s.split('T');const [y,mo,dd]=dp.split('-').map(Number);
+  const wd=new Date(Date.UTC(y,mo-1,dd,12)).getUTCDay();
+  const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return `${days[wd]} ${dd} ${months[mo-1]} · ${tp}`;
+}
 function thirdsAssignment(){if(!allGroupsDone())return null;
   const th=rankedThirds().slice(0,8).map(o=>o.g);const ms=Object.keys(CLUS).map(Number);const used={};const out={};
   function bt(i){if(i===ms.length)return true;const m=ms[i];
@@ -1018,6 +1086,132 @@ function traceTeamPath(team){const {teamsOf,winnerOf,loserOf}=computeKO();
     let next=null;for(let n=m+1;n<=104;n++){if(n!==103&&((MATCH[n].a.t==='WM'&&MATCH[n].a.m===m)||(MATCH[n].b.t==='WM'&&MATCH[n].b.m===m))){next=n;break;}}
     m=next;}
   return {inKO:true,path};}
+
+/* ===== محرّك الأدوار الإقصائية الحقيقي (من النتائج الفعلية) ===== */
+function realTop2(g){
+  const ls=live.standings[g];
+  if(ls&&ls.length>=4&&ls.every(e=>e.code)){
+    const s=ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9));
+    return {win:s[0].code,run:s[1].code};
+  }
+  const st=realGroupStats(g);
+  const ord=GROUPS[g].slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf);
+  return {win:ord[0],run:ord[1]};
+}
+function realThirdTeam(g){
+  const ls=live.standings[g];
+  if(ls&&ls.length>=3&&ls.every(e=>e.code)){
+    const s=ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9));return s[2]&&s[2].code;
+  }
+  const st=realGroupStats(g);
+  const ord=GROUPS[g].slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf);
+  return ord[2];
+}
+function groupDoneReal(g){const st=realGroupStats(g);return GROUPS[g].every(k=>st[k].pld>=3);}
+function allGroupsDoneReal(){return Object.keys(GROUPS).every(groupDoneReal);}
+function realThirdsAssignment(){
+  if(!allGroupsDoneReal())return null;
+  const th=realThirds().slice(0,8).map(o=>o.g);
+  const ms=Object.keys(CLUS).map(Number);const used={};const out={};
+  function bt(i){if(i===ms.length)return true;const m=ms[i];
+    for(const g of CLUS[m]){if(th.includes(g)&&!used[g]){used[g]=1;out[m]=g;if(bt(i+1))return true;delete used[g];}}return false;}
+  return bt(0)?out:null;
+}
+// البراكيت الحقيقي «كما هو الآن» — يتعبّأ بالمتأهلين الفعليين ويتحدّث بعد كل مباراة
+function computeKOReal(){
+  const winG={},runG={},doneG={};
+  Object.keys(GROUPS).forEach(g=>{
+    const st=realGroupStats(g);
+    if(GROUPS[g].some(k=>st[k].pld>0)){const t=realTop2(g);winG[g]=t.win;runG[g]=t.run;}
+    doneG[g]=groupDoneReal(g);
+  });
+  const asg=realThirdsAssignment();
+  const teamsOf={},winnerOf={},loserOf={},scoreOf={};
+  function resolve(slot){
+    if(slot.t==='W')return winG[slot.g]||null;
+    if(slot.t==='R')return runG[slot.g]||null;
+    if(slot.t==='3')return asg?realThirdTeam(asg[slot.m]):null;
+    if(slot.t==='WM')return winnerOf[slot.m]||null;
+    if(slot.t==='LM')return loserOf[slot.m]||null;return null;}
+  for(let m=73;m<=104;m++){
+    const a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);teamsOf[m]={a,b};
+    if(a&&b){
+      const rec=liveFor(a,b);
+      if(rec){
+        const aS=scoreFor(rec,a),bS=scoreFor(rec,b);
+        if(aS!=null&&bS!=null){
+          scoreOf[m]={a:aS,b:bS,status:rec.status};
+          if(rec.status==='post'){
+            if(aS>bS){winnerOf[m]=a;loserOf[m]=b;}
+            else if(bS>aS){winnerOf[m]=b;loserOf[m]=a;}
+            // تعادل في وقت أصلي + ترجيح: يُحسم لاحقاً عند توفّر بيانات الترجيح
+          }
+        }
+      }
+    }
+  }
+  return {teamsOf,winnerOf,loserOf,scoreOf,asg,doneG,allDone:allGroupsDoneReal()};
+}
+
+/* ====== نقاط الأدوار الإقصائية: استخراج النتيجة + الحساب المتدرّج ====== */
+// ⚠️⚠️ نقطة العزل الوحيدة: قراءة الدقائق/الترجيح من ESPN. نعدّلها لحظة أول مباراة إقصائية ونشوف شكل البيانات.
+function koPenWinner(rec,a,b){
+  if(rec.pen_home!=null&&rec.pen_away!=null)return rec.pen_home>rec.pen_away?'h':'a';
+  if(rec.shootout_home!=null&&rec.shootout_away!=null)return rec.shootout_home>rec.shootout_away?'h':'a';
+  if(rec.winner_code===a||rec.winner===a)return 'h';
+  if(rec.winner_code===b||rec.winner===b)return 'a';
+  return null; // غير معروف بعد
+}
+function koActual(a,b){
+  const rec=liveFor(a,b);
+  if(!rec||rec.status!=='post')return null;
+  const fhs=scoreFor(rec,a),fas=scoreFor(rec,b);
+  if(fhs==null||fas==null)return null;
+  let oh=null,oa=null;const ev=rec.events||[];
+  const gmin=e=>{const v=e.minute??e.min??e.clock??null;return v==null?null:parseInt(v);};
+  const hasMin=ev.some(e=>(e.kind==='goal'||e.kind==='owngoal')&&gmin(e)!=null);
+  if(hasMin){oh=0;oa=0;
+    ev.forEach(e=>{if(e.kind!=='goal'&&e.kind!=='owngoal')return;const mn=gmin(e);if(mn==null||mn>90)return;
+      const forA=e.kind==='owngoal'?(e.team===b):(e.team===a);if(forA)oh++;else oa++;});}
+  let decided,pw=null;
+  if(fhs!==fas){decided=(oh!=null&&oh===oa)?'extra':'orig';}
+  else{decided='pen';pw=koPenWinner(rec,a,b);}
+  return {decided,oh:oh!=null?oh:(decided==='orig'?fhs:null),oa:oa!=null?oa:(decided==='orig'?fas:null),
+          eh:fhs,ea:fas,pw,fhs,fas};
+}
+function numKN(x){return (x===''||x==null)?null:+x;}
+// نقاط مباراة إقصائية واحدة. pred:{hs,as,ehs,eas,pen}  act: مخرج koActual
+function scoreKO(pred,act){
+  if(!pred||!act)return 0;
+  const phs=numKN(pred.hs),pas=numKN(pred.as);
+  if(phs==null||pas==null)return 0;
+  const predOrigDraw=(phs===pas);
+  if(act.decided==='orig'){if(predOrigDraw)return 0;return scorePred(phs,pas,act.oh,act.oa)||0;}
+  if(!predOrigDraw)return 0; // توقّعت حسم بالأصلي بس راحت لإضافي/ترجيح
+  const origExact=(phs===act.oh);
+  if(act.decided==='extra'){
+    const peh=numKN(pred.ehs),pea=numKN(pred.eas);
+    if(peh==null||pea==null)return origExact?2:1;
+    const pW=peh>pea?'h':peh<pea?'a':'d';
+    if(pW==='d')return origExact?3:2;
+    const aW=act.eh>act.ea?'h':'a';
+    if(pW!==aW)return origExact?3:2;
+    const extraExact=(peh===act.eh&&pea===act.ea);
+    if(origExact&&extraExact)return 8;
+    if(origExact)return 6;
+    return 5;
+  }
+  if(act.decided==='pen'){
+    const peh=numKN(pred.ehs),pea=numKN(pred.eas);
+    if(peh==null||pea==null)return origExact?2:1;
+    if(peh!==pea)return origExact?3:2;
+    const penRight=(pred.pen===act.pw);
+    if(origExact&&penRight)return 10;
+    if(origExact||penRight)return 8;
+    return 6;
+  }
+  return 0;
+}
 
 /* ===== الحالة ===== */
 let state={g:{},ko:{}}; let saveTimer=null; let savedG={};
@@ -1103,9 +1297,115 @@ function predLocked(m){return matchStarted(m);}
 function matchFinished(m){const rec=liveFor(m.A,m.B);return !!(rec&&rec.status==='post');}
 let predSub='upcoming';
 function setPredSub(s){predSub=s;renderPredict();}
+/* ===== توقّعات الأدوار الإقصائية (نفس شكل المجموعات + شروط داخل البطاقة) ===== */
+let predMode='groups'; // groups | ko
+let koPredSub='upcoming';
+function setPredMode(mode){predMode=mode;renderPredict();}
+function setKoPredSub(s){koPredSub=s;renderPredict();}
+function stepKO(m,field,delta){
+  if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
+  let cur=state.ko[m][field];cur=(cur===''||cur==null)?0:+cur;
+  state.ko[m][field]=Math.max(0,Math.min(99,cur+delta));queueSave();renderPredict();
+}
+function setKOinput(m,field,val){
+  if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
+  state.ko[m][field]=(val===''||val==null)?'':Math.max(0,Math.min(99,parseInt(val)||0));queueSave();renderPredict();
+}
+function setKOpen(m,winner){
+  if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
+  state.ko[m].pen=(state.ko[m].pen===winner)?'':winner;queueSave();renderPredict();
+}
+function koStepperHtml(m,field,val,dis){
+  const filled=(val!=null&&val!=='');
+  return `<div class="score-stepper">
+    <button class="step-btn" onclick="stepKO(${m},'${field}',1)" ${dis}>+</button>
+    <input type="number" min="0" inputmode="numeric" value="${filled?val:''}" ${dis} class="${filled?'filled':''}" onchange="setKOinput(${m},'${field}',this.value)">
+    <button class="step-btn" onclick="stepKO(${m},'${field}',-1)" ${dis}>−</button>
+  </div>`;
+}
+function koPredCard(m,KO){
+  const t=KO.teamsOf[m];const a=t.a,b=t.b;const r=state.ko[m]||{};
+  const locked=koStartedM(m,a,b);const dis=locked?'disabled':'';
+  const has=v=>(v!=null&&v!=='');
+  const origDraw=has(r.hs)&&has(r.as)&&(+r.hs===+r.as);
+  const extraDraw=has(r.ehs)&&has(r.eas)&&(+r.ehs===+r.eas);
+  let h=`<div class="match ko-pred${locked?' locked':''}">
+    <div class="kop-round">${roundOf(m)} · <span class="kop-when">${koDateLabel(m)}</span></div>
+    <div class="m-row">
+      <div class="m-side"><span class="m-flag">${fl(a)}</span><span class="m-name">${nm(a)}</span></div>
+      <div class="m-score">${koStepperHtml(m,'hs',r.hs,dis)}<span class="m-dash">−</span>${koStepperHtml(m,'as',r.as,dis)}</div>
+      <div class="m-side away"><span class="m-flag">${fl(b)}</span><span class="m-name">${nm(b)}</span></div>
+    </div>`;
+  if(origDraw){
+    h+=`<div class="kop-stage">
+      <div class="kop-lbl">⏱️ الأشواط الإضافية <small>توقّعت تعادل ${r.hs}-${r.as} بالوقت الأصلي</small></div>
+      <div class="m-row">
+        <div class="m-side"><span class="m-flag">${fl(a)}</span><span class="m-name">${nm(a)}</span></div>
+        <div class="m-score">${koStepperHtml(m,'ehs',r.ehs,dis)}<span class="m-dash">−</span>${koStepperHtml(m,'eas',r.eas,dis)}</div>
+        <div class="m-side away"><span class="m-flag">${fl(b)}</span><span class="m-name">${nm(b)}</span></div>
+      </div></div>`;
+    if(extraDraw){
+      h+=`<div class="kop-stage">
+        <div class="kop-lbl">🥅 ركلات الترجيح <small>توقّعت تعادل بالإضافي — مين يكسب؟</small></div>
+        <div class="pen-btns">
+          <button class="pen-btn ${r.pen==='h'?'on':''}" onclick="setKOpen(${m},'h')" ${dis}><span class="m-flag">${fl(a)}</span> ${nm(a)}</button>
+          <button class="pen-btn ${r.pen==='a'?'on':''}" onclick="setKOpen(${m},'a')" ${dis}><span class="m-flag">${fl(b)}</span> ${nm(b)}</button>
+        </div></div>`;
+    }
+  }
+  if(locked)h+=`<div class="m-time">🔒 بدأت — التوقّع مقفل</div>`;
+  h+=`</div>`;return h;
+}
+function koPredPastCard(m,KO){
+  const t=KO.teamsOf[m];const a=t.a,b=t.b;const r=state.ko[m]||{};
+  const act=koActual(a,b);const pts=act?scoreKO(r,act):null;
+  const has=v=>(v!=null&&v!=='');
+  const sc=KO.scoreOf[m];
+  const resTxt=sc?`${sc.a}-${sc.b}`+(act&&act.decided==='extra'?' (إ.إ)':act&&act.decided==='pen'?' (ترجيح)':''):'لم تُلعب';
+  const cls=pts>=8?'p5':pts>=5?'p3':pts>=2?'p2':'p0';
+  const ptsTxt=(pts!=null)?`<span class="rl-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة</span>`:'';
+  return `<div class="match locked ko-pred">
+    <div class="kop-round">${roundOf(m)} · <span class="kop-when">${koDateLabel(m)}</span></div>
+    <div class="m-row">
+      <div class="m-side"><span class="m-flag">${fl(a)}</span><span class="m-name">${nm(a)}</span></div>
+      <div class="m-score"><span class="m-box">${has(r.hs)?r.hs:'-'}</span><span class="m-dash">−</span><span class="m-box">${has(r.as)?r.as:'-'}</span></div>
+      <div class="m-side away"><span class="m-flag">${fl(b)}</span><span class="m-name">${nm(b)}</span></div>
+    </div>
+    <div class="res-line"><span class="rl-lbl">النتيجة</span><span class="rl-sc num">${resTxt}</span>${ptsTxt}</div>
+  </div>`;
+}
+function renderPredictKOInto(host){
+  const KO=computeKOReal();
+  const playable=[];
+  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&t.a&&t.b)playable.push(m);}
+  if(!playable.length){
+    const e=document.createElement('div');e.className='stat-empty';
+    e.innerHTML='🏆 توقّعات الأدوار الإقصائية تنفتح <b>أول ما تتحدّد أطراف كل مباراة</b> — تبدأ بعد اكتمال المجموعات وانطلاق دور الـ32 (28 يونيو).';
+    host.appendChild(e);return;
+  }
+  const upc=playable.filter(m=>!koStartedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b));
+  const past=playable.filter(m=>koStartedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b));
+  const st=document.createElement('div');st.className='subtabs';
+  st.innerHTML=`<button class="subtab ${koPredSub==='upcoming'?'on':''}" onclick="setKoPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
+    <button class="subtab ${koPredSub==='past'?'on':''}" onclick="setKoPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
+  host.appendChild(st);
+  const list=koPredSub==='past'?past:upc;
+  if(!list.length){
+    const e=document.createElement('div');e.className='stat-empty';
+    e.innerHTML=koPredSub==='upcoming'?'🎉 ما فيه مباريات إقصائية قادمة بدون توقّع!':'لا مباريات إقصائية سابقة بعد.';
+    host.appendChild(e);return;
+  }
+  let html='';list.forEach(m=>{html+=koPredSub==='past'?koPredPastCard(m,KO):koPredCard(m,KO);});
+  const wrap=document.createElement('div');wrap.innerHTML=html;host.appendChild(wrap);
+}
 function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
   if(myFrozen){host.innerHTML=`<div class="frozen-banner">🔒 حسابك مجمّد من الإدارة مؤقتاً. لا يمكنك التوقّع حالياً. تواصل مع اللجنة.</div>`;return;}
+  const mt=document.createElement('div');mt.className='toggle-wrap pred-modes';
+  mt.innerHTML=`<button class="toggle-btn ${predMode==='groups'?'on':''}" onclick="setPredMode('groups')">⚽ المجموعات</button>
+    <button class="toggle-btn ${predMode==='ko'?'on':''}" onclick="setPredMode('ko')">🏆 الإقصائيات</button>`;
+  host.appendChild(mt);
+  if(predMode==='ko'){renderPredictKOInto(host);return;}
   const pool=GM.filter(m=>counts(m)); // من قطر×سويسرا فقط
   const upc=pool.filter(m=>!matchFinished(m));
   const past=pool.filter(m=>matchFinished(m));
@@ -1416,6 +1716,71 @@ function renderThirds(){
   host.innerHTML=h;
 }
 
+/* ===== خارطة الأدوار الإقصائية ===== */
+function koRange(a,b){const o=[];for(let i=a;i<=b;i++)o.push(i);return o;}
+function koSideHtml(team,slot,win){
+  if(team)return `<span class="ko-fl">${fl(team)}</span><span class="ko-nm${win?' win':''}">${nm(team)}</span>`;
+  return `<span class="ko-nm slot">${esc(phText(slot))}</span>`;
+}
+function koStatus(m,KO){
+  const sc=KO.scoreOf[m];
+  if(sc&&sc.status==='in')return {cls:'live',txt:'🔴 جارية'};
+  if(sc&&sc.status==='post')return {cls:'post',txt:'انتهت'};
+  let provisional=false;
+  [MATCH[m].a,MATCH[m].b].forEach(s=>{
+    if(s.t==='W'||s.t==='R'){if(!KO.doneG[s.g])provisional=true;}
+    else if(s.t==='3'){if(!KO.allDone)provisional=true;}
+  });
+  return provisional?{cls:'asis',txt:'كما هو الآن'}:{cls:'sched',txt:'مجدول'};
+}
+function koCard(m,KO){
+  const t=KO.teamsOf[m]||{};const sc=KO.scoreOf[m];const win=KO.winnerOf[m];
+  const aT=t.a,bT=t.b;
+  const aWin=!!(win&&win===aT),bWin=!!(win&&win===bT);
+  let mid;
+  if(sc){
+    const liveNow=sc.status==='in';
+    mid=`<span class="ko-sc${liveNow?' live':''}">${sc.a} <span class="ko-d">-</span> ${sc.b}</span>`;
+  }else mid=`<span class="ko-vs">VS</span>`;
+  const stt=koStatus(m,KO);
+  return `<div class="ko-card${win?' done':''}${sc&&sc.status==='in'?' livecard':''}">
+    <div class="ko-cap"><span class="ko-stat ${stt.cls}">${stt.txt}</span><span class="ko-mn">م${m} · ${koDateLabel(m)}</span></div>
+    <div class="ko-body">
+      <div class="ko-side">${koSideHtml(aT,MATCH[m].a,aWin)}</div>
+      <div class="ko-mid">${mid}</div>
+      <div class="ko-side b">${koSideHtml(bT,MATCH[m].b,bWin)}</div>
+    </div>
+  </div>`;
+}
+function renderKnockout(){
+  const host=document.getElementById('koHost');
+  const KO=computeKOReal();
+  const anyTeam=Object.values(KO.teamsOf).some(t=>t&&(t.a||t.b));
+  if(!anyTeam){
+    host.innerHTML=`<div class="note-box">🏆 خارطة الأدوار تتعبّأ تلقائياً <b>كل ما تتأهّل المنتخبات</b>: متصدّر ووصيف كل مجموعة + أفضل 8 ثوالث. تبدأ بالظهور مع اكتمال المجموعات، وتتحدّث بعد كل مباراة.</div>`;return;
+  }
+  const champ=KO.winnerOf[104];
+  let h='';
+  if(champ){
+    h+=`<div class="ko-champ"><div class="tricolor"></div><div class="ko-champ-fl">${fl(champ)}</div>
+      <div class="ko-champ-t">🏆 ${nm(champ)}</div><div class="ko-champ-s">بطل كأس العالم 2026</div></div>`;
+  }
+  h+=`<div class="ko-intro">🏆 البراكيت كما هو الآن — يتحدّث بعد كل مباراة. <span class="ko-stat asis" style="font-size:9px">كما هو الآن</span> = الأطراف مؤقّتة حتى تكتمل المجموعات · <span class="ko-stat sched" style="font-size:9px">مجدول</span> = ينتظر نتائج.</div>`;
+  const rounds=[
+    {t:'⚔️ دور الـ32',ms:koRange(73,88)},
+    {t:'⚔️ دور الـ16',ms:koRange(89,96)},
+    {t:'🔥 ربع النهائي',ms:koRange(97,100)},
+    {t:'💥 نصف النهائي',ms:[101,102]},
+    {t:'🥉 تحديد المركز الثالث',ms:[103]},
+    {t:'🏆 النهائي',ms:[104]},
+  ];
+  rounds.forEach(r=>{
+    h+=`<div class="ko-round-h">${r.t}</div>`;
+    r.ms.forEach(m=>{h+=koCard(m,KO);});
+  });
+  host.innerHTML=h;
+}
+
 /* ===== الإحصائيات ===== */
 function aggStats(){
   const scorers={},assists={},yellows={},reds={};let goals=0,yel=0,red=0,played=0;
@@ -1587,7 +1952,7 @@ function validJokers(g){
 }
 function jokerCount(g){return GM.filter(m=>g[m.id]&&g[m.id].j).length;}
 // البطل الحقيقي (الفائز بالنهائي م104) — يُحسب لاحقاً عند توفّر نتائج الإقصائيات
-function actualChampion(){return null;} // TODO: يُربط بنتيجة النهائي عند توفّرها
+function actualChampion(){try{return computeKOReal().winnerOf[104]||null;}catch(e){return null;}}
 function computePointsForG(g,champ){
   let total=0,scored=0,exact=0,good=0,ok=0,wrong=0;
   let jokerBonus=0,streakBonus=0,bestStreak=0;const per={};
@@ -3064,6 +3429,7 @@ function showTab(name,btn){
   if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
   if(name==='stats'){spin(1);loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(()=>{spin(0);renderStats();});else{spin(0);renderStats();}});}
   if(name==='points'){spin(1);loadLive().then(()=>{spin(0);renderPoints();});}
+  if(name==='knockout'){spin(1);loadLive().then(()=>{spin(0);renderKnockout();});}
   if(name==='board'){spin(1);loadBoard().then(()=>{spin(0);renderBoard();});}
   if(name==='challenges'){spin(1);Promise.all([loadBoard(),loadChallenges()]).then(()=>{spin(0);renderChallenges();});}
   if(name==='myteam'){fillTeamSelect();renderMyteam();}}
@@ -3078,6 +3444,7 @@ function startLiveRefresh(){stopLiveRefresh();liveTimer=setInterval(async()=>{
     else if(id==='page-points')renderPoints();
     else if(id==='page-standings'){if(typeof standMode!=='undefined'&&(standMode==='real'||standMode==='thirds'))renderStandings();}
     else if(id==='page-board'){await loadBoard();renderBoard();}
+    else if(id==='page-knockout'){renderKnockout();}
     else if(id==='page-stats'){if(statSub==='predictions')await loadBoard();renderStats();}
     await loadChallenges();
     if(id==='page-challenges'){await loadBoard();renderChallenges();}
