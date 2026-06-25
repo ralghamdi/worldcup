@@ -2187,12 +2187,15 @@ async function loadBoard(){
     upcomingJokers=(bd&&bd.upcomingJokers)||{};
     championCounts=(bd&&bd.championCounts)||{};
     const _KO=computeKOReal();
+    // الأدمن يثبّت البطل الحقيقي على الخادم (الوحيد الذي يرى البراكت كاملاً)
+    if(isAdmin()){const ac=actualChampion();if(ac){try{await sb.rpc('set_champion',{p_code:ac});}catch(e){}}}
     boardData=players.map(row=>{
       const g=row.g||{};const ko=row.ko||{};
-      const r=computePointsForG(g,row.champion,ko);
+      const r=computePointsForG(g,null,ko); // البونص يأتي من الخادم، لا نحسبه هنا
       const rk=computePointsForKO(ko,_KO,g);
+      const champB=row.champBonus||0;
       const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      const _cb=row.chalBalance||0; return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:_cb,g,ko,total:r.total+rk.total+_cb,baseTotal:r.total+rk.total,koTotal:rk.total,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
+      const _cb=row.chalBalance||0; return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:_cb,g,ko,total:r.total+rk.total+_cb+champB,baseTotal:r.total+rk.total,koTotal:rk.total,champBonus:champB,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
         bestStreak:r.bestStreak,jokerBonus:(r.jokerBonus||0)+(rk.jokerBonus||0),wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
