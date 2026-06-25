@@ -827,7 +827,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="showTab('matches',this)">المباريات والنتائج</button>
     <button class="tab" onclick="showTab('standings',this)">ترتيب المجموعات</button>
-    <button class="tab" onclick="showTab('knockout',this)">🏆 خارطة الأدوار</button>
+    <button class="tab" onclick="showTab('knockout',this)">🏆 الأدوار الإقصائية</button>
     <button class="tab" onclick="showTab('stats',this)">الإحصائيات</button>
     <button class="tab" onclick="showTab('myteam',this)">منتخبي</button>
     <button class="tab" onclick="showTab('predict',this)">توقعاتي</button>
@@ -1088,8 +1088,11 @@ function realThirdTeam(g){
 function groupDoneReal(g){const st=realGroupStats(g);return GROUPS[g].every(k=>st[k].pld>=3);}
 function allGroupsDoneReal(){return Object.keys(GROUPS).every(groupDoneReal);}
 function realThirdsAssignment(){
-  if(!allGroupsDoneReal())return null;
+  // يتعيّن مبدئياً بعد أن تبدأ كل المجموعات (ترتيب ذو معنى)، ويتحدّث تلقائياً مع كل مباراة
+  const allStarted=Object.keys(GROUPS).every(g=>{const st=realGroupStats(g);return GROUPS[g].some(k=>st[k].pld>0);});
+  if(!allStarted)return null;
   const th=realThirds().slice(0,8).map(o=>o.g);
+  if(th.length<8)return null;
   const ms=Object.keys(CLUS).map(Number);const used={};const out={};
   function bt(i){if(i===ms.length)return true;const m=ms[i];
     for(const g of CLUS[m]){if(th.includes(g)&&!used[g]){used[g]=1;out[m]=g;if(bt(i+1))return true;delete used[g];}}return false;}
@@ -2240,7 +2243,6 @@ function renderBoard(){
         <div class="lb-name">${esc(p.name)}${me?'<span class="youtag">(أنت)</span>':''} ${arrow}</div>
         <div class="lb-sub">${p.scored} مباراة · ${p.exact} مطابقة · دقّة ${p.acc}%</div>
         ${p.status?`<div class="lb-status">${esc(p.status)}</div>`:''}
-        ${chalLine?`<div class="lb-chal">⚔️ ${chalLine}</div>`:''}
       </div>
       <div class="lb-pts num">${p.total}<small> نقطة</small></div>
       <span class="lb-arrow">‹</span>
@@ -2282,7 +2284,7 @@ function viewFriend(uid){
   const host=document.getElementById('boardHost');
   let h=`<div class="fp-head">
     <button class="fp-back" onclick="renderBoard()">‹ رجوع</button>
-    <div class="fp-name">${esc(p.name)}<div class="sub">${p.scored} مباراة · دقّة ${p.acc}%</div>${p.status?`<div class="fp-status">${esc(p.status)}</div>`:''}${p.chalBal?`<div class="fp-status" style="color:#e06c6c">⚔️ خسر تحدّيات · ${p.chalBal}</div>`:''}</div>
+    <div class="fp-name">${esc(p.name)}<div class="sub">${p.scored} مباراة · دقّة ${p.acc}%</div>${p.status?`<div class="fp-status">${esc(p.status)}</div>`:''}</div>
     <div class="fp-pts num">${p.total}</div>
   </div>`;
   // مواجهة مباشرة (أنت ضد هذا اللاعب)
@@ -2660,8 +2662,7 @@ function koMatchCard(m,KO){
       <div class="mt-side">${aName}</div>
       <div class="mt-scores"><div class="mt-actual num">${actualHtml}</div></div>
       <div class="mt-side away">${bName}</div>
-    </div>
-    <div class="mt-pred-row">${predHtml} ${accHtml}</div>`;
+    </div>`;
   return el;
 }
 function renderMatchesKOInto(host){
@@ -2866,7 +2867,7 @@ function myTeamMatchRow(m,team){
   const fin=status==='post',liveNow=status==='in';
   const pred=state.g[m.id]||{};const hasPred=filled(pred);
   const badge=fin?'<span class="mtm-st post">انتهت</span>':liveNow?'<span class="mtm-st live">🔴 جارية</span>':`<span class="mtm-st pre">${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} · ${m.tm.t}</span>`;
-  const resTxt=(aS!=null&&bS!=null)?`${aS} <span class="d">-</span> ${bS}`:'<span class="d">— : —</span>';
+  const resTxt=((fin||liveNow)&&aS!=null&&bS!=null)?`${aS} <span class="d">-</span> ${bS}`:'<span class="d">— : —</span>';
   let pts=(fin&&hasPred&&counts(m))?scorePred(pred.h,pred.a,aS,bS):null;
   const jok=hasPred&&pred.j&&validJokers(state.g,state.ko).has(m.id);
   if(pts!=null&&jok)pts*=2;
