@@ -1993,8 +1993,8 @@ function maxJokers(){return allGroupsDoneReal()?MAX_JOKERS_KO:MAX_JOKERS_BASE;}
 const STREAK_BONUS=10;         // بونص كل 3 توقّعات مطابقة تماماً متتالية
 const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
 // قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
-const CHAMP_LOCK=new Date(2026,5,28,0,0,0).getTime();
-function champLocked(){return Date.now()>=CHAMP_LOCK;}
+// قفل اختيار البطل: مع اكتمال دور المجموعات فعلياً (بدء الإقصائيات) — بالنتائج لا بالوقت
+function champLocked(){return allGroupsDoneReal();}
 // الجواكر الصالحة تراكمياً (مجموعات + إقصائيات معاً): أول maxJokers() بالترتيب الزمني، لمنع أي تلاعب
 function validJokers(g,ko){
   const e=[];
