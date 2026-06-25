@@ -2049,23 +2049,34 @@ function computePoints(){
   const rk=computePointsForKO(state.ko,null,state.g);
   r.koTotal=rk.total;r.koScored=rk.scored;r.koPer=rk.per;r.grandTotal=r.total+rk.total;
   r.jokerBonus=(r.jokerBonus||0)+(rk.jokerBonus||0); // جوكر تراكمي (مجموعات + إقصائيات)
+  // دمج تصنيف الدقّة (مجموعات + إقصائيات) في الإحصائيات الشخصية
+  r.exact=(r.exact||0)+(rk.koExact||0);
+  r.good=(r.good||0)+(rk.koGood||0);
+  r.ok=(r.ok||0)+(rk.koOk||0);
+  r.wrong=(r.wrong||0)+(rk.koWrong||0);
+  r.scored=(r.scored||0)+(rk.scored||0);
+  r.predTotal=(r.predTotal||0)+(rk.koPredTotal||0);
   return r;
 }
 // نقاط الأدوار الإقصائية (من النتائج الحقيقية + توقّع اللاعب، مع الجوكر التراكمي)
 function computePointsForKO(ko,KO,g){
-  if(!ko)return {total:0,scored:0,per:{},jokerBonus:0};
+  if(!ko)return {total:0,scored:0,per:{},jokerBonus:0,koExact:0,koGood:0,koOk:0,koWrong:0,koPredTotal:0};
   KO=KO||computeKOReal();
   const jok=validJokers(g,ko);
-  let total=0,scored=0,jokerBonus=0;const per={};
+  let total=0,scored=0,jokerBonus=0,koExact=0,koGood=0,koOk=0,koWrong=0,koPredTotal=0;const per={};
   for(let m=73;m<=104;m++){
     const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    const pred=ko[m];if(!pred||pred.hs===''||pred.hs==null||pred.as===''||pred.as==null)continue;
+    koPredTotal++; // توقّع إقصائي مكتمل (مثل predTotal للمجموعات)
     const act=koActual(t.a,t.b);if(!act)continue;
-    const pred=ko[m];if(!pred)continue;
-    let pts=scoreKO(pred,act);
-    if(jok.has('ko'+m)){jokerBonus+=pts;pts*=2;} // الجوكر يضاعف
+    let base=scoreKO(pred,act);
+    // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — مكافئ لتصنيف المجموعات
+    if(base>=5)koExact++;else if(base===3)koGood++;else if(base===2)koOk++;else koWrong++;
+    let pts=base;
+    if(jok.has('ko'+m)){jokerBonus+=base;pts*=2;} // الجوكر يضاعف
     per[m]=pts;total+=pts;if(pts>0)scored++;
   }
-  return {total,scored,per,jokerBonus};
+  return {total,scored,per,jokerBonus,koExact,koGood,koOk,koWrong,koPredTotal};
 }
 
 /* ===== الاحتفال الشخصي بالإنجازات ===== */
@@ -2197,9 +2208,15 @@ async function loadBoard(){
       const r=computePointsForG(g,null,ko); // البونص يأتي من الخادم، لا نحسبه هنا
       const rk=computePointsForKO(ko,_KO,g);
       const champB=row.champBonus||0;
-      const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
-      const _cb=row.chalBalance||0; return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:_cb,g,ko,total:r.total+rk.total+_cb+champB,baseTotal:r.total+rk.total,koTotal:rk.total,champBonus:champB,scored:r.scored,exact:r.exact,acc,champ:row.champion||null,
-        bestStreak:r.bestStreak,jokerBonus:(r.jokerBonus||0)+(rk.jokerBonus||0),wrong:r.wrong,predTotal:r.predTotal,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
+      const exactAll=r.exact+(rk.koExact||0);
+      const goodAll=r.good+(rk.koGood||0);
+      const okAll=r.ok+(rk.koOk||0);
+      const wrongAll=r.wrong+(rk.koWrong||0);
+      const scoredAll=r.scored+(rk.scored||0);
+      const predTotalAll=(r.predTotal||0)+(rk.koPredTotal||0);
+      const acc=scoredAll?Math.round((exactAll+goodAll+okAll)/scoredAll*100):0;
+      const _cb=row.chalBalance||0; return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:_cb,g,ko,total:r.total+rk.total+_cb+champB,baseTotal:r.total+rk.total,koTotal:rk.total,champBonus:champB,scored:scoredAll,exact:exactAll,acc,champ:row.champion||null,
+        bestStreak:r.bestStreak,jokerBonus:(r.jokerBonus||0)+(rk.jokerBonus||0),wrong:wrongAll,predTotal:predTotalAll,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
   }catch(e){boardData=[];}
