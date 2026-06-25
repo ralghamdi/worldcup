@@ -1351,7 +1351,7 @@ function koPredCard(m,KO){
     }
   }
   if(locked)h+=`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`;
-  else if(has(r.hs)&&has(r.as))h+=`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJokerKO(${m})">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>`;
+  else h+=`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJokerKO(${m})">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>`;
   h+=`</div>`;return h;
 }
 function toggleJokerKO(m){
