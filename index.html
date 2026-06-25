@@ -3407,8 +3407,12 @@ let chalResults=[];
 async function loadResults(){try{const {data}=await sb.rpc('get_results');chalResults=data||[];}catch(e){chalResults=[];}}
 function chalMatch(mk){return GM.find(x=>x.id===mk);}
 function chalMatchLabel(c){return `${fl(c.team_a)} ${nm(c.team_a)} × ${nm(c.team_b)} ${fl(c.team_b)}`;}
-function chalDayLabel(c){const m=chalMatch(c.match_key);if(!m||!m.tm)return '';return `${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)} · ${m.tm.t}`;}
-function predStr(g,mk){const r=(g||{})[mk];if(!r||r.h==null||r.h==='')return null;return `${r.h} - ${r.a}`;}
+function chalDayLabel(c){
+  if(c.match_key&&c.match_key.indexOf('ko_')===0){const m=+c.match_key.slice(3);return `${roundOf(m)} · ${koDateLabel(m)}`;}
+  const m=chalMatch(c.match_key);if(!m||!m.tm)return '';return `${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)} · ${m.tm.t}`;}
+function predStr(g,mk,ko){
+  if(mk&&mk.indexOf('ko_')===0){const m=+mk.slice(3);const r=(ko||{})[m];if(!r||r.hs==null||r.hs==='')return null;return `${r.hs} - ${r.as}`;}
+  const r=(g||{})[mk];if(!r||r.h==null||r.h==='')return null;return `${r.h} - ${r.a}`;}
 
 async function loadChallenges(){
   try{const {data}=await sb.rpc('get_challenges');challenges=data||[];}catch(e){challenges=[];}
@@ -3456,9 +3460,9 @@ function renderChallenges(){
     const iAmC=c.challenger_uid===me;
     const opp=iAmC?c.opponent_name:c.challenger_name;
     const oppUid=iAmC?c.opponent_uid:c.challenger_uid;
-    const myP=predStr(state.g,c.match_key);
+    const myP=predStr(state.g,c.match_key,state.ko);
     const oppRow=(boardData.find(x=>x.uid===oppUid)||{});
-    const oppP=predStr(oppRow.g,c.match_key);
+    const oppP=predStr(oppRow.g,c.match_key,oppRow.ko);
     h+=`<div class="chal-card active">
       <div class="cc-head"><span class="cc-badge act">⏳ نشط</span><span class="cc-day">${chalDayLabel(c)}</span></div>
       <div class="cc-vs"><span class="cc-p you">أنت</span><span class="cc-x2">⚔️</span><span class="cc-p them">${esc(opp||'—')}</span></div>
@@ -3526,17 +3530,11 @@ async function declineChallenge(id){
   }catch(e){alert('تعذّر الرفض: '+(e.message||''));}
 }
 
+let chalMode='groups';
 function openNewChallenge(){
-  const now=Date.now();
-  const ups=GM.filter(m=>{const d=matchDate(m.tm);return d&&d.getTime()>now+30*60000;});
-  if(!ups.length){pill('ما فيه مباريات متاحة للتحدّي');return;}
   const others=boardData.filter(p=>p.uid!==user.id);
   if(!others.length){pill('ما فيه لاعبين');return;}
   const ov=document.getElementById('chalOverlay');
-  const mRows=ups.map((m,i)=>`<label class="chal-mrow">
-    <span class="cm-main"><span class="cm-teams">${fl(m.A)} ${nm(m.A)} <span class="cm-x">×</span> ${nm(m.B)} ${fl(m.B)}</span><span class="cm-time">${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} · ${m.tm.t}</span></span>
-    <input type="radio" name="chalMatch" value="${m.id}" ${i===0?'checked':''}>
-  </label>`).join('');
   const pRows=others.map(p=>`<label class="chal-pick">
     <span class="cp-name">${esc(p.name)}</span>
     <input type="checkbox" value="${p.uid}" onchange="limitPicks(this)">
@@ -3544,8 +3542,12 @@ function openNewChallenge(){
   ov.innerHTML=`<div class="ann-box chal-modal">
     <div class="ann-top">⚔️ تحدّي جديد</div>
     <div class="ann-field">
+      <div class="toggle-wrap" style="margin-bottom:12px">
+        <button class="toggle-btn on" id="chalTgGroups" onclick="setChalMode('groups')">⚽ المجموعات</button>
+        <button class="toggle-btn" id="chalTgKo" onclick="setChalMode('ko')">🏆 الإقصائيات</button>
+      </div>
       <div class="chal-lbl">١) اختر المباراة <small>(أكثر من ٣٠ دقيقة قبل البداية)</small></div>
-      <div class="chal-mlist">${mRows}</div>
+      <div class="chal-mlist" id="chalMList"></div>
       <div class="chal-lbl" style="margin-top:14px">٢) اختر حتى ٥ لاعبين <small>(أول من يقبل يبدأ التحدّي)</small></div>
       <div class="chal-picks">${pRows}</div>
     </div>
@@ -3555,6 +3557,35 @@ function openNewChallenge(){
     </div>
   </div>`;
   ov.classList.add('show');
+  chalMode='groups';renderChalMatchList();
+}
+function setChalMode(m){chalMode=m;
+  const g=document.getElementById('chalTgGroups'),k=document.getElementById('chalTgKo');
+  if(g)g.classList.toggle('on',m==='groups');if(k)k.classList.toggle('on',m==='ko');
+  renderChalMatchList();
+}
+function renderChalMatchList(){
+  const host=document.getElementById('chalMList');if(!host)return;
+  const now=Date.now();
+  if(chalMode==='ko'){
+    const KO=computeKOReal();
+    if(!KO.allDone){host.innerHTML=`<div class="chal-empty">🔒 تحدّيات الإقصائيات تنفتح مع <b>بدء الأدوار الإقصائية</b> — بعد اكتمال دور المجموعات وتحدّد كل المتأهلين.</div>`;return;}
+    const ups=[];for(let m=73;m<=104;m++){const t=KO.teamsOf[m];const ms=koKickoffMs(m);
+      if(t&&t.a&&t.b&&ms&&ms>now+30*60000)ups.push(m);}
+    if(!ups.length){host.innerHTML=`<div class="chal-empty">ما فيه مباريات إقصائية متاحة للتحدّي حالياً (لازم تتحدّد أطرافها وتكون أكثر من ٣٠ دقيقة قبل البداية).</div>`;return;}
+    host.innerHTML=ups.map((m,i)=>{const t=KO.teamsOf[m];
+      return `<label class="chal-mrow">
+        <span class="cm-main"><span class="cm-teams">${fl(t.a)} ${nm(t.a)} <span class="cm-x">×</span> ${nm(t.b)} ${fl(t.b)}</span><span class="cm-time">${roundOf(m)} · ${koDateLabel(m)}</span></span>
+        <input type="radio" name="chalMatch" value="ko_${m}" data-a="${t.a}" data-b="${t.b}" ${i===0?'checked':''}>
+      </label>`;}).join('');
+  }else{
+    const ups=GM.filter(m=>{const d=matchDate(m.tm);return d&&d.getTime()>now+30*60000;});
+    if(!ups.length){host.innerHTML=`<div class="chal-empty">ما فيه مباريات متاحة للتحدّي.</div>`;return;}
+    host.innerHTML=ups.map((m,i)=>`<label class="chal-mrow">
+      <span class="cm-main"><span class="cm-teams">${fl(m.A)} ${nm(m.A)} <span class="cm-x">×</span> ${nm(m.B)} ${fl(m.B)}</span><span class="cm-time">${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} · ${m.tm.t}</span></span>
+      <input type="radio" name="chalMatch" value="${m.id}" ${i===0?'checked':''}>
+    </label>`).join('');
+  }
 }
 function limitPicks(box){
   const checked=[...document.querySelectorAll('#chalOverlay input[type=checkbox]:checked')];
@@ -3567,8 +3598,10 @@ async function sendChallenge(){
   if(!mk){pill('اختر مباراة');return;}
   if(!uids.length){pill('اختر لاعباً واحداً على الأقل');return;}
   if(uids.length>5){pill('الحد ٥ لاعبين');return;}
+  const payload={p_match_key:mk,p_invited:uids};
+  if(mk.indexOf('ko_')===0){payload.p_team_a=mkEl.dataset.a;payload.p_team_b=mkEl.dataset.b;}
   try{
-    const {error}=await sb.rpc('challenge_create',{p_match_key:mk,p_invited:uids});
+    const {error}=await sb.rpc('challenge_create',payload);
     if(error)throw error;
     document.getElementById('chalOverlay').classList.remove('show');
     pill('تم إرسال التحدّي ⚔️');
