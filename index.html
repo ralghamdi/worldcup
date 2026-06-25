@@ -471,6 +471,32 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .ko-mt-round{font-size:11px;color:var(--gold-bright);font-weight:700;margin:2px 0 8px;font-family:'Cairo'}
 .mt-pred-row{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mt-name.slot{color:var(--muted-2);font-style:italic;font-size:11px;font-weight:500}
+/* بطاقات مباريات منتخبي */
+.mtm{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:9px}
+.mtm-top{margin-bottom:8px}
+.mtm-st{font-size:10.5px;font-weight:700;font-family:'Cairo';padding:2px 8px;border-radius:20px}
+.mtm-st.post{background:rgba(255,255,255,.06);color:var(--muted)}
+.mtm-st.live{background:rgba(230,29,37,.16);color:#ff6b6b}
+.mtm-st.pre{background:rgba(229,184,56,.1);color:var(--gold-bright)}
+.mtm-body{display:flex;align-items:center;gap:8px}
+.mtm-side{flex:1;display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:8px;transition:all .15s}
+.mtm-side.away{flex-direction:row-reverse;text-align:left}
+.mtm-side .fl{font-size:22px}
+.mtm-side .nm{font-size:13px;font-weight:600;color:var(--text)}
+.mtm-side.me{background:rgba(229,184,56,.12);border:1px solid var(--gold-deep)}
+.mtm-side.me .nm{color:var(--gold-bright);font-weight:800}
+.mtm-side.w .nm{color:var(--ok)}
+.mtm-side.l .nm{opacity:.6}
+.mtm-mid{font-family:'Anton';font-size:18px;color:var(--text);min-width:60px;text-align:center}
+.mtm-mid .d{color:var(--muted-2);font-size:14px}
+.mtm-adv{display:block;font-family:'Cairo';font-size:9px;color:var(--ok);font-weight:700;margin-top:2px}
+.mtm-pred{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.mtm-pred .mtm-pts{font-family:'Anton';font-size:12px;padding:1px 7px;border-radius:6px}
+.mtm-pts.p5{background:rgba(229,184,56,.18);color:var(--gold-bright)}
+.mtm-pts.p3{background:rgba(60,172,59,.16);color:var(--ok)}
+.mtm-pts.p2{background:rgba(123,160,91,.16);color:#9ac77e}
+.mtm-pts.p0{background:rgba(230,29,37,.12);color:#ff6b6b}
+.mtm-no{color:var(--muted-2);font-style:italic}
 .gcard{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 .gcard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .gcard-let{font-family:'Anton';font-size:22px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:9px;padding:1px 12px}
@@ -514,34 +540,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .path-title{font-family:'Cairo';font-weight:900;font-size:16px;margin:18px 2px 12px;display:flex;align-items:center;gap:8px}
 .note-box{background:var(--bg-2);border:1px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
 .note-box b{color:var(--gold-bright)}
-.kstep{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative}
-.kstep.won{border-color:rgba(47,191,113,.5)}
-.kstep.lost{border-color:rgba(224,83,61,.4);opacity:.85}
-.kstep.final{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,169,60,.08),var(--bg-2))}
-.kstep-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.kstep-badge{font-family:'Anton';font-size:14px;color:var(--gold);background:rgba(212,169,60,.12);border:1px solid rgba(212,169,60,.3);border-radius:7px;padding:1px 9px;min-width:34px;text-align:center}
-.kstep-round{font-family:'Cairo';font-weight:700;font-size:13px}
-.kstep-mn{font-size:11px;color:var(--muted-2);margin-inline-start:auto}
-.kstep-row{display:flex;align-items:center;gap:8px}
-.kstep-side{flex:1;display:flex;align-items:center;gap:7px;min-width:0}
-.kstep-side.away{flex-direction:row-reverse;text-align:left}
-.kstep-side .fl{font-size:22px;flex:none}
-.kstep-side .nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kstep-side .nm.slot{color:var(--muted);font-style:italic;font-weight:500;font-size:12px}
-.kstep-side .nm.me{color:var(--gold-bright)}
-.kstep-score{display:flex;align-items:center;gap:5px;flex:none}
-.kstep-score input{width:38px;height:38px;text-align:center;font-family:'Anton';font-size:18px;background:var(--bg-3);
   border:1.5px solid var(--line);border-radius:9px;color:var(--text);-moz-appearance:textfield;appearance:textfield;padding:0}
-.kstep-score input::-webkit-outer-spin-button,.kstep-score input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.kstep-score input:focus{outline:none;border-color:var(--gold)}
-.kstep-score input:disabled{opacity:.4;cursor:not-allowed}
-.kstep-dash{color:var(--muted-2);font-family:'Anton'}
-.kstep-pen{display:none;margin-top:9px;gap:7px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
-.kstep-pen.show{display:flex}
-.kstep-pen button{font-family:'Tajawal';font-weight:700;font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer;background:var(--bg-3);border:1px solid var(--line);color:var(--text)}
-.kstep-pen button.on{background:rgba(47,191,113,.15);border-color:var(--ok);color:var(--ok)}
-.kstep-result{margin-top:9px;font-family:'Cairo';font-weight:700;font-size:12px;text-align:center}
-.kstep-result.win{color:var(--ok)}.kstep-result.out{color:var(--bad)}
 .champ-banner{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1405;border-radius:16px;padding:20px;text-align:center;margin-top:14px}
 .champ-banner .big{font-family:'Cairo';font-weight:900;font-size:20px}
 .champ-banner .sub{font-size:13px;margin-top:4px;font-weight:700}
@@ -841,7 +840,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
   <div class="page" id="page-predict">
     <div class="progress-wrap">
       <div class="progress-top">
-        <div class="progress-label">🔮 توقّعاتك لدور المجموعات</div>
+        <div class="progress-label" id="predLabel">🔮 توقّعاتك لدور المجموعات</div>
         <div class="progress-count"><span id="predCount">0</span><small id="predTotal">/68</small></div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="predFill" style="width:0%"></div></div>
@@ -1065,30 +1064,6 @@ function thirdsAssignment(){if(!allGroupsDone())return null;
   function bt(i){if(i===ms.length)return true;const m=ms[i];
     for(const g of CLUS[m]){if(th.includes(g)&&!used[g]){used[g]=1;out[m]=g;if(bt(i+1))return true;delete used[g];}}return false;}
   return bt(0)?out:null;}
-function computeKO(){const winG={},runG={};
-  if(allGroupsDone())Object.keys(GROUPS).forEach(g=>{const a=standings(g);winG[g]=a[0].k;runG[g]=a[1].k;});
-  const asg=thirdsAssignment();const teamsOf={},winnerOf={},loserOf={};
-  function thirdTeam(g){return standings(g)[2].k;}
-  function resolve(slot){if(slot.t==='W')return winG[slot.g]||null;if(slot.t==='R')return runG[slot.g]||null;
-    if(slot.t==='3')return asg?thirdTeam(asg[slot.m]):null;if(slot.t==='WM')return winnerOf[slot.m]||null;
-    if(slot.t==='LM')return loserOf[slot.m]||null;return null;}
-  for(let m=73;m<=104;m++){const a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);teamsOf[m]={a,b};
-    const r=state.ko[m]||{};const have=a&&b&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;
-    if(have){if(+r.hs>+r.as){winnerOf[m]=a;loserOf[m]=b;}else if(+r.as>+r.hs){winnerOf[m]=b;loserOf[m]=a;}
-      else if(r.pen==='h'){winnerOf[m]=a;loserOf[m]=b;}else if(r.pen==='a'){winnerOf[m]=b;loserOf[m]=a;}}}
-  return {teamsOf,winnerOf,loserOf};}
-function traceTeamPath(team){const {teamsOf,winnerOf,loserOf}=computeKO();
-  let cur=null;for(let m=73;m<=88;m++){if(teamsOf[m]&&(teamsOf[m].a===team||teamsOf[m].b===team)){cur=m;break;}}
-  if(cur===null)return {inKO:false,path:[]};
-  const path=[];let m=cur;
-  while(m){const t=teamsOf[m];const mySideA=(t.a===team);
-    const oppTeam=mySideA?t.b:t.a;const oppSlot=mySideA?MATCH[m].b:MATCH[m].a;
-    const won=winnerOf[m]===team;const lost=(winnerOf[m]&&winnerOf[m]!==team);
-    path.push({m,mySideA,oppTeam,oppSlot,won,lost});
-    if(!won)break;
-    let next=null;for(let n=m+1;n<=104;n++){if(n!==103&&((MATCH[n].a.t==='WM'&&MATCH[n].a.m===m)||(MATCH[n].b.t==='WM'&&MATCH[n].b.m===m))){next=n;break;}}
-    m=next;}
-  return {inKO:true,path};}
 
 /* ===== محرّك الأدوار الإقصائية الحقيقي (من النتائج الفعلية) ===== */
 function realTop2(g){
@@ -1221,12 +1196,13 @@ function scoreKO(pred,act){
 }
 
 /* ===== الحالة ===== */
-let state={g:{},ko:{}}; let saveTimer=null; let savedG={};
+let state={g:{},ko:{}}; let saveTimer=null; let savedG={}; let savedKO={};
 async function loadState(){state={g:{},ko:{}};
   try{const {data}=await sb.from('tracker_data').select('data').eq('user_id',user.id).maybeSingle();
     if(data&&data.data)state=data.data;}catch(e){}
   if(!state.g)state.g={};if(!state.ko)state.ko={};
   savedG=JSON.parse(JSON.stringify(state.g||{}));
+  savedKO=JSON.parse(JSON.stringify(state.ko||{}));
   if(pendingName){state.name=pendingName;pendingName='';saveState();}}
 async function saveState(){
   GM.forEach(m=>{
@@ -1235,10 +1211,20 @@ async function saveState(){
       else delete state.g[m.id];
     }
   });
+  // حماية الإقصائيات المبدوءة محلياً (الباك يحمي أيضاً، هذا يمنع عدم التطابق)
+  const _KO=computeKOReal();
+  for(let m=73;m<=104;m++){
+    const t=_KO.teamsOf[m]||{};
+    if(koStartedM(m,t.a,t.b)){
+      if(savedKO[m]!==undefined) state.ko[m]=savedKO[m];
+      else delete state.ko[m];
+    }
+  }
   pill("جارٍ الحفظ…");
   try{const {error}=await sb.from('tracker_data').upsert({user_id:user.id,data:state,updated_at:new Date().toISOString()});
     if(error)throw error;
     savedG=JSON.parse(JSON.stringify(state.g||{}));
+    savedKO=JSON.parse(JSON.stringify(state.ko||{}));
     pill("تم الحفظ ✓");}catch(e){pill("تعذّر الحفظ");}}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveState,700);}
 function pill(t){const p=document.getElementById('savePill');p.textContent=t;p.classList.add('show');
@@ -1441,7 +1427,7 @@ function renderPredict(){
   mt.innerHTML=`<button class="toggle-btn ${predMode==='groups'?'on':''}" onclick="setPredMode('groups')">⚽ المجموعات</button>
     <button class="toggle-btn ${predMode==='ko'?'on':''}" onclick="setPredMode('ko')">🏆 الإقصائيات</button>`;
   host.appendChild(mt);
-  if(predMode==='ko'){renderPredictKOInto(host);return;}
+  if(predMode==='ko'){renderPredictKOInto(host);updateProgress();return;}
   const pool=GM.filter(m=>counts(m)); // من قطر×سويسرا فقط
   const upc=pool.filter(m=>!matchFinished(m));
   const past=pool.filter(m=>matchFinished(m));
@@ -1554,44 +1540,64 @@ function stepScore(id,s,delta){
   document.querySelectorAll(`input[data-id="${id}"][data-s="${s}"]`).forEach(inp=>{inp.value=v;inp.classList.add('filled');});
   updateProgress();queueSave();
 }
+function koPredCounts(){
+  const KO=computeKOReal();if(!KO.allDone)return {done:0,total:0};
+  let total=0,done=0;
+  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&t.a&&t.b){total++;
+    const r=state.ko[m];if(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null)done++;}}
+  return {done,total};
+}
 function updateProgress(){
-  const c=predCount();
-  document.getElementById('predCount').textContent=c;
-  const tot=document.getElementById('predTotal');if(tot)tot.textContent='/'+COUNTED_TOTAL;
-  document.getElementById('predFill').style.width=(c/COUNTED_TOTAL*100)+"%";
+  const lbl=document.getElementById('predLabel');
+  const cEl=document.getElementById('predCount'),tEl=document.getElementById('predTotal'),fEl=document.getElementById('predFill');
+  if(!cEl)return;
+  if(predMode==='ko'){
+    const k=koPredCounts();
+    if(lbl)lbl.textContent='🏆 توقّعاتك للأدوار الإقصائية';
+    cEl.textContent=k.done;if(tEl)tEl.textContent='/'+k.total;
+    fEl.style.width=(k.total?k.done/k.total*100:0)+"%";
+  }else{
+    const c=predCount();
+    if(lbl)lbl.textContent='🔮 توقّعاتك لدور المجموعات';
+    cEl.textContent=c;if(tEl)tEl.textContent='/'+COUNTED_TOTAL;
+    fEl.style.width=(c/COUNTED_TOTAL*100)+"%";
+  }
 }
 
 /* ===== بطاقة المباراة القادمة ===== */
 function myTeam(){return state.myteam||'KSA';}
 function renderNext(){
-  const now=new Date();
-  let upcoming=GM.filter(m=>matchDate(m.tm)&&matchDate(m.tm).getTime()>now.getTime())
-                 .sort((x,y)=>matchDate(x.tm)-matchDate(y.tm));
-  const mt=myTeam();
-  const mineNext=upcoming.find(m=>m.A===mt||m.B===mt);
-  const m=mineNext||upcoming[0]||GM[GM.length-1];
+  const now=Date.now();const mt=myTeam();
+  const cand=[];
+  GM.forEach(m=>{const d=matchDate(m.tm);if(d&&d.getTime()>now)cand.push({A:m.A,B:m.B,t:d.getTime(),meta:`${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)} · ${m.tm.t}`});});
+  const KO=computeKOReal();
+  for(let m=73;m<=104;m++){const tt=KO.teamsOf[m];const ms=koKickoffMs(m);
+    if(tt&&tt.a&&tt.b&&ms&&ms>now)cand.push({A:tt.a,B:tt.b,t:ms,meta:`${roundOf(m)} · ${koDateLabel(m)}`,ko:true});}
+  cand.sort((x,y)=>x.t-y.t);
+  const mine=cand.find(c=>c.A===mt||c.B===mt);
+  const pick=(mine&&(mine.t-now)<=7*86400000)?mine:cand[0];
   const card=document.getElementById('nextCard');
-  const isMine=m&&(m.A===mt||m.B===mt);
+  if(!pick){document.getElementById('nextInner').innerHTML=`<div class="next-label">🏆 المباراة القادمة</div><div class="next-meta" style="margin-top:12px">انتهت كل المباريات — نهاية البطولة 🏆</div>`;card.classList.remove('ksa');clearInterval(cdTimer);return;}
+  const isMine=(pick.A===mt||pick.B===mt);
   card.classList.toggle('ksa',!!isMine);
-  const label=isMine?`${fl(mt)} مباراة منتخبك القادمة`:'⏱ المباراة القادمة';
+  const label=isMine?`${fl(mt)} مباراة منتخبك القادمة`:(pick.ko?'🏆 المباراة القادمة':'⏱ المباراة القادمة');
   document.getElementById('nextInner').innerHTML=`
     <div class="next-label">${label}</div>
     <div class="next-teams">
-      <div class="next-team"><div class="next-flag">${fl(m.A)}</div><div class="next-name">${nm(m.A)}</div></div>
+      <div class="next-team"><div class="next-flag">${fl(pick.A)}</div><div class="next-name">${nm(pick.A)}</div></div>
       <div class="next-vs num">VS</div>
-      <div class="next-team"><div class="next-flag">${fl(m.B)}</div><div class="next-name">${nm(m.B)}</div></div>
+      <div class="next-team"><div class="next-flag">${fl(pick.B)}</div><div class="next-name">${nm(pick.B)}</div></div>
     </div>
-    <div class="next-meta">${wdName(m.tm.m,m.tm.d)} ${m.tm.d} ${monName(m.tm.m)} · ${m.tm.t}</div>
+    <div class="next-meta">${pick.meta}</div>
     <div class="next-count" id="nextCount"></div>`;
-  tickCountdown(m);
+  tickCountdownTo(pick.t);
 }
 let cdTimer=null;
-function tickCountdown(m){
+function tickCountdownTo(targetMs){
   clearInterval(cdTimer);
-  const target=matchDate(m.tm);
   function upd(){
     const el=document.getElementById('nextCount');if(!el)return;
-    const diff=target.getTime()-Date.now();
+    const diff=targetMs-Date.now();
     if(diff<=0){el.textContent="🔴 المباراة بدأت";clearInterval(cdTimer);return;}
     const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),mi=Math.floor(diff%3600000/60000);
     el.textContent=d>0?`بعد ${d} يوم و ${h} ساعة`:(h>0?`بعد ${h} ساعة و ${mi} دقيقة`:`بعد ${mi} دقيقة`);
@@ -1953,6 +1959,7 @@ function renderPredStatsHtml(){
   h+=`<div class="sec-title head">🔥 جوائز الإنجاز</div>`;
   h+=card('🔥','أطول سلسلة','أطول سلسلة مطابقات متتالية',leader('bestStreak'),p=>p.bestStreak+' متتالية');
   h+=card('🃏','سيّد الجوكر','أكثر نقاط من الجوكر',leader('jokerBonus'),p=>'+'+p.jokerBonus);
+  h+=card('🏆','نجم الإقصائيات','أعلى نقاط في الأدوار الإقصائية',leader('koTotal'),p=>'+'+p.koTotal);
   h+=card('⚡','الأنشط','أكثر لاعب توقّع مباريات',leader('predTotal'),p=>p.predTotal+' توقّع');
   h+=`<div class="sec-title head">😅 جوائز طريفة</div>`;
   h+=card('🐢','المتعثّر','أكثر توقّعات خاطئة',leader('wrong'),p=>p.wrong+' خطأ');
@@ -2138,6 +2145,9 @@ function setBoardSub(s){boardSub=s;renderBoard();}
 function latestPlayedDay(){let best=null;
   GM.forEach(m=>{if(!counts(m))return;const rec=liveFor(m.A,m.B);
     if(rec&&rec.status==='post'){const d=matchDate(m.tm);if(d&&(!best||d.getTime()>best.getTime()))best=d;}});
+  const KO=computeKOReal();
+  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&t.a&&t.b){const rec=liveFor(t.a,t.b);
+    if(rec&&rec.status==='post'){const ms=koKickoffMs(m);if(ms){const d=new Date(ms);if(!best||d.getTime()>best.getTime())best=d;}}}}
   return best;}
 // نقاط لاعب في يوم محدّد (مع الجوكر)
 function dayPointsFor(g,day,koArg){
@@ -2148,6 +2158,13 @@ function dayPointsFor(g,day,koArg){
     const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);if(aS==null||bS==null)return;
     let p=scorePred(pred.h,pred.a,aS,bS);if(p==null)return;
     if(jok.has(m.id))p*=2;tot+=p;});
+  // الإقصائيات في نفس اليوم
+  if(koArg){const KO=computeKOReal();
+    for(let m=73;m<=104;m++){const ms=koKickoffMs(m);if(!ms)continue;const d=new Date(ms);
+      if((d.getMonth()+'-'+d.getDate())!==dk)continue;
+      const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;const act=koActual(t.a,t.b);if(!act)continue;
+      const pred=koArg[m];if(!pred)continue;let p=scoreKO(pred,act);
+      if(jok.has('ko'+m))p*=2;tot+=p;}}
   return tot;}
 // أسهم الصعود/الهبوط (مقارنة بترتيب اليوم السابق)
 function rankArrows(){
@@ -2316,12 +2333,33 @@ function viewFriend(uid){
       <div class="mt-side away"><span class="mt-flag">${fl(m.B)}</span><span class="mt-name">${nm(m.B)}</span></div>
     </div></div>`;
   });
+  // مباريات الصديق الإقصائية (تظهر بعد بدئها — منع النسخ)
+  const _KOf=computeKOReal();
+  const koShown=[];for(let m=73;m<=104;m++){const t=_KOf.teamsOf[m];if(t&&t.a&&t.b&&koStartedM(m,t.a,t.b))koShown.push(m);}
+  if(koShown.length){
+    let lastR='';
+    koShown.sort((a,b)=>(koKickoffMs(b)||0)-(koKickoffMs(a)||0)).forEach(m=>{
+      const rnd=roundOf(m);if(rnd!==lastR){lastR=rnd;h+=`<div class="day-head"><span class="day-date head">🏆 ${rnd}</span><span class="day-line"></span></div>`;}
+      const t=_KOf.teamsOf[m];const a=t.a,b=t.b;const pr=(p.ko||{})[m]||{};const sc=_KOf.scoreOf[m];
+      const has=v=>(v!=null&&v!=='');
+      const act=koActual(a,b);let pts=act?scoreKO(pr,act):null;
+      const jok=pr.j&&validJokers(p.g,p.ko).has('ko'+m);if(pts!=null&&jok)pts*=2;
+      const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}`:'<span class="nogame">— : —</span>';
+      const accK=(pts!=null)?accBadgeKO(pts):'';
+      h+=`<div class="mt-card"><div class="mt-row">
+        <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
+        <div class="mt-scores"><div class="mt-actual num">${predBox}</div>
+          <div class="mt-pred">${sc?`⚽ النتيجة <b>${sc.a}-${sc.b}</b>`:'⏱ لم تنتهِ'}</div>${accK}</div>
+        <div class="mt-side away"><span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span></div>
+      </div></div>`;
+    });
+  }
   host.innerHTML=h;window.scrollTo(0,0);
 }
 // تاريخ النقاط الحقيقي: تراكمي يوم بيوم من النتائج الفعلية
 // تاريخ النقاط الحقيقي: نقاط كل يوم لوحده
 function realPointsHistory(){
-  // نقاط كل يوم لوحده (مو تراكمي)
+  // نقاط كل يوم لوحده (مو تراكمي) — مجموعات + إقصائيات
   const byDay={};const jok=validJokers(state.g,state.ko);
   GM.forEach(m=>{if(!counts(m))return;const rec=liveFor(m.A,m.B);if(!(rec&&rec.status==='post'))return;
     const pred=state.g[m.id];if(!filled(pred))return;const d=matchDate(m.tm);if(!d)return;
@@ -2330,6 +2368,13 @@ function realPointsHistory(){
     let p=base;if(jok.has(m.id))p=base*2;
     const key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
     if(!byDay[key])byDay[key]={d,t:0,n:0};byDay[key].t+=p;byDay[key].n++;});
+  const KO=computeKOReal();
+  for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    const act=koActual(t.a,t.b);if(!act)continue;const pred=state.ko[m];if(!pred)continue;
+    const ms=koKickoffMs(m);if(!ms)continue;const d=new Date(ms);
+    let p=scoreKO(pred,act);if(jok.has('ko'+m))p*=2;
+    const key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(!byDay[key])byDay[key]={d,t:0,n:0};byDay[key].t+=p;byDay[key].n++;}
   return Object.keys(byDay).map(k=>byDay[k]).sort((a,b)=>a.d-b.d)
     .map(o=>({label:o.d.getDate()+'/'+(o.d.getMonth()+1),day:o.d.getDate(),t:o.t,n:o.n}))
     .slice(-14);
@@ -2362,7 +2407,7 @@ function shareCard(){
   x.fillStyle='#FFD968';x.font='bold 30px Tajawal,sans-serif';x.fillText('🏆 توقّعاتي · مونديال 2026',360,70);
   x.fillStyle='#F7F5EE';x.font='bold 40px Tajawal,sans-serif';x.fillText(esc2(state.name||'لاعب'),360,135);
   // النقاط الكبيرة
-  x.fillStyle='#FFD968';x.font='bold 130px Anton,sans-serif';x.fillText(String(r.total),360,290);
+  x.fillStyle='#FFD968';x.font='bold 130px Anton,sans-serif';x.fillText(String(r.grandTotal),360,290);
   x.fillStyle='#9AA2C0';x.font='24px Tajawal,sans-serif';x.fillText('نقطة',360,330);
   // صف إحصائيات
   const stats=[['المركز',rank?'#'+rank:'—'],['مطابقات',r.exact],['الدقّة',acc+'%'],['سلسلة',r.bestStreak]];
@@ -2446,10 +2491,19 @@ function renderPoints(){
     const pred=state.g[m.id];const rec=liveFor(m.A,m.B);
     let cls='hcell';
     if(!counts(m)){/* مستثناة قبل البداية: خلية محايدة */}
-    else if(m.id in r.per){const p=r.per[m.id];cls+=p===5?' h5':p===3?' h3':p===2?' h2':' h0';}
+    else if(m.id in r.per){const p=r.per[m.id];cls+=p>=5?' h5':p===3?' h3':p===2?' h2':' h0';}
     else if(pred&&pred.h!==""&&pred.h!=null){cls+=' hp';}
     h+=`<div class="${cls}"></div>`;
   });
+  // خلايا الإقصائيات
+  const _KOh=computeKOReal();
+  for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    let cls='hcell ko';
+    if(m in r.koPer){const p=r.koPer[m];cls+=p>=8?' h5':p>=5?' h3':p>=2?' h2':' h0';}
+    else if(state.ko[m]&&state.ko[m].hs!==''&&state.ko[m].hs!=null){cls+=' hp';}
+    else continue;
+    h+=`<div class="${cls}"></div>`;
+  }
   h+=`</div><div class="heat-legend">
     <span><i style="background:var(--gold)"></i> مطابق</span>
     <span><i style="background:var(--ok)"></i> فارق صح</span>
@@ -2458,14 +2512,21 @@ function renderPoints(){
     <span><i style="background:var(--bg-3);border:1px solid var(--gold-deep)"></i> بانتظار</span>
   </div>`;
 
-  // لحظاتك البارزة (التوقّعات المطابقة)
+  // لحظاتك البارزة (التوقّعات المطابقة + الإقصائيات المميّزة)
   const perfect=GM.filter(m=>r.per[m.id]===5);
-  if(perfect.length){
+  const perfectKO=[];for(let m=73;m<=104;m++){if(r.koPer&&r.koPer[m]>=8)perfectKO.push(m);}
+  if(perfect.length||perfectKO.length){
     h+=`<div class="sec-title head">⭐ توقّعاتك المثالية</div>`;
     perfect.forEach(m=>{const pred=state.g[m.id];
       h+=`<div class="hl-card"><span class="hl-badge num">🎯 5</span>
         <span class="hl-teams">${fl(m.A)} ${nm(m.A)} × ${nm(m.B)} ${fl(m.B)}</span>
         <span class="hl-sc num">${pred.h}-${pred.a}</span></div>`;
+    });
+    const _KOp=computeKOReal();
+    perfectKO.forEach(m=>{const t=_KOp.teamsOf[m];const pr=state.ko[m]||{};
+      h+=`<div class="hl-card"><span class="hl-badge num">🏆 ${r.koPer[m]}</span>
+        <span class="hl-teams">${fl(t.a)} ${nm(t.a)} × ${nm(t.b)} ${fl(t.b)}</span>
+        <span class="hl-sc num">${pr.hs}-${pr.as}</span></div>`;
     });
   }
 
@@ -2735,102 +2796,94 @@ function onTeamChange(){
   state.myteam=document.getElementById('teamSelect').value;
   queueSave();renderMyteam();renderNext();renderMatches();renderPredict();
 }
-function setKO(m,side,val){
-  if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
-  if(val!==""){val=Math.max(0,Math.min(99,parseInt(val)||0));}
-  state.ko[m][side]=val;queueSave();renderMyteam();
-}
-function setKOPen(m,pw){
-  if(!state.ko[m])state.ko[m]={hs:"",as:"",pen:""};
-  state.ko[m].pen=(state.ko[m].pen===pw)?"":pw;queueSave();renderMyteam();
-}
 function renderMyteam(){
   const team=state.myteam||'KSA';
   const host=document.getElementById('myteamHost');
   const g=groupOf(team);
-  const arr=standings(g);
-  const pos=arr.findIndex(s=>s.k===team)+1;
-  const me=arr.find(s=>s.k===team);
-  const done=groupDone(g);
-  const gd=me.gf-me.ga;
-
-  // بطاقة المنتخب
+  // الترتيب الحقيقي (من ESPN أو محسوب من النتائج)
+  const st=realGroupStats(g);const ls=live.standings[g];
+  let order;
+  if(ls&&ls.length>=4&&ls.every(e=>e.code)){order=ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9)).map(e=>e.code);}
+  else{order=GROUPS[g].slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf);}
+  const pos=order.indexOf(team)+1;const me=st[team];
+  const played=GROUPS[g].some(k=>st[k].pld>0);const done=groupDoneReal(g);const gd=me.gd;
+  // شارة الحالة (حقيقية)
   let qBadge='',qClass='';
-  if(!done){qBadge=`<div class="tcard-badge badge-t">أكمل توقّعات المجموعة ${g}</div>`;}
-  else if(pos<=2){qBadge=`<div class="tcard-badge badge-q">✅ متأهّل مباشر (${pos===1?'متصدّر':'وصيف'})</div>`;qClass=' q';}
-  else if(pos===3){qBadge=`<div class="tcard-badge badge-t">🥉 ثالث — مرشّح لأفضل 8</div>`;}
-  else{qBadge=`<div class="tcard-badge badge-out">خارج (المركز ${pos})</div>`;}
-
+  if(!played){qBadge=`<div class="tcard-badge badge-t">لم تبدأ مباريات المجموعة ${g} بعد</div>`;}
+  else if(!done){qBadge=`<div class="tcard-badge badge-t">المركز ${pos} حالياً · المجموعة ${g}</div>`;}
+  else if(pos<=2){qBadge=`<div class="tcard-badge badge-q">✅ متأهّل لدور الـ32 (${pos===1?'متصدّر':'وصيف'})</div>`;qClass=' q';}
+  else if(pos===3){qBadge=`<div class="tcard-badge badge-t">🥉 ثالث — ينتظر ترتيب أفضل 8 ثوالث</div>`;}
+  else{qBadge=`<div class="tcard-badge badge-out">خارج البطولة (المركز ${pos})</div>`;}
   let h=`<div class="tcard${qClass}"><div class="tricolor"></div>
     <div class="tcard-flag">${fl(team)}</div>
     <div class="tcard-name head">${nm(team)}</div>
     <div class="tcard-grp">المجموعة ${g} · تصنيف فيفا #${RANK[team]||'—'}</div>
     <div class="tcard-stats">
-      <div class="tcard-stat"><span class="v">${done?pos:'—'}</span><span class="l">الترتيب</span></div>
+      <div class="tcard-stat"><span class="v">${played?pos:'—'}</span><span class="l">الترتيب</span></div>
       <div class="tcard-stat"><span class="v">${me.pts}</span><span class="l">نقاط</span></div>
       <div class="tcard-stat"><span class="v">${gd>0?'+':''}${gd}</span><span class="l">الفارق</span></div>
     </div>
     ${qBadge}
   </div>`;
-
-  // المسار الإقصائي
-  if(!allGroupsDone()){
-    const c=effDoneCount();
-    h+=`<div class="note-box">🔮 المسار الإقصائي يظهر بعد ما تكمّل <b>توقّعات المباريات القادمة</b>.<br>المباريات المنتهية تُحتسب بنتيجتها الحقيقية تلقائياً.<br>مكتمل <b>${c}</b> من <b>72</b> مباراة — باقي <b>${72-c}</b>.</div>`;
-    host.innerHTML=h;return;
-  }
-  const trace=traceTeamPath(team);
-  if(!trace.inKO){
-    h+=`<div class="note-box">${nm(team)} <b>ما تأهّل</b> من دور المجموعات حسب توقّعاتك (المركز ${pos}).<br>غيّر توقّعاتك عشان يدخل الإقصائيات 🔄</div>`;
-    host.innerHTML=h;return;
-  }
-
-  h+=`<div class="path-title head">🛣️ رحلة ${nm(team)} للّقب</div>`;
-  let champion=false;
-  trace.path.forEach(step=>{
-    const m=step.m;const r=state.ko[m]||{};
-    const oppName=step.oppTeam?nm(step.oppTeam):phText(step.oppSlot);
-    const oppFlag=step.oppTeam?fl(step.oppTeam):'⚽';
-    const isFinal=(m===104);
-    let cls='kstep';if(step.won)cls+=' won';if(step.lost)cls+=' lost';if(isFinal)cls+=' final';
-    // ترتيب الأطراف: منتخبي يمين دايماً
-    const meSide=`<div class="kstep-side"><span class="fl">${fl(team)}</span><span class="nm me">${nm(team)}</span></div>`;
-    const oppSide=`<div class="kstep-side away"><span class="fl">${oppFlag}</span><span class="nm${step.oppTeam?'':' slot'}">${oppName}</span></div>`;
-    const myVal=step.mySideA?(r.hs??""):(r.as??"");
-    const opVal=step.mySideA?(r.as??""):(r.hs??"");
-    const mySaff=step.mySideA?'hs':'as';const opSaff=step.mySideA?'as':'hs';
-    const oppDisabled=step.oppTeam?'':'disabled';
-    h+=`<div class="${cls}">
-      <div class="kstep-head"><span class="kstep-badge num">${roundShort(m)}</span><span class="kstep-round">${roundOf(m)}</span><span class="kstep-mn">مباراة ${m}</span></div>
-      <div class="kstep-row">
-        ${meSide}
-        <div class="kstep-score">
-          <input type="number" min="0" inputmode="numeric" value="${myVal}" onchange="setKO(${m},'${mySaff}',this.value)">
-          <span class="kstep-dash">−</span>
-          <input type="number" min="0" inputmode="numeric" value="${opVal}" ${oppDisabled} onchange="setKO(${m},'${opSaff}',this.value)">
-        </div>
-        ${oppSide}
-      </div>`;
-    // ترجيح عند التعادل
-    const bothFilled=step.oppTeam&&r.hs!==""&&r.hs!=null&&r.as!==""&&r.as!=null;
-    const isDraw=bothFilled&&(+r.hs===+r.as);
-    if(isDraw){
-      const mePw=step.mySideA?'h':'a';const opPw=step.mySideA?'a':'h';
-      h+=`<div class="kstep-pen show"><span>الترجيح:</span>
-        <button class="${r.pen===mePw?'on':''}" onclick="setKOPen(${m},'${mePw}')">${nm(team)}</button>
-        <button class="${r.pen===opPw?'on':''}" onclick="setKOPen(${m},'${opPw}')">${step.oppTeam?nm(step.oppTeam):'الخصم'}</button>
-      </div>`;
-    }
-    if(step.won&&isFinal){champion=true;h+=`<div class="kstep-result win">🏆 بطل العالم!</div>`;}
-    else if(step.won){h+=`<div class="kstep-result win">✅ تأهّل للدور التالي</div>`;}
-    else if(step.lost){h+=`<div class="kstep-result out">❌ خرج في ${roundOf(m)}</div>`;}
-    h+=`</div>`;
-  });
-  if(champion){
-    h+=`<div class="champ-banner"><div class="big">🏆 ${nm(team)} بطل كأس العالم 2026!</div><div class="sub">حسب توقّعاتك — مبروك يا بطل 🎉</div></div>`;
+  // مباريات المنتخب في المجموعات
+  h+=`<div class="path-title head">⚽ مباريات ${nm(team)} في المجموعات</div>`;
+  GM.filter(m=>m.A===team||m.B===team).sort((a,b)=>sortKey(a.tm)-sortKey(b.tm))
+    .forEach(m=>{h+=myTeamMatchRow(m,team);});
+  // مباريات المنتخب في الإقصائيات (لو تأهّل)
+  const KO=computeKOReal();
+  const myKO=[];for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(t&&(t.a===team||t.b===team))myKO.push(m);}
+  if(myKO.length){
+    h+=`<div class="path-title head">🏆 مباريات ${nm(team)} في الإقصائيات</div>`;
+    myKO.forEach(m=>{h+=myTeamKORow(m,team,KO);});
+    if(KO.winnerOf[104]===team)h+=`<div class="champ-banner"><div class="big">🏆 ${nm(team)} بطل كأس العالم 2026!</div><div class="sub">🎉 مبروك</div></div>`;
+  }else if(KO.allDone){
+    h+=`<div class="note-box">${nm(team)} ${pos<=2?'':'لم يتأهّل للأدوار الإقصائية'} ${pos===3?'(ثالث — خارج أفضل 8 ثوالث)':pos>3?'(المركز '+pos+')':''}.</div>`;
+  }else{
+    h+=`<div class="note-box">🏆 مباريات ${nm(team)} الإقصائية تظهر هنا تلقائياً <b>إذا تأهّل</b> — بعد اكتمال دور المجموعات.</div>`;
   }
   host.innerHTML=h;
 }
+// بطاقة مباراة المنتخب (مشتركة): تمييز المنتخب + نتيجته + توقّعك
+function mtmCard(A,B,team,badge,resTxt,predTxt,fin,aS,bS){
+  let aCls='',bCls='';
+  if(fin&&aS!=null&&bS!=null){if(aS>bS){aCls='w';bCls='l';}else if(bS>aS){bCls='w';aCls='l';}else{aCls=bCls='d';}}
+  return `<div class="mtm">
+    <div class="mtm-top">${badge}</div>
+    <div class="mtm-body">
+      <div class="mtm-side ${A===team?'me':''} ${aCls}"><span class="fl">${A?fl(A):'⚽'}</span><span class="nm">${A?nm(A):'?'}</span></div>
+      <div class="mtm-mid">${resTxt}</div>
+      <div class="mtm-side away ${B===team?'me':''} ${bCls}"><span class="fl">${B?fl(B):'⚽'}</span><span class="nm">${B?nm(B):'?'}</span></div>
+    </div>
+    ${predTxt?`<div class="mtm-pred">${predTxt}</div>`:''}
+  </div>`;
+}
+function myTeamMatchRow(m,team){
+  const rec=liveFor(m.A,m.B);const status=rec?rec.status:'pre';
+  const aS=scoreFor(rec,m.A),bS=scoreFor(rec,m.B);
+  const fin=status==='post',liveNow=status==='in';
+  const pred=state.g[m.id]||{};const hasPred=filled(pred);
+  const badge=fin?'<span class="mtm-st post">انتهت</span>':liveNow?'<span class="mtm-st live">🔴 جارية</span>':`<span class="mtm-st pre">${wdName(m.tm.m,m.tm.d)} ${m.tm.d}/${m.tm.m} · ${m.tm.t}</span>`;
+  const resTxt=(aS!=null&&bS!=null)?`${aS} <span class="d">-</span> ${bS}`:'<span class="d">— : —</span>';
+  let pts=(fin&&hasPred&&counts(m))?scorePred(pred.h,pred.a,aS,bS):null;
+  const jok=hasPred&&pred.j&&validJokers(state.g,state.ko).has(m.id);
+  if(pts!=null&&jok)pts*=2;
+  const predTxt=hasPred?`🔮 توقّعك ${pred.h}-${pred.a}${jok?' 🃏':''}`+(pts!=null?` <span class="mtm-pts p${pts>=5?5:pts>=3?3:pts>=2?2:0}">+${pts}</span>`:''):(matchStarted(m)?'<span class="mtm-no">ما توقّعت</span>':'');
+  return mtmCard(m.A,m.B,team,badge,resTxt,predTxt,fin,aS,bS);
+}
+function myTeamKORow(m,team,KO){
+  const t=KO.teamsOf[m];const a=t.a,b=t.b;const sc=KO.scoreOf[m];
+  const stt=koStatus(m,KO);
+  const badge=`<span class="mtm-st ${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${roundOf(m)} · ${stt.txt}${sc?'':' · '+koDateLabel(m)}</span>`;
+  const resTxt=sc?`${sc.a} <span class="d">-</span> ${sc.b}`+(sc.status==='post'&&a&&b?winSuffix(m,a,b):''):'<span class="d">— : —</span>';
+  const r=state.ko[m]||{};const has=v=>(v!=null&&v!=='');
+  const act=(a&&b)?koActual(a,b):null;let pts=act?scoreKO(r,act):null;
+  const jok=r.j&&validJokers(state.g,state.ko).has('ko'+m);
+  if(pts!=null&&jok)pts*=2;
+  const predTxt=(has(r.hs)&&has(r.as))?`🔮 توقّعك ${r.hs}-${r.as}${jok?' 🃏':''}`+(pts!=null?` <span class="mtm-pts p${pts>=8?5:pts>=5?3:pts>=2?2:0}">+${pts}</span>`:''):'';
+  const fin=!!(sc&&sc.status==='post');
+  return mtmCard(a,b,team,badge,resTxt,predTxt,fin,sc?sc.a:null,sc?sc.b:null);
+}
+function winSuffix(m,a,b){const w=computeKOReal().winnerOf[m];if(!w)return'';return w===a||w===b?` <span class="mtm-adv">${nm(w)} تأهّل ✅</span>`:'';}
 
 /* ===== الإعلانات ===== */
 let _isAdmin=false; // تُضبط من الخادم عبر is_admin()
@@ -3194,6 +3247,10 @@ function adminToolsHtml(){
   GM.forEach(m=>{if(!counts(m))return;
     const who=boardData.filter(p=>p.g[m.id]&&p.g[m.id].j);
     if(who.length)jrows.push(`<div class="adm-jrow"><span>${nm(m.A)} × ${nm(m.B)}</span><span class="adm-jwho">${who.map(p=>esc(p.name)).join('، ')}</span></div>`);});
+  const _KOj=computeKOReal();
+  for(let m=73;m<=104;m++){const t=_KOj.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    const who=boardData.filter(p=>p.ko&&p.ko[m]&&p.ko[m].j);
+    if(who.length)jrows.push(`<div class="adm-jrow"><span>🏆 ${nm(t.a)} × ${nm(t.b)}</span><span class="adm-jwho">${who.map(p=>esc(p.name)).join('، ')}</span></div>`);}
   h+= jrows.length?jrows.join(''):`<div class="nf-empty">ما فيه جواكر بعد.</div>`;
   // سجلّ النشاط
   h+=`<div class="adm-sec">📈 آخر النشاط</div>`;
@@ -3546,6 +3603,10 @@ function upcomingUnpredicted(hoursWindow){
   const now=Date.now(),lim=now+hoursWindow*3600*1000,out=[];
   GM.forEach(m=>{if(!counts(m))return;const d=matchDate(m.tm);if(!d)return;
     const t=d.getTime();if(t>now&&t<=lim&&!filled(state.g[m.id]))out.push(m);});
+  const KO=computeKOReal();
+  if(KO.allDone)for(let m=73;m<=104;m++){const tt=KO.teamsOf[m];if(!tt||!tt.a||!tt.b)continue;
+    const ms=koKickoffMs(m);if(!ms)continue;const r=state.ko[m];
+    if(ms>now&&ms<=lim&&!(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null))out.push({ko:m});}
   return out;
 }
 function renderReminder(){
