@@ -3182,6 +3182,21 @@ function adminPlayersHtml(){
         <button class="adm-mini del" onclick="adminDelPred('${m.id}','${esc(nm(m.A))} × ${esc(nm(m.B))}')" title="مسح التوقّع">🗑️</button>
       </span></div>`;
   }).join('');
+  // توقّعات الإقصائيات
+  const _KOp=computeKOReal();
+  const koPreds=[];for(let m=73;m<=104;m++){const t=_KOp.teamsOf[m];if(t&&t.a&&t.b){const pr=(p.ko||{})[m];if(pr&&pr.hs!=null&&pr.hs!=='')koPreds.push(m);}}
+  if(koPreds.length){
+    h+=`<div class="adm-sec">🏆 توقّعات الإقصائيات (${koPreds.length})</div>`;
+    h+=koPreds.map(m=>{const t=_KOp.teamsOf[m];const pr=p.ko[m];const sc=_KOp.scoreOf[m];const fin=sc&&sc.status==='post';
+      let res=fin?`<span class="adm-res">${sc.a}-${sc.b}</span>`:'';
+      const jok=pr.j?'<span class="adm-jok">🃏</span>':'';
+      let extra='';if(pr.ehs!=null&&pr.ehs!==''&&+pr.hs===+pr.as)extra=` <small>(إ.إ ${pr.ehs}-${pr.eas}${pr.pen?'، ت':''})</small>`;
+      return `<div class="adm-pred">
+        <span class="adm-pmatch">${roundOf(m)}: ${fl(t.a)}${nm(t.a)} × ${nm(t.b)}${fl(t.b)}</span>
+        <span class="adm-pval">${pr.hs}-${pr.as}${extra}${jok} ${res}</span>
+      </div>`;
+    }).join('');
+  }
   return h;
 }
 async function adminSaveStatus(){
@@ -3317,10 +3332,25 @@ function adminCheatHtml(){
         flags[p.uid].items.push(`${nm(m.A)} ${aS}-${bS} ${nm(m.B)} (طابقها ${exactPlayers.length} فقط)`);});
     }
   });
-  const arr=Object.values(flags).sort((a,b)=>b.items.length-a.items.length);
-  if(!arr.length)return `<div class="nf-empty">✅ ما فيه مطابقات نادرة مشبوهة.</div>`;
-  let h=`<div class="adm-note">⚠️ لاعبون طابقوا نتائج <b>نادرة</b> (قلّة طابقوها). كثرة المطابقات النادرة = مؤشّر (مو دليل قاطع). راجع نمطهم.</div>`;
-  h+=arr.map(f=>`<div class="adm-cheat ${f.items.length>=3?'hot':''}">
+  const arr=Object.values(flags);
+  // الإقصائيات: نفس منطق كشف المطابقات النادرة
+  const _KOc=computeKOReal();
+  for(let m=73;m<=104;m++){const t=_KOc.teamsOf[m];if(!t||!t.a||!t.b)continue;
+    const sc=_KOc.scoreOf[m];if(!sc||sc.status!=='post')continue;
+    const aS=sc.a,bS=sc.b;if(aS==null||bS==null)continue;
+    let exactPlayers=[],tot=0;
+    boardData.forEach(p=>{const pr=(p.ko||{})[m];if(!pr||pr.hs==null||pr.hs==='')return;tot++;
+      if(+pr.hs===aS&&+pr.as===bS)exactPlayers.push(p);});
+    if(!tot)continue;
+    if(exactPlayers.length>0&&(exactPlayers.length<=2||exactPlayers.length/tot<0.2)){
+      exactPlayers.forEach(p=>{if(!flags[p.uid])flags[p.uid]={name:p.name,items:[]};
+        flags[p.uid].items.push(`🏆 ${nm(t.a)} ${aS}-${bS} ${nm(t.b)} (طابقها ${exactPlayers.length} فقط)`);});
+    }
+  }
+  const arr2=Object.values(flags).sort((a,b)=>b.items.length-a.items.length);
+  if(!arr2.length)return `<div class="nf-empty">✅ ما فيه مطابقات نادرة مشبوهة.</div>`;
+  let h=`<div class="adm-note">⚠️ لاعبون طابقوا نتائج <b>نادرة</b> (قلّة طابقوها) في المجموعات والإقصائيات. كثرة المطابقات النادرة = مؤشّر (مو دليل قاطع). راجع نمطهم.</div>`;
+  h+=arr2.map(f=>`<div class="adm-cheat ${f.items.length>=3?'hot':''}">
     <div class="adm-cname">${esc(f.name)} <span class="adm-ccount">${f.items.length} نادرة</span></div>
     ${f.items.map(i=>`<div class="adm-citem">🎯 ${i}</div>`).join('')}</div>`).join('');
   return h;
