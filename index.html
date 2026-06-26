@@ -1172,32 +1172,44 @@ function scoreKO(pred,act){
   if(!pred||!act)return 0;
   const phs=numKN(pred.hs),pas=numKN(pred.as);
   if(phs==null||pas==null)return 0;
+  const oh=act.oh,oa=act.oa,decided=act.decided;
   const predOrigDraw=(phs===pas);
-  if(act.decided==='orig'){if(predOrigDraw)return 0;return scorePred(phs,pas,act.oh,act.oa)||0;}
-  if(!predOrigDraw)return 0; // توقّعت حسم بالأصلي بس راحت لإضافي/ترجيح
-  const origExact=(phs===act.oh);
-  if(act.decided==='extra'){
-    const peh=numKN(pred.ehs),pea=numKN(pred.eas);
-    if(peh==null||pea==null)return origExact?2:1;
-    const pW=peh>pea?'h':peh<pea?'a':'d';
-    if(pW==='d')return origExact?3:2;
-    const aW=act.eh>act.ea?'h':'a';
-    if(pW!==aW)return origExact?3:2;
-    const extraExact=(peh===act.eh&&pea===act.ea);
-    if(origExact&&extraExact)return 8;
-    if(origExact)return 6;
-    return 5;
+  let pts=0;
+  // الطبقة 1: نتيجة الوقت الأصلي — 6/4/2/0
+  if(oh!=null&&oa!=null){
+    if(phs===oh&&pas===oa)pts+=6;
+    else{const ps=Math.sign(phs-pas),as=Math.sign(oh-oa);
+      if(ps===as)pts+=((phs-pas)===(oh-oa))?4:2;}
   }
-  if(act.decided==='pen'){
-    const peh=numKN(pred.ehs),pea=numKN(pred.eas);
-    if(peh==null||pea==null)return origExact?2:1;
-    if(peh!==pea)return origExact?3:2;
-    const penRight=(pred.pen===act.pw);
-    if(origExact&&penRight)return 10;
-    if(origExact||penRight)return 8;
-    return 6;
+  // المسار المتوقّع والفعلي
+  let predPath;
+  if(!predOrigDraw)predPath='orig';
+  else{const peh=numKN(pred.ehs),pea=numKN(pred.eas);
+    predPath=(peh!=null&&pea!=null&&peh!==pea)?'extra':'pen';}
+  const actPath=decided;
+  // الطبقة 2: توقّع المسار — 2/3/5 (أو 2 لتطويل بنوع مختلف)
+  if(predPath===actPath)pts+=(actPath==='orig'?2:actPath==='extra'?3:5);
+  else if(predPath!=='orig'&&actPath!=='orig')pts+=2;
+  // المتأهّل المتوقّع والفعلي
+  let predWinner=null;
+  if(phs>pas)predWinner='h';
+  else if(pas>phs)predWinner='a';
+  else{const peh=numKN(pred.ehs),pea=numKN(pred.eas);
+    if(peh!=null&&pea!=null&&peh!==pea)predWinner=peh>pea?'h':'a';
+    else if(pred.pen)predWinner=pred.pen;}
+  let actWinner=null;
+  if(decided==='orig')actWinner=oh>oa?'h':oa>oh?'a':null;
+  else if(decided==='extra')actWinner=act.eh>act.ea?'h':'a';
+  else if(decided==='pen')actWinner=act.pw;
+  // الطبقة 3: المتأهّل النهائي صح — +4
+  if(predWinner&&actWinner&&predWinner===actWinner)pts+=4;
+  // الطبقة 4: تفصيل التطويل (لو توقّعت تعادل أصلي وراحت فعلاً)
+  if(predOrigDraw&&actPath!=='orig'){
+    if(decided==='extra'){const peh=numKN(pred.ehs),pea=numKN(pred.eas);
+      if(peh!=null&&pea!=null&&peh===act.eh&&pea===act.ea)pts+=3;}
+    else if(decided==='pen'){if(pred.pen&&pred.pen===act.pw)pts+=5;}
   }
-  return 0;
+  return pts;
 }
 
 /* ===== الحالة ===== */
@@ -2076,9 +2088,9 @@ function computePointsForKO(ko,KO,g){
     koPredTotal++; // توقّع إقصائي مكتمل (مثل predTotal للمجموعات)
     const act=koActual(t.a,t.b);if(!act)continue;
     let base=scoreKO(pred,act);
-    // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — مكافئ لتصنيف المجموعات
-    if(base>=5)koExact++;else if(base===3)koGood++;else if(base===2)koOk++;else koWrong++;
-    if(base>=8)koPerfect++; // إقصائية مثالية (إضافي/ترجيح مطابق بالكامل)
+    // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — السقف 20
+    if(base>=11)koExact++;else if(base>=6)koGood++;else if(base>=2)koOk++;else koWrong++;
+    if(base>=17)koPerfect++; // إقصائية شبه مثالية (17-20)
     if(act.decided==='pen'&&pred.pen&&pred.pen===act.pw)koPenRight++; // توقّع فائز الترجيح صح
     let pts=base;
     if(jok.has('ko'+m)){jokerBonus+=base;pts*=2;} // الجوكر يضاعف
@@ -2532,7 +2544,7 @@ function renderPoints(){
   let koCells='';
   for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(!t||!t.a||!t.b)continue;
     let cls='hcell ko';
-    if(m in r.koPer){const p=r.koPer[m];cls+=p>=8?' h5':p>=5?' h3':p>=2?' h2':' h0';}
+    if(m in r.koPer){const p=r.koPer[m];cls+=p>=17?' h5':p>=11?' h3':p>=2?' h2':' h0';}
     else if(state.ko[m]&&state.ko[m].hs!==''&&state.ko[m].hs!=null){cls+=' hp';}
     else continue;
     koCells+=`<div class="${cls}"></div>`;
@@ -2619,6 +2631,14 @@ function renderPoints(){
     🟢 توقّعت تعادل وصار تعادل (نتيجة مختلفة) = <b>3 نقاط</b><br>
     🟡 الفائز صحيح بس الفارق مختلف = <b>2 نقطة</b><br>
     🔴 خطأ = <b>0</b><br><br>
+    <b>🏆 الأدوار الإقصائية (نظام تجميعي متدرّج):</b><br>
+    تُجمع نقاطك من 4 طبقات، فكل توقّع جزئي صحيح له نصيب:<br>
+    <b>1) نتيجة الوقت الأصلي (90 د):</b> مطابقة <b>6</b> · فائز + فارق <b>4</b> · فائز <b>2</b><br>
+    <b>2) توقّع المسار:</b> حسم بالأصلي <b>+2</b> · يروح إضافي <b>+3</b> · يروح ترجيح <b>+5</b><br>
+    <b>3) المتأهّل النهائي صح</b> (بأي طريقة) = <b>+4</b><br>
+    <b>4) التفصيل:</b> نتيجة الإضافي مطابقة <b>+3</b> · فائز الترجيح صح <b>+5</b><br>
+    🎯 السقوف: انحسمت بالأصلي <b>12</b> · إضافي <b>16</b> · ترجيح <b>20</b><br>
+    🔥 توقّع ترجيح كامل = <b>20 نقطة!</b><br><br>
     <b>⚡ نقاط إضافية:</b><br>
     🃏 <b>الجوكر:</b> <b>${MAX_JOKERS_BASE} جواكر</b> في دور المجموعات، يرتفعون إلى <b>${MAX_JOKERS_KO}</b> مع انطلاق الأدوار الإقصائية (تراكمي عبر المجموعات والإقصائيات). حط جوكر على أي توقّع ونقاط تلك المباراة <b>×2</b>. قبل بداية المباراة فقط.<br>
     🔥 <b>السلسلة:</b> كل <b>3 توقّعات مطابقة تماماً (🎯) متتالية</b> = <b>+${STREAK_BONUS} بونص</b>.<br>
