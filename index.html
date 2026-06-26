@@ -3394,7 +3394,8 @@ async function adminRunAch(){
 }
 function adminExportCSV(){
   let csv='الاسم,النقاط,محتسبة,مطابقة,دقة,أطول سلسلة\n';
-  boardData.forEach(p=>{csv+=`"${(p.name||'').replace(/"/g,'')}",${p.total},${p.scored},${p.exact},${p.acc},${p.bestStreak}\n`;});
+  const csvSafe=s=>{s=(s||'').replace(/"/g,'');return /^[=+\-@\t\r]/.test(s)?"'"+s:s;};
+  boardData.forEach(p=>{csv+=`"${csvSafe(p.name)}",${p.total},${p.scored},${p.exact},${p.acc},${p.bestStreak}\n`;});
   const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='worldcup_data.csv';a.click();
 }
