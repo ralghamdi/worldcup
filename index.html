@@ -612,6 +612,11 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .hl-card .hl-badge{font-family:'Anton';font-size:13px;color:#1a1405;background:var(--gold);border-radius:7px;padding:2px 8px;flex:none}
 .hl-teams{flex:1;font-size:13px;font-weight:700;min-width:0}
 .hl-sc{font-family:'Anton';font-size:15px;color:var(--gold-bright);flex:none}
+.hl-match{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.hl-tm{flex:1;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;min-width:0}
+.hl-tm.away{flex-direction:row-reverse}
+.hl-tm b{font-family:'Anton';color:var(--gold-bright);font-size:16px;flex:none}
+.hl-x{color:var(--muted-2);flex:none}
 .pts-note{text-align:center;color:var(--muted);font-size:13px;padding:30px 16px;line-height:1.7}
 .pts-rules{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:16px;font-size:12px;color:var(--muted);line-height:1.9}
 .pts-rules b{color:var(--gold-bright)}
@@ -2560,19 +2565,25 @@ function renderPoints(){
 
   // لحظاتك البارزة (التوقّعات المطابقة + الإقصائيات المميّزة)
   const perfect=GM.filter(m=>r.per[m.id]===5);
-  const perfectKO=[];for(let m=73;m<=104;m++){if(r.koPer&&r.koPer[m]>=8)perfectKO.push(m);}
+  const perfectKO=[];for(let m=73;m<=104;m++){if(r.koPer&&r.koPer[m]>=17)perfectKO.push(m);}
   if(perfect.length||perfectKO.length){
     h+=`<div class="sec-title head">⭐ توقّعاتك المثالية</div>`;
     perfect.forEach(m=>{const pred=state.g[m.id];
       h+=`<div class="hl-card"><span class="hl-badge num">🎯 5</span>
-        <span class="hl-teams">${fl(m.A)} ${nm(m.A)} × ${nm(m.B)} ${fl(m.B)}</span>
-        <span class="hl-sc num">${pred.h}-${pred.a}</span></div>`;
+        <div class="hl-match">
+          <span class="hl-tm">${fl(m.A)} ${nm(m.A)} <b>${pred.h}</b></span>
+          <span class="hl-x">−</span>
+          <span class="hl-tm away">${fl(m.B)} ${nm(m.B)} <b>${pred.a}</b></span>
+        </div></div>`;
     });
     const _KOp=computeKOReal();
     perfectKO.forEach(m=>{const t=_KOp.teamsOf[m];const pr=state.ko[m]||{};
       h+=`<div class="hl-card"><span class="hl-badge num">🏆 ${r.koPer[m]}</span>
-        <span class="hl-teams">${fl(t.a)} ${nm(t.a)} × ${nm(t.b)} ${fl(t.b)}</span>
-        <span class="hl-sc num">${pr.hs}-${pr.as}</span></div>`;
+        <div class="hl-match">
+          <span class="hl-tm">${fl(t.a)} ${nm(t.a)} <b>${pr.hs}</b></span>
+          <span class="hl-x">−</span>
+          <span class="hl-tm away">${fl(t.b)} ${nm(t.b)} <b>${pr.as}</b></span>
+        </div></div>`;
     });
   }
 
