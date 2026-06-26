@@ -3162,6 +3162,25 @@ async function renderAdmin(){
 
 /* --- إدارة اللاعبين --- */
 let admSelUid='';
+async function adminResetPwd(){
+  if(!isAdmin())return;
+  const p=boardData.find(x=>x.uid===admSelUid);if(!p)return;
+  const np=prompt(`كلمة مرور مؤقتة لـ «${p.name}» (6 أحرف على الأقل):`);
+  if(np===null)return;
+  if(!np||np.length<6){alert('لازم 6 أحرف على الأقل');return;}
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){alert('انتهت الجلسة، سجّل دخول من جديد');return;}
+    const res=await fetch(`${SB_URL}/functions/v1/admin-reset-password`,{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${session.access_token}`,'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({uid:p.uid,newPassword:np})
+    });
+    const j=await res.json();
+    if(j&&j.ok){alert(`✅ تم تغيير كلمة المرور لـ «${p.name}»\n\nالكلمة المؤقتة: ${np}\n\nأعطها له، وخلّه يغيّرها بعد الدخول.`);}
+    else{alert('فشل: '+((j&&j.error)||'خطأ غير معروف'));}
+  }catch(e){alert('خطأ في الاتصال: '+e);}
+}
 function adminPlayersHtml(){
   if(!boardData.length)return `<div class="nf-empty">جارٍ تحميل اللاعبين... افتح «الترتيب العام» مرة ثم ارجع.</div>`;
   const opts=boardData.map(p=>`<option value="${p.uid}" ${p.uid===admSelUid?'selected':''}>${esc(p.name)} (${p.total} نقطة)</option>`).join('');
@@ -3186,6 +3205,7 @@ function adminPlayersHtml(){
     <button class="adm-btn" onclick="adminSaveFlag()">${fobj.flagged?'محفوظ':'حفظ'}</button></div></div>
   <div class="adm-toggles">
     <button class="adm-tgl ${fobj.frozen?'on':''}" onclick="adminToggleFreeze(${!fobj.frozen})">${fobj.frozen?'🔒 مجمّد (فك)':'🔓 تجميد التوقّع'}</button>
+    <button class="adm-tgl" onclick="adminResetPwd()">🔑 كلمة المرور</button>
     <button class="adm-tgl danger" onclick="adminDeletePlayer()">🗑️ حذف الحساب</button>
   </div>`;
   // تفصيل النقاط (من وين جت)
