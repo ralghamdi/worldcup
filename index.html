@@ -2570,20 +2570,14 @@ function renderPoints(){
     h+=`<div class="sec-title head">⭐ توقّعاتك المثالية</div>`;
     perfect.forEach(m=>{const pred=state.g[m.id];
       h+=`<div class="hl-card"><span class="hl-badge num">🎯 5</span>
-        <div class="hl-match">
-          <span class="hl-tm">${fl(m.A)} ${nm(m.A)} <b>${pred.h}</b></span>
-          <span class="hl-x">−</span>
-          <span class="hl-tm away">${fl(m.B)} ${nm(m.B)} <b>${pred.a}</b></span>
-        </div></div>`;
+        <span class="hl-teams">${fl(m.A)} ${nm(m.A)} × ${nm(m.B)} ${fl(m.B)}</span>
+        <span class="hl-sc num" dir="ltr">${pred.a}-${pred.h}</span></div>`;
     });
     const _KOp=computeKOReal();
     perfectKO.forEach(m=>{const t=_KOp.teamsOf[m];const pr=state.ko[m]||{};
       h+=`<div class="hl-card"><span class="hl-badge num">🏆 ${r.koPer[m]}</span>
-        <div class="hl-match">
-          <span class="hl-tm">${fl(t.a)} ${nm(t.a)} <b>${pr.hs}</b></span>
-          <span class="hl-x">−</span>
-          <span class="hl-tm away">${fl(t.b)} ${nm(t.b)} <b>${pr.as}</b></span>
-        </div></div>`;
+        <span class="hl-teams">${fl(t.a)} ${nm(t.a)} × ${nm(t.b)} ${fl(t.b)}</span>
+        <span class="hl-sc num" dir="ltr">${pr.as}-${pr.hs}</span></div>`;
     });
   }
 
