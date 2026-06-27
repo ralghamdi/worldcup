@@ -1147,8 +1147,15 @@ function computeKOReal(){
 /* ====== نقاط الأدوار الإقصائية: استخراج النتيجة + الحساب المتدرّج ====== */
 // ⚠️⚠️ نقطة العزل الوحيدة: قراءة الدقائق/الترجيح من ESPN. نعدّلها لحظة أول مباراة إقصائية ونشوف شكل البيانات.
 function koPenWinner(rec,a,b){
-  if(rec.pen_home!=null&&rec.pen_away!=null)return rec.pen_home>rec.pen_away?'h':'a';
-  if(rec.shootout_home!=null&&rec.shootout_away!=null)return rec.shootout_home>rec.shootout_away?'h':'a';
+  // ESPN يخزّن ركلات الترجيح في shootout_home/away بالنسبة لفريق home/away عنده — نحوّلها لـ a/b
+  if(rec.shootout_home!=null&&rec.shootout_away!=null){
+    const winCode=rec.shootout_home>rec.shootout_away?rec.home_code:rec.away_code;
+    return winCode===a?'h':(winCode===b?'a':null);
+  }
+  if(rec.pen_home!=null&&rec.pen_away!=null){
+    const winCode=rec.pen_home>rec.pen_away?rec.home_code:rec.away_code;
+    return winCode===a?'h':(winCode===b?'a':null);
+  }
   if(rec.winner_code===a||rec.winner===a)return 'h';
   if(rec.winner_code===b||rec.winner===b)return 'a';
   return null; // غير معروف بعد
@@ -1158,17 +1165,18 @@ function koActual(a,b){
   if(!rec||rec.status!=='post')return null;
   const fhs=scoreFor(rec,a),fas=scoreFor(rec,b);
   if(fhs==null||fas==null)return null;
-  let oh=null,oa=null;const ev=rec.events||[];
-  const gmin=e=>{const v=e.minute??e.min??e.clock??null;return v==null?null:parseInt(v);};
-  const hasMin=ev.some(e=>(e.kind==='goal'||e.kind==='owngoal')&&gmin(e)!=null);
-  if(hasMin){oh=0;oa=0;
-    ev.forEach(e=>{if(e.kind!=='goal'&&e.kind!=='owngoal')return;const mn=gmin(e);if(mn==null||mn>90)return;
-      const forA=e.kind==='owngoal'?(e.team===b):(e.team===a);if(forA)oh++;else oa++;});}
+  // المباراة منتهية (post مضمون أعلاه): نعدّ أهداف الوقت الأصلي (≤90)، نستبعد ركلات الترجيح. صفر أهداف = 0-0
+  let oh=0,oa=0;const ev=rec.events||[];
+  const gmin=e=>{const v=e.minute??e.min??e.clock??null;return v==null?null:(parseInt(String(v).split('+')[0])||0);};
+  ev.forEach(e=>{if(e.kind!=='goal'&&e.kind!=='owngoal')return;if(e.shootout)return;const mn=gmin(e);if(mn==null||mn>90)return;
+    const forA=e.kind==='owngoal'?(e.team===b):(e.team===a);if(forA)oh++;else oa++;});
+  // المسار من status_detail (ESPN رسمي): PEN→ترجيح · AET→إضافي · غيره→أصلي. مع fallback لو status_detail مفقود
+  const sd=rec.status_detail||'';
   let decided,pw=null;
-  if(fhs!==fas){decided=(oh!=null&&oh===oa)?'extra':'orig';}
-  else{decided='pen';pw=koPenWinner(rec,a,b);}
-  return {decided,oh:oh!=null?oh:(decided==='orig'?fhs:null),oa:oa!=null?oa:(decided==='orig'?fas:null),
-          eh:fhs,ea:fas,pw,fhs,fas};
+  if(sd==='STATUS_FINAL_PEN'||(sd===''&&fhs===fas)){decided='pen';pw=koPenWinner(rec,a,b);}
+  else if(sd==='STATUS_FINAL_AET'||(sd===''&&oh!=null&&oh===oa&&fhs!==fas)){decided='extra';}
+  else decided='orig';
+  return {decided,oh,oa,eh:fhs,ea:fas,pw,fhs,fas};
 }
 function numKN(x){return (x===''||x==null)?null:+x;}
 // نقاط مباراة إقصائية واحدة. pred:{hs,as,ehs,eas,pen}  act: مخرج koActual
@@ -1852,11 +1860,11 @@ function aggStats(){
     if(rec.status==='post'||rec.status==='in')played++;
     (rec.events||[]).forEach(e=>{
       const p=e.players||[];
-      if(e.kind==="goal"&&p[0]){goals++;
+      if(e.kind==="goal"&&!e.shootout&&p[0]){goals++;
         const k=p[0]+"|"+e.team;if(!scorers[k])scorers[k]={name:p[0],team:e.team,goals:0};scorers[k].goals++;
         if(p[1]){const ak=p[1]+"|"+e.team;if(!assists[ak])assists[ak]={name:p[1],team:e.team,a:0};assists[ak].a++;}
       }
-      if(e.kind==="owngoal")goals++;
+      if(e.kind==="owngoal"&&!e.shootout)goals++;
       if(e.kind==="yellow"&&p[0]){yel++;const k=p[0]+"|"+e.team;if(!yellows[k])yellows[k]={name:p[0],team:e.team,y:0};yellows[k].y++;}
       if((e.kind==="red"||e.kind==="yellowred")&&p[0]){red++;const k=p[0]+"|"+e.team;if(!reds[k])reds[k]={name:p[0],team:e.team,r:0,sy:0};reds[k].r++;if(e.kind==="yellowred")reds[k].sy++;}
     });
