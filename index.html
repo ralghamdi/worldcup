@@ -2242,6 +2242,19 @@ async function loadBoard(){
       const g=row.g||{};const ko=row.ko||{};
       const r=computePointsForG(g,null,ko); // البونص يأتي من الخادم، لا نحسبه هنا
       const rk=computePointsForKO(ko,_KO,g);
+      // ── Shadow: مقارنة نقاط المجموعات الخادمية (srvG) مع المحلية ──
+      if(row.srvG){const s=row.srvG,d=[];
+        if(s.total!==r.total)d.push('total '+r.total+'≠'+s.total);
+        if(s.scored!==r.scored)d.push('scored '+r.scored+'≠'+s.scored);
+        if(s.exact!==r.exact)d.push('exact '+r.exact+'≠'+s.exact);
+        if(s.good!==r.good)d.push('good '+r.good+'≠'+s.good);
+        if(s.ok!==r.ok)d.push('ok '+r.ok+'≠'+s.ok);
+        if(s.wrong!==r.wrong)d.push('wrong '+r.wrong+'≠'+s.wrong);
+        if(s.jokerBonus!==r.jokerBonus)d.push('jkr '+r.jokerBonus+'≠'+s.jokerBonus);
+        if(s.bestStreak!==r.bestStreak)d.push('streak '+r.bestStreak+'≠'+s.bestStreak);
+        if(d.length)console.warn('⚠️ SHADOW '+(row.name||row.uid)+': '+d.join(' | '));
+        else console.log('✅ SHADOW '+(row.name||row.uid)+' ('+r.total+')');
+      }
       const champB=row.champBonus||0;
       const exactAll=r.exact+(rk.koExact||0);
       const goodAll=r.good+(rk.koGood||0);
