@@ -2236,6 +2236,18 @@ async function loadBoard(){
     upcomingJokers=(bd&&bd.upcomingJokers)||{};
     championCounts=(bd&&bd.championCounts)||{};
     const _KO=computeKOReal();
+    // ── Shadow م2ب: مقارنة الجسر الخادمي (teamsOf) مع computeKOReal ──
+    if(bd&&bd.koBracket){let okN=0,nullN=0,bad=[];
+      for(let m=73;m<=104;m++){
+        const sv=bd.koBracket[m]||{},fa=(_KO.teamsOf[m]||{});
+        if(sv.a==null||sv.b==null){nullN++;continue;}          // خادم مؤجّل (ثالث/غير محلول)
+        if(sv.a!==(fa.a||null)||sv.b!==(fa.b||null))
+          bad.push(m+': باك['+sv.a+'/'+sv.b+'] ≠ فرونت['+(fa.a||'·')+'/'+(fa.b||'·')+']');
+        else okN++;
+      }
+      if(bad.length)console.warn('⚠️ KO-BRACKET اختلافات:\n  '+bad.join('\n  '));
+      else console.log('✅ KO-BRACKET: '+okN+' خانة منحلّة مطابقة، '+nullN+' مؤجّلة (ثالث/غير محلول)');
+    }
     // ── Shadow م2أ: مقارنة ترتيب المجموعات الخادمي مع الفرونت ──
     if(bd&&bd.koOrder){
       const frontOrder=g=>{const ls=live.standings[g];
