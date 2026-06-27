@@ -2236,6 +2236,19 @@ async function loadBoard(){
     upcomingJokers=(bd&&bd.upcomingJokers)||{};
     championCounts=(bd&&bd.championCounts)||{};
     const _KO=computeKOReal();
+    // ── Shadow م2أ: مقارنة ترتيب المجموعات الخادمي مع الفرونت ──
+    if(bd&&bd.koOrder){
+      const frontOrder=g=>{const ls=live.standings[g];
+        if(ls&&ls.length>=4&&ls.every(e=>e.code))return ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9)).map(e=>e.code);
+        const st=realGroupStats(g);
+        return GROUPS[g].slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf);};
+      Object.keys(GROUPS).forEach(gr=>{
+        const fo=frontOrder(gr),so=bd.koOrder[gr]||[];
+        if(JSON.stringify(fo)!==JSON.stringify(so))
+          console.warn('⚠️ KO-ORDER '+gr+': فرونت['+fo+'] ≠ باك['+so+']');
+        else console.log('✅ KO-ORDER '+gr+' ['+fo+']');
+      });
+    }
     // الأدمن يثبّت البطل الحقيقي على الخادم (الوحيد الذي يرى البراكت كاملاً)
     if(isAdmin()){const ac=actualChampion();if(ac){try{await sb.rpc('set_champion',{p_code:ac});}catch(e){}}}
     boardData=players.map(row=>{
