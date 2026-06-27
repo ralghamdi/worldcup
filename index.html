@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>FIFA WORLD CUP 2026™</title>
+<title>™FIFA WORLD CUP 2026</title>
 <link rel="icon" type="image/png" href="https://i.ibb.co/LzDpgfLy/2026-FIFA-World-Cup-emblem-svg.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -769,7 +769,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
         <text x="100" y="184" font-family="Anton, sans-serif" font-size="78" text-anchor="middle" fill="url(#bg1)" letter-spacing="3">26</text>
       </svg>
     </div>
-    <div class="brand-title head">FIFA WORLD CUP 2026™</div>
+    <div class="brand-title head">™FIFA WORLD CUP 2026</div>
     <div class="brand-sub">We Are 26</div>
     <div class="auth-tri"></div>
     <div class="auth-form">
@@ -1392,7 +1392,8 @@ function koPredPastCard(m,KO){
   if(pts!=null&&isJok)pts*=2;
   const has=v=>(v!=null&&v!=='');
   const sc=KO.scoreOf[m];
-  const resTxt=sc?`${sc.a}-${sc.b}`+(act&&act.decided==='extra'?' (إ.إ)':act&&act.decided==='pen'?' (ترجيح)':''):'لم تُلعب';
+  const played=sc&&(sc.status==='in'||sc.status==='post');
+  const resTxt=played?`${sc.a}-${sc.b}`+(act&&act.decided==='extra'?' (إ.إ)':act&&act.decided==='pen'?' (ترجيح)':''):'لم تُلعب';
   const cls=pts>=8?'p5':pts>=5?'p3':pts>=2?'p2':'p0';
   const ptsTxt=(pts!=null)?`<span class="rl-pts ${cls}">${pts>0?'+'+pts:'0'} نقطة${isJok&&pts>0?' 🃏':''}</span>`:'';
   return `<div class="match locked ko-pred${isJok?' jok':''}">
@@ -1801,7 +1802,7 @@ function koCard(m,KO){
   const aT=t.a,bT=t.b;
   const aWin=!!(win&&win===aT),bWin=!!(win&&win===bT);
   let mid;
-  if(sc){
+  if(sc&&(sc.status==='in'||sc.status==='post')){
     const liveNow=sc.status==='in';
     mid=`<span class="ko-sc${liveNow?' live':''}">${sc.a} <span class="ko-d">-</span> ${sc.b}</span>`;
   }else mid=`<span class="ko-vs">VS</span>`;
