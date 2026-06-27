@@ -769,7 +769,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
         <text x="100" y="184" font-family="Anton, sans-serif" font-size="78" text-anchor="middle" fill="url(#bg1)" letter-spacing="3">26</text>
       </svg>
     </div>
-    <div class="brand-title head">مونديال السعودية</div>
+    <div class="brand-title head">™FIFA WORLD CUP 2026</div>
     <div class="brand-sub">We Are 26</div>
     <div class="auth-tri"></div>
     <div class="auth-form">
@@ -810,7 +810,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
           </g>
           <text x="100" y="182" font-family="Anton, sans-serif" font-size="74" text-anchor="middle" fill="url(#mg)" letter-spacing="3">26</text>
         </svg>
-        <div class="mini-title">مونديال <span>السعودية</span></div>
+        <div class="mini-title">FIFA WORLD CUP <span>™2026</span></div>
       </div>
       <div class="topbar-actions">
         <button class="bell-btn" id="suggBtn" onclick="openSuggest()" title="اقتراح">💡</button>
@@ -903,7 +903,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 const SB_URL='https://rpmckviwjtbwkrexkxme.supabase.co';
 const SB_KEY='sb_publishable_IJdq9hAY7vp3dNMxHatdRA_Nx8PL671';
 const LOGO_URL='https://i.ibb.co/Lz5nrpjY/2026-FIFA-World-Cup-emblem-svg.webp'; // ← حط رابط صورتك هنا بين القوسين (لو فاضي يطلع الكأس المرسوم)
-const APP_TITLE='™FIFA WORLD CUP 2026'; // ← حط اسم الموقع هنا بين القوسين (لو فاضي يطلع الافتراضي)
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 let user=null;
 
@@ -2453,7 +2452,7 @@ function shareCard(){
   // شريط علوي ثلاثي
   x.fillStyle='#E61D25';x.fillRect(0,0,240,8);x.fillStyle='#3CAC3B';x.fillRect(240,0,240,8);x.fillStyle='#2A398D';x.fillRect(480,0,240,8);
   x.textAlign='center';
-  x.fillStyle='#FFD968';x.font='bold 30px Tajawal,sans-serif';x.fillText('🏆 توقّعاتي · مونديال 2026',360,70);
+  x.fillStyle='#FFD968';x.font='bold 30px Tajawal,sans-serif';x.fillText('🏆 توقّعاتي · FIFA WORLD CUP 2026',360,70);
   x.fillStyle='#F7F5EE';x.font='bold 40px Tajawal,sans-serif';x.fillText(esc2(state.name||'لاعب'),360,135);
   // النقاط الكبيرة
   x.fillStyle='#FFD968';x.font='bold 130px Anton,sans-serif';x.fillText(String(r.grandTotal),360,290);
@@ -3863,11 +3862,6 @@ resetIdle();
   applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
 function applyLogo(){
-  if(APP_TITLE){
-    document.title=APP_TITLE;
-    const bt=document.querySelector('.brand-title');if(bt)bt.textContent=APP_TITLE;
-    const mt=document.querySelector('.mini-title');if(mt)mt.textContent=APP_TITLE;
-  }
   if(!LOGO_URL)return;
   document.querySelectorAll('.mini-emblem,.brand-emblem').forEach(el=>{
     const cls=el.getAttribute('class');
