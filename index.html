@@ -2896,7 +2896,12 @@ function renderMyteam(){
     myKO.forEach(m=>{h+=myTeamKORow(m,team,KO);});
     if(KO.winnerOf[104]===team)h+=`<div class="champ-banner"><div class="big">🏆 ${nm(team)} بطل كأس العالم 2026!</div><div class="sub">🎉 مبروك</div></div>`;
   }else if(KO.allDone){
-    h+=`<div class="note-box">${nm(team)} ${pos<=2?'':'لم يتأهّل للأدوار الإقصائية'} ${pos===3?'(ثالث — خارج أفضل 8 ثوالث)':pos>3?'(المركز '+pos+')':''}.</div>`;
+    // رسالة الخروج تظهر فترة محدودة (7 أيام بعد آخر مباراة للمنتخب) ثم تختفي
+    let lastMs=0;GM.filter(m=>m.A===team||m.B===team).forEach(m=>{const d=matchDate(m.tm);if(d)lastMs=Math.max(lastMs,d.getTime());});
+    const daysSince=lastMs?(Date.now()-lastMs)/86400000:0;
+    if(daysSince<=7){
+      h+=`<div class="note-box">${nm(team)} ${pos<=2?'':'لم يتأهّل للأدوار الإقصائية'} ${pos===3?'(ثالث — خارج أفضل 8 ثوالث)':pos>3?'(المركز '+pos+')':''}. تابع بقية البطولة معنا 🏆</div>`;
+    }
   }else{
     h+=`<div class="note-box">🏆 مباريات ${nm(team)} الإقصائية تظهر هنا تلقائياً <b>إذا تأهّل</b> — بعد اكتمال دور المجموعات.</div>`;
   }
