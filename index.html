@@ -2306,75 +2306,29 @@ async function loadBoard(){
     const players=(bd&&bd.players)||[];
     upcomingJokers=(bd&&bd.upcomingJokers)||{};
     championCounts=(bd&&bd.championCounts)||{};
-    const _KO=computeKOReal();
-    // ── Shadow م2ب: مقارنة الجسر الخادمي (teamsOf) مع computeKOReal ──
-    if(bd&&bd.koBracket){let okN=0,nullN=0,bad=[];
-      for(let m=73;m<=104;m++){
-        const sv=bd.koBracket[m]||{},fa=(_KO.teamsOf[m]||{});
-        if(sv.a==null||sv.b==null){nullN++;continue;}          // خادم مؤجّل (ثالث/غير محلول)
-        if(sv.a!==(fa.a||null)||sv.b!==(fa.b||null))
-          bad.push(m+': باك['+sv.a+'/'+sv.b+'] ≠ فرونت['+(fa.a||'·')+'/'+(fa.b||'·')+']');
-        else okN++;
-      }
-      if(bad.length)console.warn('⚠️ KO-BRACKET اختلافات:\n  '+bad.join('\n  '));
-      else console.log('✅ KO-BRACKET: '+okN+' خانة منحلّة مطابقة، '+nullN+' مؤجّلة (ثالث/غير محلول)');
-    }
-    // ── Shadow م2أ: مقارنة ترتيب المجموعات الخادمي مع الفرونت ──
-    if(bd&&bd.koOrder){
-      const frontOrder=g=>{const ls=live.standings[g];
-        if(ls&&ls.length>=4&&ls.every(e=>e.code))return ls.slice().sort((x,y)=>(x.rank||9)-(y.rank||9)).map(e=>e.code);
-        const st=realGroupStats(g);
-        return GROUPS[g].slice().sort((x,y)=>st[y].pts-st[x].pts||st[y].gd-st[x].gd||st[y].gf-st[x].gf);};
-      Object.keys(GROUPS).forEach(gr=>{
-        const fo=frontOrder(gr),so=bd.koOrder[gr]||[];
-        if(JSON.stringify(fo)!==JSON.stringify(so))
-          console.warn('⚠️ KO-ORDER '+gr+': فرونت['+fo+'] ≠ باك['+so+']');
-        else console.log('✅ KO-ORDER '+gr+' ['+fo+']');
-      });
-    }
     // الأدمن يثبّت البطل الحقيقي على الخادم (الوحيد الذي يرى البراكت كاملاً)
     if(isAdmin()){const ac=actualChampion();if(ac){try{await sb.rpc('set_champion',{p_code:ac});}catch(e){}}}
+    // ── مصدر الحقيقة الوحيد: نقاط الخادم مباشرة (لا حساب محلي) ──
     boardData=players.map(row=>{
-      const g=row.g||{};const ko=row.ko||{};
-      const r=computePointsForG(g,null,ko); // البونص يأتي من الخادم، لا نحسبه هنا
-      const rk=computePointsForKO(ko,_KO,g);
-      // ── Shadow: مقارنة نقاط المجموعات الخادمية (srvG) مع المحلية ──
-      if(row.srvG){const s=row.srvG,d=[];
-        if(s.total!==r.total)d.push('total '+r.total+'≠'+s.total);
-        if(s.scored!==r.scored)d.push('scored '+r.scored+'≠'+s.scored);
-        if(s.exact!==r.exact)d.push('exact '+r.exact+'≠'+s.exact);
-        if(s.good!==r.good)d.push('good '+r.good+'≠'+s.good);
-        if(s.ok!==r.ok)d.push('ok '+r.ok+'≠'+s.ok);
-        if(s.wrong!==r.wrong)d.push('wrong '+r.wrong+'≠'+s.wrong);
-        if(s.jokerBonus!==r.jokerBonus)d.push('jkr '+r.jokerBonus+'≠'+s.jokerBonus);
-        if(s.bestStreak!==r.bestStreak)d.push('streak '+r.bestStreak+'≠'+s.bestStreak);
-        if(d.length)console.warn('⚠️ SHADOW '+(row.name||row.uid)+': '+d.join(' | '));
-        else console.log('✅ SHADOW '+(row.name||row.uid)+' ('+r.total+')');
-      }
-      // ── Shadow KO: مقارنة نقاط الإقصائيات الخادمية مع المحلية ──
-      if(row.srvKO){const s=row.srvKO,d=[];
-        if(s.total!==rk.total)d.push('total '+rk.total+'≠'+s.total);
-        if(s.scored!==rk.scored)d.push('scored '+rk.scored+'≠'+s.scored);
-        if(s.koExact!==rk.koExact)d.push('exact '+rk.koExact+'≠'+s.koExact);
-        if(s.koGood!==rk.koGood)d.push('good '+rk.koGood+'≠'+s.koGood);
-        if(s.koOk!==rk.koOk)d.push('ok '+rk.koOk+'≠'+s.koOk);
-        if(s.koWrong!==rk.koWrong)d.push('wrong '+rk.koWrong+'≠'+s.koWrong);
-        if(s.jokerBonus!==rk.jokerBonus)d.push('jkr '+rk.jokerBonus+'≠'+s.jokerBonus);
-        if(s.koPredTotal!==rk.koPredTotal)d.push('predT '+rk.koPredTotal+'≠'+s.koPredTotal);
-        if(s.koPenRight!==rk.koPenRight)d.push('pen '+rk.koPenRight+'≠'+s.koPenRight);
-        if(d.length)console.warn('⚠️ SHADOW-KO '+(row.name||row.uid)+': '+d.join(' | '));
-        else console.log('✅ SHADOW-KO '+(row.name||row.uid)+' ('+rk.total+')');
-      }
-      const champB=row.champBonus||0;
-      const exactAll=r.exact+(rk.koExact||0);
-      const goodAll=r.good+(rk.koGood||0);
-      const okAll=r.ok+(rk.koOk||0);
-      const wrongAll=r.wrong+(rk.koWrong||0);
-      const scoredAll=r.scored+(rk.scored||0);
-      const predTotalAll=(r.predTotal||0)+(rk.koPredTotal||0);
+      const sg=row.srvG||{},sk=row.srvKO||{};
+      const cb=row.chalBalance||0,champB=row.champBonus||0;
+      const exactAll=(sg.exact||0)+(sk.koExact||0);
+      const goodAll=(sg.good||0)+(sk.koGood||0);
+      const okAll=(sg.ok||0)+(sk.koOk||0);
+      const wrongAll=(sg.wrong||0)+(sk.koWrong||0);
+      const scoredAll=(sg.scored||0)+(sk.scored||0);
+      const predTotalAll=(sg.predTotal||0)+(sk.koPredTotal||0);
       const acc=scoredAll?Math.round((exactAll+goodAll+okAll)/scoredAll*100):0;
-      const _cb=row.chalBalance||0; return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:_cb,g,ko,total:r.total+rk.total+_cb+champB,baseTotal:r.total+rk.total,koTotal:rk.total,champBonus:champB,scored:scoredAll,exact:exactAll,acc,champ:row.champion||null,koPenRight:rk.koPenRight||0,koPerfect:rk.koPerfect||0,
-        bestStreak:r.bestStreak,jokerBonus:(r.jokerBonus||0)+(rk.jokerBonus||0),wrong:wrongAll,predTotal:predTotalAll,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
+      const total=(row.total!=null)?row.total:((sg.total||0)+(sk.total||0)+cb+champB);
+      return {uid:row.uid,name:(row.name||'لاعب'),status:(row.status||''),chalBal:cb,
+        g:row.g||{},ko:row.ko||{},
+        total,baseTotal:(sg.total||0)+(sk.total||0),koTotal:(sk.total||0),champBonus:champB,
+        scored:scoredAll,exact:exactAll,acc,champ:row.champion||null,
+        koPenRight:sk.koPenRight||0,koPerfect:sk.koPerfect||0,
+        bestStreak:sg.bestStreak||0,jokerBonus:(sg.jokerBonus||0)+(sk.jokerBonus||0),
+        wrong:wrongAll,predTotal:predTotalAll,
+        bigBets:sg.bigBets||0,drawBets:sg.drawBets||0,
+        updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
   }catch(e){console.error('🔴 loadBoard فشل:',e&&e.message?e.message:e,e);boardData=[];}
