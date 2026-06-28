@@ -2444,7 +2444,7 @@ function viewFriend(uid){
       h+=`<div class="mt-card"><div class="mt-row">
         <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
         <div class="mt-scores"><div class="mt-actual num">${predBox}</div>
-          <div class="mt-pred">${sc?`⚽ النتيجة <b>${sc.a}-${sc.b}</b>`:'⏱ لم تنتهِ'}</div>${accK}</div>
+          <div class="mt-pred">${(sc&&sc.status==='post')?`⚽ النتيجة <b>${sc.a}-${sc.b}</b>`:'⏱ لم تنتهِ'}</div>${accK}</div>
         <div class="mt-side away"><span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span></div>
       </div></div>`;
     });
@@ -2746,7 +2746,7 @@ function koMatchCard(m,KO){
   const t=KO.teamsOf[m];const a=t.a,b=t.b;
   const sc=KO.scoreOf[m];const stt=koStatus(m,KO);
   const r=state.ko[m]||{};const has=v=>(v!=null&&v!=='');
-  let actualHtml=sc?`${sc.a} <span style="color:var(--muted-2)">−</span> ${sc.b}`:`<span class="nogame">— : —</span>`;
+  let actualHtml=(sc&&(sc.status==='post'||sc.status==='in'))?`${sc.a} <span style="color:var(--muted-2)">−</span> ${sc.b}`:`<span class="nogame">— : —</span>`;
   const act=koActual(a,b);
   let predHtml=(has(r.hs)&&has(r.as))?`🔮 توقّعك <b>${r.hs}-${r.as}</b>`+(has(r.ehs)&&+r.hs===+r.as?` (إ.إ ${r.ehs}-${r.eas})`:'')+(r.pen?' (ت)':'')+(r.j?' 🃏':''):'🔮 ما توقّعت';
   let pts=act?scoreKO(r,act):null;
@@ -2983,8 +2983,9 @@ function myTeamMatchRow(m,team){
 function myTeamKORow(m,team,KO){
   const t=KO.teamsOf[m];const a=t.a,b=t.b;const sc=KO.scoreOf[m];
   const stt=koStatus(m,KO);
-  const badge=`<span class="mtm-st ${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${roundOf(m)} · ${stt.txt}${sc?'':' · '+koDateLabel(m)}</span>`;
-  const resTxt=sc?`${sc.a} <span class="d">-</span> ${sc.b}`+(sc.status==='post'&&a&&b?winSuffix(m,a,b):''):'<span class="d">— : —</span>';
+  const _scShow=sc&&(sc.status==='post'||sc.status==='in');
+  const badge=`<span class="mtm-st ${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${roundOf(m)} · ${stt.txt}${_scShow?'':' · '+koDateLabel(m)}</span>`;
+  const resTxt=_scShow?`${sc.a} <span class="d">-</span> ${sc.b}`+(sc.status==='post'&&a&&b?winSuffix(m,a,b):''):'<span class="d">— : —</span>';
   const r=state.ko[m]||{};const has=v=>(v!=null&&v!=='');
   const act=(a&&b)?koActual(a,b):null;let pts=act?scoreKO(r,act):null;
   const jok=r.j&&validJokers(state.g,state.ko).has('ko'+m);
