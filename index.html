@@ -1113,15 +1113,26 @@ function computeKOReal(){
     doneG[g]=groupDoneReal(g);
   });
   const asg=realThirdsAssignment();
+  // الثالث الصحيح من مباراة ESPN الفعلية للطرف المعروف (يلغي خطأ CLUS-backtracking)
+  function findThirdFx(m,known){
+    const cl=CLUS[m];if(!cl||!known)return null;
+    for(const g of cl){const tx=realThirdTeam(g);if(!tx)continue;
+      if(liveFor(known,tx))return tx;}   // مباراة فعلية موجودة → هو الثالث
+    return null;
+  }
   const teamsOf={},winnerOf={},loserOf={},scoreOf={};
   function resolve(slot){
     if(slot.t==='W')return winG[slot.g]||null;
     if(slot.t==='R')return runG[slot.g]||null;
-    if(slot.t==='3')return asg?realThirdTeam(asg[slot.m]):null;
+    if(slot.t==='3')return null;          // يُحلّ من المباراة الفعلية في الحلقة
     if(slot.t==='WM')return winnerOf[slot.m]||null;
     if(slot.t==='LM')return loserOf[slot.m]||null;return null;}
   for(let m=73;m<=104;m++){
-    const a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);teamsOf[m]={a,b};
+    let a=resolve(MATCH[m].a),b=resolve(MATCH[m].b);
+    // خانة الثالث: تنحلّ من المباراة الفعلية للطرف المعروف
+    if(MATCH[m].a.t==='3'&&!a&&b)a=findThirdFx(m,b);
+    else if(MATCH[m].b.t==='3'&&!b&&a)b=findThirdFx(m,a);
+    teamsOf[m]={a,b};
     if(a&&b){
       const rec=liveFor(a,b);
       if(rec){
