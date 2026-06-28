@@ -1349,14 +1349,23 @@ function koClampExtra(m){
   if(oh!=null && r.ehs!==''&&r.ehs!=null && +r.ehs<oh) r.ehs=oh;
   if(oa!=null && r.eas!==''&&r.eas!=null && +r.eas<oa) r.eas=oa;
 }
+function koPruneStale(m){
+  // نمسح الحقول اللي صارت غير منطقية بعد تغيير التوقّع (عشان لو رجّع للتعادل يعبّيها من جديد)
+  const r=state.ko[m];if(!r)return;
+  const h=(r.hs===''||r.hs==null)?null:+r.hs, a=(r.as===''||r.as==null)?null:+r.as;
+  const origDraw=(h!=null && a!=null && h===a);
+  if(!origDraw){ delete r.ehs; delete r.eas; delete r.pen; return; } // الأصلي فوز/ناقص → لا إضافي ولا ترجيح
+  const eh=(r.ehs===''||r.ehs==null)?null:+r.ehs, ea=(r.eas===''||r.eas==null)?null:+r.eas;
+  if(eh!=null && ea!=null && eh!==ea) delete r.pen; // الإضافي فيه فائز → لا ترجيح
+}
 function stepKO(m,field,delta){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
   let cur=state.ko[m][field];cur=(cur===''||cur==null)?koFieldMin(m,field):+cur;
-  state.ko[m][field]=Math.max(koFieldMin(m,field),Math.min(99,cur+delta));koClampExtra(m);queueSave();renderPredict();
+  state.ko[m][field]=Math.max(koFieldMin(m,field),Math.min(99,cur+delta));koClampExtra(m);koPruneStale(m);queueSave();renderPredict();
 }
 function setKOinput(m,field,val){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
-  state.ko[m][field]=(val===''||val==null)?'':Math.max(koFieldMin(m,field),Math.min(99,parseInt(val)||0));koClampExtra(m);queueSave();renderPredict();
+  state.ko[m][field]=(val===''||val==null)?'':Math.max(koFieldMin(m,field),Math.min(99,parseInt(val)||0));koClampExtra(m);koPruneStale(m);queueSave();renderPredict();
 }
 function setKOpen(m,winner){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
