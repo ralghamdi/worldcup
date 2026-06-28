@@ -1057,6 +1057,20 @@ function koStartedM(m,a,b){
   if(a&&b){const rec=liveFor(a,b);if(rec&&(rec.status==='in'||rec.status==='post'))return true;}
   const t=koKickoffMs(m);return t?Date.now()>=t:false;
 }
+// انتهت فعلاً (post) — للتصنيف: الجاري يبقى في القادمة حتى ينتهي
+function koFinishedM(m,a,b){
+  if(a&&b){const rec=liveFor(a,b);if(rec&&rec.status==='post')return true;}
+  return false;
+}
+// تفاصيل توقّع الإقصائي (إضافي/ترجيح) للعرض
+function koPredDetail(r,a,b){
+  const has=v=>(v!=null&&v!=='');
+  if(!r||!has(r.hs)||!has(r.as)||+r.hs!==+r.as)return ''; // فوز أصلي أو ناقص → لا تفاصيل إضافية
+  if(!(has(r.ehs)&&has(r.eas)))return '';
+  let s=`إضافي ${r.ehs}-${r.eas}`;
+  if(+r.ehs===+r.eas && r.pen)s+=` · ترجيح ${nm(r.pen==='h'?a:b)}`;
+  return s;
+}
 function koDateLabel(m){
   const s=KO_SCHEDULE[m];if(!s)return'';
   const [dp,tp]=s.split('T');const [y,mo,dd]=dp.split('-').map(Number);
@@ -1191,8 +1205,20 @@ function koActual(a,b){
 }
 function numKN(x){return (x===''||x==null)?null:+x;}
 // نقاط مباراة إقصائية واحدة. pred:{hs,as,ehs,eas,pen}  act: مخرج koActual
+// توقّع إقصائي مكتمل؟ تعادل أصلي لازم إضافي، وتعادل إضافي لازم فائز ترجيح. الناقص = كأنه ما توقّع
+function koPredComplete(r){
+  if(!r)return false;
+  const h=numKN(r.hs),a=numKN(r.as);
+  if(h==null||a==null)return false;   // الأصلي ناقص
+  if(h!==a)return true;               // فوز بالأصلي → مكتمل
+  const eh=numKN(r.ehs),ea=numKN(r.eas);
+  if(eh==null||ea==null)return false; // تعادل أصلي بلا إضافي → ناقص
+  if(eh!==ea)return true;             // فوز بالإضافي → مكتمل
+  return !!r.pen;                     // تعادل إضافي → لازم فائز ترجيح
+}
 function scoreKO(pred,act){
   if(!pred||!act)return 0;
+  if(!koPredComplete(pred))return 0;  // توقّع ناقص = صفر (كأنه ما توقّع هالمباراة)
   const phs=numKN(pred.hs),pas=numKN(pred.as);
   if(phs==null||pas==null)return 0;
   const oh=act.oh,oa=act.oa,decided=act.decided;
@@ -1450,6 +1476,7 @@ function koPredPastCard(m,KO){
       <div class="m-score"><span class="m-box">${has(r.hs)?r.hs:'-'}</span><span class="m-dash">−</span><span class="m-box">${has(r.as)?r.as:'-'}</span></div>
       <div class="m-side away"><span class="m-flag">${fl(b)}</span><span class="m-name">${nm(b)}</span></div>
     </div>
+    ${koPredDetail(r,a,b)?`<div style="text-align:center;font-size:11px;color:var(--gold-bright);margin:0 0 6px">🔮 ${r.hs}-${r.as} · ${koPredDetail(r,a,b)}</div>`:''}
     <div class="res-line"><span class="rl-lbl">النتيجة</span><span class="rl-sc num">${resTxt}</span>${ptsTxt}</div>
   </div>`;
 }
@@ -1467,8 +1494,9 @@ function renderPredictKOInto(host){
     e.innerHTML='🏆 توقّعات الأدوار الإقصائية تنفتح <b>أول ما تتحدّد أطراف كل مباراة</b> — تبدأ بعد اكتمال المجموعات وانطلاق دور الـ32 (28 يونيو).';
     host.appendChild(e);return;
   }
-  const upc=playable.filter(m=>!koStartedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b));
-  const past=playable.filter(m=>koStartedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b));
+  const byNew=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // أحدث → أقدم
+  const past=playable.filter(m=>koFinishedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b)).sort(byNew);
+  const upc=playable.filter(m=>!koFinishedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b)).sort(byNew);
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${koPredSub==='upcoming'?'on':''}" onclick="setKoPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
     <button class="subtab ${koPredSub==='past'?'on':''}" onclick="setKoPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
@@ -2064,7 +2092,9 @@ const STREAK_BONUS=10;         // بونص كل 3 توقّعات مطابقة ت
 const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
 // قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
 // قفل اختيار البطل: مع اكتمال دور المجموعات فعلياً (بدء الإقصائيات) — بالنتائج لا بالوقت
-function champLocked(){return allGroupsDoneReal();}
+// فرصة أخيرة: يبقى الاختيار مفتوحاً حتى 29 يونيو 2026 الساعة 10:00 مساءً (الرياض)
+const CHAMP_GRACE_DEADLINE=new Date('2026-06-29T22:00:00+03:00').getTime();
+function champLocked(){return allGroupsDoneReal() && Date.now()>=CHAMP_GRACE_DEADLINE;}
 // الجواكر الصالحة تراكمياً (مجموعات + إقصائيات معاً): أول maxJokers() بالترتيب الزمني، لمنع أي تلاعب
 function validJokers(g,ko){
   const e=[];
@@ -2137,8 +2167,8 @@ function computePointsForKO(ko,KO,g){
   let total=0,scored=0,jokerBonus=0,koExact=0,koGood=0,koOk=0,koWrong=0,koPredTotal=0,koPerfect=0,koPenRight=0;const per={};
   for(let m=73;m<=104;m++){
     const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
-    const pred=ko[m];if(!pred||pred.hs===''||pred.hs==null||pred.as===''||pred.as==null)continue;
-    koPredTotal++; // توقّع إقصائي مكتمل (مثل predTotal للمجموعات)
+    const pred=ko[m];if(!koPredComplete(pred))continue; // ناقص = كأنه ما توقّع
+    koPredTotal++; // توقّع إقصائي مكتمل
     const act=koActual(t.a,t.b);if(!act)continue;
     let base=scoreKO(pred,act);
     // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — السقف 20
@@ -2493,7 +2523,8 @@ function viewFriend(uid){
       const has=v=>(v!=null&&v!=='');
       const act=koActual(a,b);let pts=act?scoreKO(pr,act):null;
       const jok=pr.j&&validJokers(p.g,p.ko).has('ko'+m);if(pts!=null&&jok)pts*=2;
-      const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}`:'<span class="nogame">— : —</span>';
+      const _det=koPredDetail(pr,a,b);
+      const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}${_det?`<div style="font-size:10px;color:var(--gold-bright);margin-top:2px">${_det}</div>`:''}`:'<span class="nogame">— : —</span>';
       const accK=(pts!=null)?accBadgeKO(pts):'';
       h+=`<div class="mt-card"><div class="mt-row">
         <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
@@ -2625,7 +2656,7 @@ function renderPoints(){
           <div><div class="cl-name head">${nm(state.champion)}</div><div class="cl-tag">🔒 اختيارك مقفل · +${CHAMP_BONUS} لو فاز</div></div></div>`
       : `<div class="champ-none">🔒 أُقفل الاختيار (بدأت الأدوار الإقصائية) ولم تختر بطلاً.</div>`;
   }else{
-    h+=`<div class="champ-sub">اختر منتخباً تتوقّع يرفع الكأس. لو صح = <b style="color:var(--gold-bright)">+${CHAMP_BONUS} نقطة</b>. يُقفل مع بداية الأدوار الإقصائية.</div>
+    h+=`<div class="champ-sub">⏳ <b style="color:var(--gold-bright)">فرصة أخيرة</b> لاختيار أو تغيير البطل حتى <b>الإثنين 29 يونيو 10:00 مساءً</b>. لو صح = <b style="color:var(--gold-bright)">+${CHAMP_BONUS} نقطة</b>. بعدها يُقفل نهائياً.</div>
       <div class="champ-pick"><select onchange="setChampion(this.value)">
         <option value="">— اختر البطل —</option>
         ${Object.keys(GROUPS).map(g=>`<optgroup label="المجموعة ${g}">`+
@@ -2831,8 +2862,9 @@ function renderMatchesKOInto(host){
     e.innerHTML='🏆 مباريات الأدوار الإقصائية الحقيقية تظهر هنا بعد اكتمال دور المجموعات وتحدّد المتأهلين. <br>الأطراف المرشّحة تشوفها في تاب «الأدوار الإقصائية».';
     host.appendChild(e);return;
   }
-  const upc=playable.filter(m=>{const t=KO.teamsOf[m];return !koStartedM(m,t.a,t.b);});
-  const past=playable.filter(m=>{const t=KO.teamsOf[m];return koStartedM(m,t.a,t.b);});
+  const byNewM=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // أحدث → أقدم
+  const upc=playable.filter(m=>{const t=KO.teamsOf[m];return !koFinishedM(m,t.a,t.b);}).sort(byNewM);
+  const past=playable.filter(m=>{const t=KO.teamsOf[m];return koFinishedM(m,t.a,t.b);}).sort(byNewM);
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${matchKoSub==='upcoming'?'on':''}" onclick="setMatchKoSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
     <button class="subtab ${matchKoSub==='past'?'on':''}" onclick="setMatchKoSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
@@ -3884,14 +3916,14 @@ function upcomingUnpredicted(hoursWindow){
   const KO=computeKOReal();
   if(KO.allDone)for(let m=73;m<=104;m++){const tt=KO.teamsOf[m];if(!tt||!tt.a||!tt.b)continue;
     const ms=koKickoffMs(m);if(!ms)continue;const r=state.ko[m];
-    if(ms>now&&ms<=lim&&!(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null))out.push({ko:m});}
+    if(ms>now&&ms<=lim&&!koPredComplete(r))out.push({ko:m});}
   return out;
 }
 function koUnpredictedCount(){
   const KO=computeKOReal();if(!KO.allDone)return 0;
   let n=0;for(let m=73;m<=104;m++){const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
     if(koStartedM(m,t.a,t.b))continue;const r=state.ko[m];
-    if(!(r&&r.hs!==''&&r.hs!=null&&r.as!==''&&r.as!=null))n++;}
+    if(!koPredComplete(r))n++;}
   return n;
 }
 function renderReminder(){
