@@ -2291,6 +2291,20 @@ async function loadBoard(){
         if(d.length)console.warn('⚠️ SHADOW '+(row.name||row.uid)+': '+d.join(' | '));
         else console.log('✅ SHADOW '+(row.name||row.uid)+' ('+r.total+')');
       }
+      // ── Shadow KO: مقارنة نقاط الإقصائيات الخادمية مع المحلية ──
+      if(row.srvKO){const s=row.srvKO,d=[];
+        if(s.total!==rk.total)d.push('total '+rk.total+'≠'+s.total);
+        if(s.scored!==rk.scored)d.push('scored '+rk.scored+'≠'+s.scored);
+        if(s.koExact!==rk.koExact)d.push('exact '+rk.koExact+'≠'+s.koExact);
+        if(s.koGood!==rk.koGood)d.push('good '+rk.koGood+'≠'+s.koGood);
+        if(s.koOk!==rk.koOk)d.push('ok '+rk.koOk+'≠'+s.koOk);
+        if(s.koWrong!==rk.koWrong)d.push('wrong '+rk.koWrong+'≠'+s.koWrong);
+        if(s.jokerBonus!==rk.jokerBonus)d.push('jkr '+rk.jokerBonus+'≠'+s.jokerBonus);
+        if(s.koPredTotal!==rk.koPredTotal)d.push('predT '+rk.koPredTotal+'≠'+s.koPredTotal);
+        if(s.koPenRight!==rk.koPenRight)d.push('pen '+rk.koPenRight+'≠'+s.koPenRight);
+        if(d.length)console.warn('⚠️ SHADOW-KO '+(row.name||row.uid)+': '+d.join(' | '));
+        else console.log('✅ SHADOW-KO '+(row.name||row.uid)+' ('+rk.total+')');
+      }
       const champB=row.champBonus||0;
       const exactAll=r.exact+(rk.koExact||0);
       const goodAll=r.good+(rk.koGood||0);
