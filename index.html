@@ -2147,7 +2147,7 @@ function computePointsForG(g,champ,ko){
 function computePoints(){
   const r=computePointsForG(state.g,state.champion,state.ko);
   const rk=computePointsForKO(state.ko,null,state.g);
-  r.koTotal=rk.total;r.koScored=rk.scored;r.koPer=rk.per;r.grandTotal=r.total+rk.total;
+  r.koTotal=rk.total;r.koScored=rk.scored;r.koPer=rk.per;r.koPerf=rk.perf;r.grandTotal=r.total+rk.total;
   r.jokerBonus=(r.jokerBonus||0)+(rk.jokerBonus||0); // جوكر تراكمي (مجموعات + إقصائيات)
   // دمج تصنيف الدقّة (مجموعات + إقصائيات) في الإحصائيات الشخصية
   r.exact=(r.exact||0)+(rk.koExact||0);
@@ -2164,7 +2164,7 @@ function computePointsForKO(ko,KO,g){
   if(!ko)return {total:0,scored:0,per:{},jokerBonus:0,koExact:0,koGood:0,koOk:0,koWrong:0,koPredTotal:0};
   KO=KO||computeKOReal();
   const jok=validJokers(g,ko);
-  let total=0,scored=0,jokerBonus=0,koExact=0,koGood=0,koOk=0,koWrong=0,koPredTotal=0,koPerfect=0,koPenRight=0;const per={};
+  let total=0,scored=0,jokerBonus=0,koExact=0,koGood=0,koOk=0,koWrong=0,koPredTotal=0,koPerfect=0,koPenRight=0;const per={};const perf={};
   for(let m=73;m<=104;m++){
     const t=KO.teamsOf[m];if(!t||!t.a||!t.b)continue;
     const pred=ko[m];if(!koPredComplete(pred))continue; // ناقص = كأنه ما توقّع
@@ -2173,13 +2173,13 @@ function computePointsForKO(ko,KO,g){
     let base=scoreKO(pred,act);
     // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — السقف 20
     if(base>=11)koExact++;else if(base>=6)koGood++;else if(base>=2)koOk++;else koWrong++;
-    if(base>=17)koPerfect++; // إقصائية شبه مثالية (17-20)
+    if(base>=koMaxForAct(act)){koPerfect++;perf[m]=true;} // إقصائية مثالية: نقاط كاملة لمسارها (12/16/20)
     if(act.decided==='pen'&&pred.pen&&pred.pen===act.pw)koPenRight++; // توقّع فائز الترجيح صح
     let pts=base;
     if(jok.has('ko'+m)){jokerBonus+=base;pts*=2;} // الجوكر يضاعف
     per[m]=pts;total+=pts;if(pts>0)scored++;
   }
-  return {total,scored,per,jokerBonus,koExact,koGood,koOk,koWrong,koPredTotal,koPerfect,koPenRight};
+  return {total,scored,per,perf,jokerBonus,koExact,koGood,koOk,koWrong,koPredTotal,koPerfect,koPenRight};
 }
 
 /* ===== الاحتفال الشخصي بالإنجازات ===== */
@@ -2376,7 +2376,7 @@ async function loadBoard(){
         bestStreak:r.bestStreak,jokerBonus:(r.jokerBonus||0)+(rk.jokerBonus||0),wrong:wrongAll,predTotal:predTotalAll,bigBets:r.bigBets,drawBets:r.drawBets,updated_at:row.updated_at};
     });
     boardData.sort((a,b)=>b.total-a.total||b.exact-a.exact||b.scored-a.scored);
-  }catch(e){boardData=[];}
+  }catch(e){console.error('🔴 loadBoard فشل:',e&&e.message?e.message:e,e);boardData=[];}
 }
 function renderBoard(){
   const host=document.getElementById('boardHost');
@@ -2487,11 +2487,11 @@ function viewFriend(uid){
       const rnd=roundOf(m);if(rnd!==lastR){lastR=rnd;h+=`<div class="day-head"><span class="day-date head">🏆 ${rnd}</span><span class="day-line"></span></div>`;}
       const t=_KOf.teamsOf[m];const a=t.a,b=t.b;const pr=(p.ko||{})[m]||{};const sc=_KOf.scoreOf[m];
       const has=v=>(v!=null&&v!=='');
-      const act=koActual(a,b);let pts=act?scoreKO(pr,act):null;
+      const act=koActual(a,b);let base=act?scoreKO(pr,act):null;let pts=base;
       const jok=pr.j&&validJokers(p.g,p.ko).has('ko'+m);if(pts!=null&&jok)pts*=2;
       const _det=koPredDetail(pr,a,b);
       const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}${_det?`<div style="font-size:10px;color:var(--gold-bright);margin-top:2px">${_det}</div>`:''}`:'<span class="nogame">— : —</span>';
-      const accK=(pts!=null)?accBadgeKO(pts):'';
+      const accK=(base!=null)?accBadgeKO(base,act,pts):'';
       h+=`<div class="mt-card"><div class="mt-row">
         <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
         <div class="mt-scores"><div class="mt-actual num">${predBox}</div>
@@ -2680,7 +2680,7 @@ function renderPoints(){
   let koCells='';
   for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(!t||!t.a||!t.b)continue;
     let cls='hcell ko';
-    if(m in r.koPer){const p=r.koPer[m];cls+=p>=17?' h5':p>=11?' h3':p>=2?' h2':' h0';}
+    if(m in r.koPer){const p=r.koPer[m];cls+=(r.koPerf&&r.koPerf[m])?' h5':p>=6?' h3':p>=2?' h2':' h0';}
     else if(state.ko[m]&&state.ko[m].hs!==''&&state.ko[m].hs!=null){cls+=' hp';}
     else continue;
     koCells+=`<div class="${cls}"></div>`;
@@ -2696,7 +2696,7 @@ function renderPoints(){
 
   // لحظاتك البارزة (التوقّعات المطابقة + الإقصائيات المميّزة)
   const perfect=GM.filter(m=>r.per[m.id]===5);
-  const perfectKO=[];for(let m=73;m<=104;m++){if(r.koPer&&r.koPer[m]>=17)perfectKO.push(m);}
+  const perfectKO=[];for(let m=73;m<=104;m++){if(r.koPerf&&r.koPerf[m])perfectKO.push(m);}
   if(perfect.length||perfectKO.length){
     h+=`<div class="sec-title head">⭐ توقّعاتك المثالية</div>`;
     perfect.forEach(m=>{const pred=state.g[m.id];
@@ -2822,12 +2822,15 @@ function renderMatches(){
 let matchMode='groups', matchModeUserSet=false, matchKoSub='upcoming';
 function setMatchMode(mode){matchMode=mode;matchModeUserSet=true;renderMatches();}
 function setMatchKoSub(s){matchKoSub=s;renderMatches();}
-function accBadgeKO(pts){
-  if(pts==null)return'';
-  if(pts>=8)return '<span class="acc acc5">🎯 +'+pts+'</span>';
-  if(pts>=5)return '<span class="acc acc3">+'+pts+'</span>';
-  if(pts>=2)return '<span class="acc acc2">+'+pts+'</span>';
-  return '<span class="acc acc0">+0</span>';
+function koMaxForAct(act){return !act?12:(act.decided==='pen'?20:act.decided==='extra'?16:12);}
+function accBadgeKO(base,act,displayPts){
+  if(base==null)return '';
+  const showP=(displayPts==null?base:displayPts);
+  const mx=koMaxForAct(act);
+  if(base>=mx)return '<span class="acc acc5">🎯 +'+showP+'</span>'; // مثالي: نقاط كاملة لمسار المباراة
+  if(base>=6)return '<span class="acc acc3">🟢 +'+showP+'</span>';
+  if(base>=2)return '<span class="acc acc2">🟡 +'+showP+'</span>';
+  return '<span class="acc acc0">🔴 +'+showP+'</span>';
 }
 function koMatchCard(m,KO){
   const t=KO.teamsOf[m];const a=t.a,b=t.b;
@@ -2836,9 +2839,9 @@ function koMatchCard(m,KO){
   let actualHtml=(sc&&(sc.status==='post'||sc.status==='in'))?`${sc.a} <span style="color:var(--muted-2)">−</span> ${sc.b}`:`<span class="nogame">— : —</span>`;
   const act=koActual(a,b);
   let predHtml=(has(r.hs)&&has(r.as))?`🔮 توقّعك <b>${r.hs}-${r.as}</b>`+(has(r.ehs)&&+r.hs===+r.as?` (إ.إ ${r.ehs}-${r.eas})`:'')+(r.pen?' (ت)':'')+(r.j?' 🃏':''):'🔮 ما توقّعت';
-  let pts=act?scoreKO(r,act):null;
+  let base=act?scoreKO(r,act):null;let pts=base;
   if(pts!=null&&r.j&&validJokers(state.g,state.ko).has('ko'+m))pts*=2;
-  let accHtml=(pts!=null)?accBadgeKO(pts):'';
+  let accHtml=(base!=null)?accBadgeKO(base,act,pts):'';
   const aName=a?`<span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span>`:`<span class="mt-name slot">${esc(phText(MATCH[m].a))}</span>`;
   const bName=b?`<span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span>`:`<span class="mt-name slot">${esc(phText(MATCH[m].b))}</span>`;
   const el=document.createElement('div');
