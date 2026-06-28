@@ -2703,6 +2703,8 @@ let matchSub='upcoming';
 function setMatchSub(s){matchSub=s;renderMatches();}
 function renderMatches(){
   const host=document.getElementById('matchesHost');host.innerHTML="";
+  // افتراضياً: الإقصائيات لو خلصت المجموعات (ما لم يبدّل المستخدم يدوياً)
+  if(!matchModeUserSet){try{matchMode=allGroupsDoneReal()?'ko':'groups';}catch(e){}}
   const mt=document.createElement('div');mt.className='toggle-wrap';
   mt.innerHTML=`<button class="toggle-btn ${matchMode==='groups'?'on':''}" onclick="setMatchMode('groups')">⚽ المجموعات</button>
     <button class="toggle-btn ${matchMode==='ko'?'on':''}" onclick="setMatchMode('ko')">🏆 الإقصائيات</button>`;
@@ -2732,8 +2734,8 @@ function renderMatches(){
     host.appendChild(matchCard(m));
   });
 }
-let matchMode='groups', matchKoSub='upcoming';
-function setMatchMode(mode){matchMode=mode;renderMatches();}
+let matchMode='groups', matchModeUserSet=false, matchKoSub='upcoming';
+function setMatchMode(mode){matchMode=mode;matchModeUserSet=true;renderMatches();}
 function setMatchKoSub(s){matchKoSub=s;renderMatches();}
 function accBadgeKO(pts){
   if(pts==null)return'';
