@@ -2478,6 +2478,28 @@ function viewFriend(uid){
       ${row('أطول سلسلة 🔥',me.bestStreak,p.bestStreak)}
     </div>`;
   }
+  // مباريات الصديق الإقصائية (تظهر بعد بدئها — منع النسخ)
+  const _KOf=computeKOReal();
+  const koShown=[];for(let m=73;m<=104;m++){const t=_KOf.teamsOf[m];if(t&&t.a&&t.b&&koStartedM(m,t.a,t.b))koShown.push(m);}
+  if(koShown.length){
+    let lastR='';
+    koShown.sort((a,b)=>(koKickoffMs(b)||0)-(koKickoffMs(a)||0)).forEach(m=>{
+      const rnd=roundOf(m);if(rnd!==lastR){lastR=rnd;h+=`<div class="day-head"><span class="day-date head">🏆 ${rnd}</span><span class="day-line"></span></div>`;}
+      const t=_KOf.teamsOf[m];const a=t.a,b=t.b;const pr=(p.ko||{})[m]||{};const sc=_KOf.scoreOf[m];
+      const has=v=>(v!=null&&v!=='');
+      const act=koActual(a,b);let pts=act?scoreKO(pr,act):null;
+      const jok=pr.j&&validJokers(p.g,p.ko).has('ko'+m);if(pts!=null&&jok)pts*=2;
+      const _det=koPredDetail(pr,a,b);
+      const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}${_det?`<div style="font-size:10px;color:var(--gold-bright);margin-top:2px">${_det}</div>`:''}`:'<span class="nogame">— : —</span>';
+      const accK=(pts!=null)?accBadgeKO(pts):'';
+      h+=`<div class="mt-card"><div class="mt-row">
+        <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
+        <div class="mt-scores"><div class="mt-actual num">${predBox}</div>
+          <div class="mt-pred">${(sc&&sc.status==='post')?`⚽ النتيجة <b>${sc.a}-${sc.b}</b>`:'⏱ لم تنتهِ'}</div>${accK}</div>
+        <div class="mt-side away"><span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span></div>
+      </div></div>`;
+    });
+  }
   let lastDay="";
   const fjok=validJokers(p.g,p.ko);
   const dayNo={};let dn=0;
@@ -2512,28 +2534,6 @@ function viewFriend(uid){
       <div class="mt-side away"><span class="mt-flag">${fl(m.B)}</span><span class="mt-name">${nm(m.B)}</span></div>
     </div></div>`;
   });
-  // مباريات الصديق الإقصائية (تظهر بعد بدئها — منع النسخ)
-  const _KOf=computeKOReal();
-  const koShown=[];for(let m=73;m<=104;m++){const t=_KOf.teamsOf[m];if(t&&t.a&&t.b&&koStartedM(m,t.a,t.b))koShown.push(m);}
-  if(koShown.length){
-    let lastR='';
-    koShown.sort((a,b)=>(koKickoffMs(b)||0)-(koKickoffMs(a)||0)).forEach(m=>{
-      const rnd=roundOf(m);if(rnd!==lastR){lastR=rnd;h+=`<div class="day-head"><span class="day-date head">🏆 ${rnd}</span><span class="day-line"></span></div>`;}
-      const t=_KOf.teamsOf[m];const a=t.a,b=t.b;const pr=(p.ko||{})[m]||{};const sc=_KOf.scoreOf[m];
-      const has=v=>(v!=null&&v!=='');
-      const act=koActual(a,b);let pts=act?scoreKO(pr,act):null;
-      const jok=pr.j&&validJokers(p.g,p.ko).has('ko'+m);if(pts!=null&&jok)pts*=2;
-      const _det=koPredDetail(pr,a,b);
-      const predBox=(has(pr.hs)&&has(pr.as))?`${pr.hs} <span style="color:var(--muted-2)">−</span> ${pr.as}${jok?' 🃏':''}${_det?`<div style="font-size:10px;color:var(--gold-bright);margin-top:2px">${_det}</div>`:''}`:'<span class="nogame">— : —</span>';
-      const accK=(pts!=null)?accBadgeKO(pts):'';
-      h+=`<div class="mt-card"><div class="mt-row">
-        <div class="mt-side"><span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span></div>
-        <div class="mt-scores"><div class="mt-actual num">${predBox}</div>
-          <div class="mt-pred">${(sc&&sc.status==='post')?`⚽ النتيجة <b>${sc.a}-${sc.b}</b>`:'⏱ لم تنتهِ'}</div>${accK}</div>
-        <div class="mt-side away"><span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span></div>
-      </div></div>`;
-    });
-  }
   host.innerHTML=h;window.scrollTo(0,0);
 }
 // تاريخ النقاط الحقيقي: تراكمي يوم بيوم من النتائج الفعلية
