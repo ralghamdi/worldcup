@@ -1917,7 +1917,7 @@ function renderKnockout(){
   ];
   rounds.forEach(r=>{
     h+=`<div class="ko-round-h">${r.t}</div>`;
-    r.ms.forEach(m=>{h+=koCard(m,KO);});
+    r.ms.slice().sort((x,y)=>(koKickoffMs(x)||0)-(koKickoffMs(y)||0)).forEach(m=>{h+=koCard(m,KO);}); // ترتq بالوقت: الأقرب أولاً
   });
   host.innerHTML=h;
 }
