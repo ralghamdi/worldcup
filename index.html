@@ -1494,9 +1494,10 @@ function renderPredictKOInto(host){
     e.innerHTML='🏆 توقّعات الأدوار الإقصائية تنفتح <b>أول ما تتحدّد أطراف كل مباراة</b> — تبدأ بعد اكتمال المجموعات وانطلاق دور الـ32 (28 يونيو).';
     host.appendChild(e);return;
   }
-  const byNew=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // أحدث → أقدم
+  const byNew=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // السابقة: أحدث أولاً
+  const bySoon=(x,y)=>(koKickoffMs(x)||0)-(koKickoffMs(y)||0); // القادمة: الأقرب أولاً (بالوقت)
   const past=playable.filter(m=>koFinishedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b)).sort(byNew);
-  const upc=playable.filter(m=>!koFinishedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b)).sort(byNew);
+  const upc=playable.filter(m=>!koFinishedM(m,KO.teamsOf[m].a,KO.teamsOf[m].b)).sort(bySoon);
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${koPredSub==='upcoming'?'on':''}" onclick="setKoPredSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
     <button class="subtab ${koPredSub==='past'?'on':''}" onclick="setKoPredSub('past')">السابقة <span class="cnt">${past.length}</span></button>`;
@@ -2879,8 +2880,9 @@ function renderMatchesKOInto(host){
     e.innerHTML='🏆 مباريات الأدوار الإقصائية الحقيقية تظهر هنا بعد اكتمال دور المجموعات وتحدّد المتأهلين. <br>الأطراف المرشّحة تشوفها في تاب «الأدوار الإقصائية».';
     host.appendChild(e);return;
   }
-  const byNewM=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // أحدث → أقدم
-  const upc=playable.filter(m=>{const t=KO.teamsOf[m];return !koFinishedM(m,t.a,t.b);}).sort(byNewM);
+  const byNewM=(x,y)=>(koKickoffMs(y)||0)-(koKickoffMs(x)||0); // السابقة: أحدث أولاً
+  const bySoonM=(x,y)=>(koKickoffMs(x)||0)-(koKickoffMs(y)||0); // القادمة: الأقرب أولاً (بالوقت)
+  const upc=playable.filter(m=>{const t=KO.teamsOf[m];return !koFinishedM(m,t.a,t.b);}).sort(bySoonM);
   const past=playable.filter(m=>{const t=KO.teamsOf[m];return koFinishedM(m,t.a,t.b);}).sort(byNewM);
   const st=document.createElement('div');st.className='subtabs';
   st.innerHTML=`<button class="subtab ${matchKoSub==='upcoming'?'on':''}" onclick="setMatchKoSub('upcoming')">القادمة <span class="cnt">${upc.length}</span></button>
