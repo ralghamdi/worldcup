@@ -2835,6 +2835,7 @@ function accBadgeKO(base,act,displayPts){
 function koMatchCard(m,KO){
   const t=KO.teamsOf[m];const a=t.a,b=t.b;
   const sc=KO.scoreOf[m];const stt=koStatus(m,KO);
+  const rec=(a&&b)?liveFor(a,b):null;
   const r=state.ko[m]||{};const has=v=>(v!=null&&v!=='');
   let actualHtml=(sc&&(sc.status==='post'||sc.status==='in'))?`${sc.a} <span style="color:var(--muted-2)">−</span> ${sc.b}`:`<span class="nogame">— : —</span>`;
   const act=koActual(a,b);
@@ -2853,6 +2854,19 @@ function koMatchCard(m,KO){
       <div class="mt-scores"><div class="mt-actual num">${actualHtml}</div></div>
       <div class="mt-side away">${bName}</div>
     </div>`;
+  // الأحداث (أهداف/كروت/تبديلات) — نفس عرu ض المجموعqات
+  const evs=(rec&&rec.events)?rec.events:[];
+  if(evs.length){
+    const home=rec.home_code,away=rec.away_code;
+    const colA=evs.filter(e=>evDisplayTeam(e,home,away)===a).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
+    const colB=evs.filter(e=>evDisplayTeam(e,home,away)===b).sort((x,y)=>minVal(x.minute)-minVal(y.minute));
+    const renderCol=(arr)=>arr.map(e=>`<div class="ev ${esc(e.kind)}">
+      <span class="ev-ico">${evIcon(e.kind)}</span><span class="ev-min">${esc(e.minute)}</span>
+      <span class="ev-txt">${evLabel(e)}</span></div>`).join('')||'<div class="ev" style="color:var(--muted-2)">—</div>';
+    const wrap=document.createElement('div');wrap.className='mt-events';
+    wrap.innerHTML=`<div class="mt-col">${renderCol(colA)}</div><div class="mt-col away">${renderCol(colB)}</div>`;
+    el.appendChild(wrap);
+  }
   return el;
 }
 function renderMatchesKOInto(host){
