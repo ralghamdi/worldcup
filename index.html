@@ -1335,14 +1335,28 @@ let predMode='groups'; // groups | ko
 let koPredSub='upcoming';
 function setPredMode(mode){predMode=mode;renderPredict();}
 function setKoPredSub(s){koPredSub=s;renderPredict();}
+function koFieldMin(m,field){
+  // خانة الإضافي: حدّها الأدنى = رقم نفس الطرف في الوقت الأصلي (ما تنزل عنه)
+  const r=state.ko[m]||{};
+  if(field==='ehs')return (r.hs===''||r.hs==null)?0:+r.hs;
+  if(field==='eas')return (r.as===''||r.as==null)?0:+r.as;
+  return 0;
+}
+function koClampExtra(m){
+  // أمان: لو تغيّر الأصلي بعد تعبئة الإضافي، نرفع الإضافي للحد الأدنى الجديد
+  const r=state.ko[m];if(!r)return;
+  const oh=(r.hs===''||r.hs==null)?null:+r.hs, oa=(r.as===''||r.as==null)?null:+r.as;
+  if(oh!=null && r.ehs!==''&&r.ehs!=null && +r.ehs<oh) r.ehs=oh;
+  if(oa!=null && r.eas!==''&&r.eas!=null && +r.eas<oa) r.eas=oa;
+}
 function stepKO(m,field,delta){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
-  let cur=state.ko[m][field];cur=(cur===''||cur==null)?0:+cur;
-  state.ko[m][field]=Math.max(0,Math.min(99,cur+delta));queueSave();renderPredict();
+  let cur=state.ko[m][field];cur=(cur===''||cur==null)?koFieldMin(m,field):+cur;
+  state.ko[m][field]=Math.max(koFieldMin(m,field),Math.min(99,cur+delta));koClampExtra(m);queueSave();renderPredict();
 }
 function setKOinput(m,field,val){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
-  state.ko[m][field]=(val===''||val==null)?'':Math.max(0,Math.min(99,parseInt(val)||0));queueSave();renderPredict();
+  state.ko[m][field]=(val===''||val==null)?'':Math.max(koFieldMin(m,field),Math.min(99,parseInt(val)||0));koClampExtra(m);queueSave();renderPredict();
 }
 function setKOpen(m,winner){
   if(myFrozen)return;if(!state.ko[m])state.ko[m]={};
@@ -1350,9 +1364,10 @@ function setKOpen(m,winner){
 }
 function koStepperHtml(m,field,val,dis){
   const filled=(val!=null&&val!=='');
+  const mn=koFieldMin(m,field);
   return `<div class="score-stepper">
     <button class="step-btn" onclick="stepKO(${m},'${field}',1)" ${dis}>+</button>
-    <input type="number" min="0" inputmode="numeric" value="${filled?val:''}" ${dis} class="${filled?'filled':''}" onchange="setKOinput(${m},'${field}',this.value)">
+    <input type="number" min="${mn}" inputmode="numeric" value="${filled?val:''}" ${dis} class="${filled?'filled':''}" onchange="setKOinput(${m},'${field}',this.value)">
     <button class="step-btn" onclick="stepKO(${m},'${field}',-1)" ${dis}>−</button>
   </div>`;
 }
@@ -1372,7 +1387,7 @@ function koPredCard(m,KO){
     </div>`;
   if(origDraw){
     h+=`<div class="kop-stage">
-      <div class="kop-lbl">⏱️ الأشواط الإضافية <small>توقّعت تعادل ${r.hs}-${r.as} بالوقت الأصلي</small></div>
+      <div class="kop-lbl">⏱️ الأشواط الإضافية <small>النتيجة النهائية بعد الإضافي · ارفع طرفاً للفوز، أو خلّها ${r.hs}-${r.as} للترجيح</small></div>
       <div class="m-row">
         <div class="m-side"><span class="m-flag">${fl(a)}</span><span class="m-name">${nm(a)}</span></div>
         <div class="m-score">${koStepperHtml(m,'ehs',r.ehs,dis)}<span class="m-dash">−</span>${koStepperHtml(m,'eas',r.eas,dis)}</div>
