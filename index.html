@@ -1331,9 +1331,9 @@ function matchFinished(m){const rec=liveFor(m.A,m.B);return !!(rec&&rec.status==
 let predSub='upcoming';
 function setPredSub(s){predSub=s;renderPredict();}
 /* ===== توقّعات الأدوار الإقصائية (نفس شكل المجموعات + شروط داخل البطاقة) ===== */
-let predMode='groups'; // groups | ko
+let predMode='groups', predModeUserSet=false; // groups | ko
 let koPredSub='upcoming';
-function setPredMode(mode){predMode=mode;renderPredict();}
+function setPredMode(mode){predMode=mode;predModeUserSet=true;renderPredict();}
 function setKoPredSub(s){koPredSub=s;renderPredict();}
 function koFieldMin(m,field){
   // خانة الإضافي: حدّها الأدنى = رقم نفس الطرف في الوقت الأصلي (ما تنزل عنه)
@@ -1403,7 +1403,11 @@ function koPredCard(m,KO){
     }
   }
   if(locked)h+=`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`;
-  else h+=`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJokerKO(${m})">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>`;
+  else{
+    const jokExhausted=!hasJoker && jokerCount(state.g,state.ko)>=maxJokers();
+    if(jokExhausted)h+=`<div class="m-joker"><button class="joker-btn" disabled>🃏 خلصت جواكرك (${maxJokers()}/${maxJokers()})</button></div>`;
+    else h+=`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJokerKO(${m})">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>`;
+  }
   h+=`</div>`;return h;
 }
 function toggleJokerKO(m){
@@ -1480,6 +1484,7 @@ function renderPredict(){
   const host=document.getElementById('predictHost');host.innerHTML="";
   if(myFrozen){host.innerHTML=`<div class="frozen-banner">🔒 حسابك مجمّد من الإدارة مؤقتاً. لا يمكنك التوقّع حالياً. تواصل مع اللجنة.</div>`;return;}
   const mt=document.createElement('div');mt.className='toggle-wrap pred-modes';
+  if(!predModeUserSet){try{predMode=allGroupsDoneReal()?'ko':'groups';}catch(e){}}
   mt.innerHTML=`<button class="toggle-btn ${predMode==='groups'?'on':''}" onclick="setPredMode('groups')">⚽ المجموعات</button>
     <button class="toggle-btn ${predMode==='ko'?'on':''}" onclick="setPredMode('ko')">🏆 الإقصائيات</button>`;
   host.appendChild(mt);
@@ -1570,7 +1575,7 @@ function renderPredict(){
     </div>
     ${liveHtml}
     ${locked?(liveHtml?'':`<div class="m-time">🔒 بدأت — التوقّع مقفل${hasJoker?' · 🃏 ×2':''}</div>`)
-      :`<div class="m-joker"><button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJoker('${m.id}')">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button></div>
+      :`<div class="m-joker">${(!hasJoker && jokerCount(state.g,state.ko)>=maxJokers())?`<button class="joker-btn" disabled>🃏 خلصت جواكرك (${maxJokers()}/${maxJokers()})</button>`:`<button class="joker-btn ${hasJoker?'on':''}" onclick="toggleJoker('${m.id}')">🃏 ${hasJoker?'جوكر مفعّل ×2':'حط جوكر'}</button>`}</div>
         <div class="m-time">⏱ ${m.tm.t}</div>`}`;
     host.appendChild(el);
   });
