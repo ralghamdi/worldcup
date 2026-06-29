@@ -2565,8 +2565,12 @@ function renderPoints(){
   const host=document.getElementById('pointsHost');
   const r=computePoints();
   const acc=r.scored?Math.round((r.exact+r.good+r.ok)/r.scored*100):0;
+  // نقرأ رصيد التحدّي ورقم الترتيب من اللوحة (نفس رقم صفحة الترتيب)
+  const myBoard=(typeof boardData!=='undefined'&&boardData)?boardData.find(p=>p.uid===user.id):null;
+  const myChal=myBoard?(myBoard.chalBal||0):0;
+  const displayTotal=(myBoard&&myBoard.total!=null)?myBoard.total:(r.grandTotal+myChal);
 
-  let h=`<div class="pts-hero"><div class="big num">${r.grandTotal}</div><div class="lbl">نقطة</div>
+  let h=`<div class="pts-hero"><div class="big num">${displayTotal}</div><div class="lbl">نقطة</div>
     <div class="sub">${r.total} مجموعات + ${r.koTotal} إقصائيات · دقّة ${acc}%</div></div>`;
 
   h+=`<div class="pts-break">
@@ -2590,6 +2594,10 @@ function renderPoints(){
   h+=`<div class="bonus-row"><span class="br-ico">🎯</span>
     <span class="br-t">توقّع البطل <small>${r.champ?fl(r.champ)+' '+nm(r.champ):'لم تختر بعد'} · +${CHAMP_BONUS} لو صح</small></span>
     <span class="br-v">${r.champBonus?'+'+r.champBonus:'—'}</span></div>`;
+  // خسارة/رصيد التحدّيات (نفس ما يظهر في الترتيب — عشان الرقم يتطابق)
+  if(myChal){h+=`<div class="bonus-row"><span class="br-ico">⚔️</span>
+    <span class="br-t">التحدّيات <small>${myChal<0?'خسارة تحدّي · راحت نقاطك':'رصيد التحدّيات'}</small></span>
+    <span class="br-v" style="color:var(--bad)">${myChal}</span></div>`;}
 
   // حالتي (تظهر تحت اسمك في الترتيب العام)
   h+=`<div class="champ-card"><div class="tricolor"></div>
@@ -2800,6 +2808,11 @@ function koMatchCard(m,KO){
   let accHtml=(base!=null)?accBadgeKO(base,act,pts):'';
   const aName=a?`<span class="mt-flag">${fl(a)}</span><span class="mt-name">${nm(a)}</span>`:`<span class="mt-name slot">${esc(phText(MATCH[m].a))}</span>`;
   const bName=b?`<span class="mt-flag">${fl(b)}</span><span class="mt-name">${nm(b)}</span>`:`<span class="mt-name slot">${esc(phText(MATCH[m].b))}</span>`;
+  // توقّع الأغلبية (للمباريات اللي بدأت فقط — نفس المجموعات)
+  const koStarted2=(sc&&(sc.status==='in'||sc.status==='post'));
+  const maj=koStarted2?majorityForKO(m,a,b):null;
+  const jokTxt=(maj&&maj.jokers>0)?` · 🃏 ${maj.jokers} ${maj.jokers===1?'جوكر':'جواكر'}`:'';
+  const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب${jokTxt}</div>`:'';
   const el=document.createElement('div');
   el.className='mt-card'+(sc&&sc.status==='in'?' live':'');
   el.innerHTML=`<span class="mt-status st-${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${stt.txt}</span>
@@ -2808,7 +2821,7 @@ function koMatchCard(m,KO){
       <div class="mt-side">${aName}</div>
       <div class="mt-scores"><div class="mt-actual num">${actualHtml}</div></div>
       <div class="mt-side away">${bName}</div>
-    </div>`;
+    </div>${majHtml}`;
   // الأحداث (أهداف/كروت/تبديلات) — نفس عرu ض المجموعqات
   const evs=(rec&&rec.events)?rec.events:[];
   if(evs.length){
@@ -2866,6 +2879,20 @@ function majorityFor(m){
   if(!tot)return null;
   const top=Math.max(hw,dr,aw);let lbl;
   if(hw===top)lbl='فوز '+nm(m.A);else if(aw===top)lbl='فوز '+nm(m.B);else lbl='تعادل';
+  let ts=null,tn=0;Object.keys(sc).forEach(k=>{if(sc[k]>tn){tn=sc[k];ts=k;}});
+  return {tot,lbl,pct:Math.round(top/tot*100),ts,tsPct:Math.round(tn/tot*100),jokers};
+}
+// نسخة الإقصائيات: تقرأ p.ko[m] (النتيجة الأصلية hs/as)
+function majorityForKO(m,a,b){
+  if(!boardData||!boardData.length)return null;
+  let hw=0,dr=0,aw=0,tot=0,jokers=0;const sc={};
+  boardData.forEach(p=>{const pr=(p.ko||{})[m];if(!pr||pr.hs===''||pr.hs==null||pr.as===''||pr.as==null)return;
+    tot++;const hh=+pr.hs,aa=+pr.as;if(hh>aa)hw++;else if(aa>hh)aw++;else dr++;
+    if(pr.j)jokers++;
+    const k=hh+'-'+aa;sc[k]=(sc[k]||0)+1;});
+  if(!tot)return null;
+  const top=Math.max(hw,dr,aw);let lbl;
+  if(hw===top)lbl='فوز '+nm(a);else if(aw===top)lbl='فوز '+nm(b);else lbl='تعادل';
   let ts=null,tn=0;Object.keys(sc).forEach(k=>{if(sc[k]>tn){tn=sc[k];ts=k;}});
   return {tot,lbl,pct:Math.round(top/tot*100),ts,tsPct:Math.round(tn/tot*100),jokers};
 }
@@ -3926,7 +3953,7 @@ function showTab(name,btn){
   startLiveRefresh();
   if(name==='predict'){spin(1);loadLive().then(()=>{spin(0);renderPredict();});}
   if(name==='stats'){spin(1);loadLive().then(()=>{if(statSub==='predictions')loadBoard().then(()=>{spin(0);renderStats();});else{spin(0);renderStats();}});}
-  if(name==='points'){spin(1);loadLive().then(()=>{spin(0);renderPoints();});}
+  if(name==='points'){spin(1);Promise.all([loadLive(),loadBoard()]).then(()=>{spin(0);renderPoints();});}
   if(name==='knockout'){spin(1);loadLive().then(()=>{spin(0);renderKnockout();});}
   if(name==='board'){spin(1);loadBoard().then(()=>{spin(0);renderBoard();});}
   if(name==='challenges'){spin(1);Promise.all([loadBoard(),loadChallenges()]).then(()=>{spin(0);renderChallenges();});}
