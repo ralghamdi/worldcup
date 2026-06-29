@@ -455,6 +455,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);ove
 .ko-mid{flex:none;min-width:54px;text-align:center}
 .ko-sc{font-family:'Anton';font-size:18px;color:var(--text);letter-spacing:1px}
 .ko-sc.live{color:var(--text)}
+.ko-pen{font-size:11px;color:var(--gold-bright);font-weight:700;margin-top:3px;text-align:center}
+.ko-path{font-size:10px;color:var(--muted);margin-top:2px;text-align:center}
 .ko-sc .ko-d{color:var(--muted-2)}
 .ko-vs{font-family:'Anton';font-size:13px;color:var(--muted-2)}
 /* توقّع الإقصائيات */
@@ -1878,15 +1880,23 @@ function koStatus(m,KO){
 function koCard(m,KO){
   const t=KO.teamsOf[m]||{};const sc=KO.scoreOf[m];const win=KO.winnerOf[m];
   const aT=t.a,bT=t.b;
+  const rec=(aT&&bT)?liveFor(aT,bT):null;
   const aWin=!!(win&&win===aT),bWin=!!(win&&win===bT);
   let mid;
   if(sc&&(sc.status==='in'||sc.status==='post')){
     const liveNow=sc.status==='in';
-    mid=`<span class="ko-sc${liveNow?' live':''}">${sc.a} <span class="ko-d">-</span> ${sc.b}</span>`;
+    let penTxt='';
+    if(rec&&rec.shootout_home!=null&&rec.shootout_away!=null){
+      const shA=(rec.home_code===aT)?rec.shootout_home:rec.shootout_away;
+      const shB=(rec.home_code===aT)?rec.shootout_away:rec.shootout_home;
+      penTxt=`<div class="ko-pen">🥅 ترجيح ${shA}-${shB}</div>`;
+    }
+    mid=`<span class="ko-sc${liveNow?' live':''}">${sc.a} <span class="ko-d">-</span> ${sc.b}</span>${penTxt}`;
   }else mid=`<span class="ko-vs">VS</span>`;
   const stt=koStatus(m,KO);
+  const liveMin=(rec&&rec.status_detail)?String(rec.status_detail):'';
   return `<div class="ko-card${win?' done':''}${sc&&sc.status==='in'?' livecard':''}">
-    <div class="ko-cap"><span class="ko-stat ${stt.cls}">${stt.txt}</span><span class="ko-mn">م${m} · ${koDateLabel(m)}</span></div>
+    <div class="ko-cap"><span class="ko-stat ${stt.cls}">${stt.txt}${(stt.cls==='live'&&liveMin)?' '+esc(liveMin):''}</span><span class="ko-mn">م${m} · ${koDateLabel(m)}</span></div>
     <div class="ko-body">
       <div class="ko-side">${koSideHtml(aT,MATCH[m].a,aWin)}</div>
       <div class="ko-mid">${mid}</div>
@@ -2848,13 +2858,25 @@ function koMatchCard(m,KO){
   const maj=koStarted2?majorityForKO(m,a,b):null;
   const jokTxt=(maj&&maj.jokers>0)?` · 🃏 ${maj.jokers} ${maj.jokers===1?'جوكر':'جواكر'}`:'';
   const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب${jokTxt}</div>`:'';
+  const liveMin=(rec&&rec.status_detail)?String(rec.status_detail):'';
+  let penHtml='',pathHtml='';
+  if(rec&&rec.shootout_home!=null&&rec.shootout_away!=null){
+    const shA=(rec.home_code===a)?rec.shootout_home:rec.shootout_away;
+    const shB=(rec.home_code===a)?rec.shootout_away:rec.shootout_home;
+    const win=(shA>shB)?nm(a):(shB>shA)?nm(b):'';
+    penHtml=`<div class="ko-pen">🥅 ترجيح <b>${shA} - ${shB}</b>${win?` · تأهّل ${win}`:''}</div>`;
+  }
+  if(sc&&sc.status==='post'&&act){
+    if(act.decided==='extra')pathHtml='<div class="ko-path">⏱ بعد الوقت الإضافي</div>';
+    else if(act.decided==='pen')pathHtml='<div class="ko-path">⏱ بعد ركلات الترجيح</div>';
+  }
   const el=document.createElement('div');
   el.className='mt-card'+(sc&&sc.status==='in'?' live':'');
-  el.innerHTML=`<span class="mt-status st-${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${stt.txt}</span>
+  el.innerHTML=`<span class="mt-status st-${stt.cls==='live'?'live':stt.cls==='post'?'post':'pre'}">${stt.txt}${(stt.cls==='live'&&liveMin)?' · '+esc(liveMin):''}</span>
     <div class="ko-mt-round">${roundOf(m)} · ${koDateLabel(m)}</div>
     <div class="mt-row">
       <div class="mt-side">${aName}</div>
-      <div class="mt-scores"><div class="mt-actual num">${actualHtml}</div></div>
+      <div class="mt-scores"><div class="mt-actual num">${actualHtml}</div>${penHtml}${pathHtml}</div>
       <div class="mt-side away">${bName}</div>
     </div>${majHtml}`;
   // الأحداث (أهداف/كروت/تبديلات) — نفس عرu ض المجموعqات
@@ -2951,7 +2973,7 @@ function matchCard(m){
 
   // شارة الحالة
   let badge='';
-  if(status==='in')badge='<span class="mt-status st-live">🔴 جارية</span>';
+  if(status==='in'){const lm=(rec&&rec.status_detail)?String(rec.status_detail):'';badge='<span class="mt-status st-live">🔴 جارية'+(lm?' · '+esc(lm):'')+'</span>';}
   else if(status==='post')badge='<span class="mt-status st-post">انتهت</span>';
   else badge='<span class="mt-status st-pre">⏱ '+m.tm.t+'</span>';
 
