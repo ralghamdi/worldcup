@@ -2188,26 +2188,43 @@ function computePointsForKO(ko,KO,g){
 function checkCelebration(){
   const r=computePoints();
   const exactIds=GM.filter(m=>r.per[m.id]===5).map(m=>m.id);
+  const koPerfIds=[];for(let m=73;m<=104;m++){if(r.koPerf&&r.koPerf[m])koPerfIds.push(m);}
   // أول مرة: نسجّل الحالة بدون احتفال (ما نحتفل بالقديم)
   if(state.seenExact===undefined||state.seenStreak===undefined){
-    state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;queueSave();return false;
+    state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;state.seenKoPerfIds=koPerfIds;queueSave();return false;
   }
   const prevIds=state.seenExactIds||exactIds; // لو ما فيه قائمة سابقة نعتبر الكل مشاهَد
   const newExactIds=exactIds.filter(id=>!prevIds.includes(id));
+  const prevKoPerf=state.seenKoPerfIds||koPerfIds;
+  const newKoPerfIds=koPerfIds.filter(m=>!prevKoPerf.includes(m));
   const newExact=r.exact-(state.seenExact||0);
   const newStreak=(r.bestStreak>(state.seenStreak||0))?r.bestStreak:0;
-  const newKoPerfect=(r.koPerfect||0)-(state.seenKoPerfect||0);
-  const changed=(state.seenExact!==r.exact)||(state.seenStreak!==r.bestStreak)||(state.seenKoPerfect!==(r.koPerfect||0));
-  state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;
+  const newKoPerfect=newKoPerfIds.length;
+  const changed=(state.seenExact!==r.exact)||(state.seenStreak!==r.bestStreak)||(state.seenKoPerfect!==(r.koPerfect||0))||((state.seenKoPerfIds||[]).length!==koPerfIds.length);
+  state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;state.seenKoPerfIds=koPerfIds;
   if(changed)queueSave(); // نحفظ فقط لو تغيّر شي (نتجنّب «تم الحفظ» العشوائي)
-  if(newExact>0||newStreak>0||newKoPerfect>0){showCelebration(newExact,newStreak,newKoPerfect,newExactIds);return true;}
+  if(newExact>0||newStreak>0||newKoPerfect>0){showCelebration(newExact,newStreak,newKoPerfIds,newExactIds);return true;}
   return false;
 }
-function showCelebration(newExact,newStreak,newKoPerfect,newExactIds){
+function showCelebration(newExact,newStreak,newKoPerfIds,newExactIds){
   const ov=document.getElementById('celebrateOverlay');
   const nm2=esc(state.name||'بطل');
+  const newKoPerfect=(newKoPerfIds&&newKoPerfIds.length)||0;
   let lines='';
-  if(newKoPerfect>0)lines+=`<div class="cel-line">🏆 توقّعت <b>${newKoPerfect}</b> ${newKoPerfect===1?'مباراة إقصائية مثالية':'مباريات إقصائية مثالية'} (إضافي/ترجيح بالضبط)!</div>`;
+  if(newKoPerfect>0){
+    let koTxt='';
+    try{
+      const KO=computeKOReal();
+      const labels=newKoPerfIds.map(m=>{
+        const t=KO.teamsOf[m]||{};if(!t.a||!t.b)return null;
+        const act=koActual(t.a,t.b);
+        const how=(act&&act.decided==='pen')?' (بالترجيح)':(act&&act.decided==='extra')?' (بالوقت الإضافي)':'';
+        return `${nm(t.a)} × ${nm(t.b)}${how}`;
+      }).filter(Boolean);
+      if(labels.length)koTxt=`<div class="cel-match">⚽ ${labels.join('، ')}</div>`;
+    }catch(e){}
+    lines+=`<div class="cel-line">🏆 توقّعت <b>${newKoPerfect}</b> ${newKoPerfect===1?'نتيجة إقصائية مثالية':'نتائج إقصائية مثالية'}!${koTxt}</div>`;
+  }
   if(newStreak>0)lines+=`<div class="cel-line">🔥 وصلت سلسلة <b>${newStreak}</b> توقّعات مطابقة متتالية!</div>`;
   if(newExact>0){
     let matchTxt='';
