@@ -2672,13 +2672,15 @@ function renderPoints(){
   // خلايا الإقصائيات (قسم مميّز يكبر مع انطلاق الأدوار)
   const _KOh=computeKOReal();
   let koCells='';
-  for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(!t||!t.a||!t.b)continue;
+  const koHeatOrder=[];for(let m=73;m<=104;m++){const t=_KOh.teamsOf[m];if(t&&t.a&&t.b)koHeatOrder.push(m);}
+  koHeatOrder.sort((x,y)=>(koKickoffMs(x)||0)-(koKickoffMs(y)||0)); // ترتيب زمني مثل المباريات
+  koHeatOrder.forEach(m=>{
     let cls='hcell ko';
     if(m in r.koPer){const p=r.koPer[m];cls+=(r.koPerf&&r.koPerf[m])?' h5':p>=6?' h3':p>=2?' h2':' h0';}
     else if(state.ko[m]&&state.ko[m].hs!==''&&state.ko[m].hs!=null){cls+=' hp';}
-    else continue;
+    else return;
     koCells+=`<div class="${cls}"></div>`;
-  }
+  });
   if(koCells)h+=`<div class="heat-ko-sep">🏆 الأدوار الإقصائية</div>`+koCells;
   h+=`</div><div class="heat-legend">
     <span><i style="background:var(--gold)"></i> مطابق</span>
