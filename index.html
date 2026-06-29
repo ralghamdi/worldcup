@@ -2684,7 +2684,9 @@ function renderPoints(){
     {ic:'🃏',t:'مقامر · استخدمت جوكر',got:jc>=1},
     {ic:'💯',t:'دقّة عالية · 70%+',got:r.scored>=5&&acc>=70},
     {ic:'⚡',t:'نشيط · 30+ توقّع',got:r.predTotal>=30},
-    {ic:'💰',t:'المئوية · 100 نقطة',got:r.total>=100},
+    {ic:'💰',t:'المئوية · 100 نقطة',got:displayTotal>=100},
+    {ic:'🔥',t:'المئتان · 200 نقطة',got:displayTotal>=200},
+    {ic:'👑',t:'الثلاثمئة · 300 نقطة',got:displayTotal>=300},
   ];
   h+=`<div class="sec-title head">🏅 شاراتك (${badges.filter(b=>b.got).length}/${badges.length})</div>`;
   h+=`<div class="badge-grid">`+badges.map(b=>`<div class="badge ${b.got?'on':''}"><span class="bd-ic">${b.ic}</span><span class="bd-t">${b.t}</span></div>`).join('')+`</div>`;
