@@ -2095,7 +2095,7 @@ const CHAMP_BONUS=25;          // بونص توقّع البطل الصحيح
 // قفل اختيار البطل: بداية الأدوار الإقصائية (28 يونيو 00:00 بتوقيتنا)
 // قفل اختيار البطل: مع اكتمال دور المجموعات فعلياً (بدء الإقصائيات) — بالنتائج لا بالوقت
 // فرصة أخيرة: يبقى الاختيار مفتوحاً حتى 29 يونيو 2026 الساعة 10:00 مساءً (الرياض)
-const CHAMP_GRACE_DEADLINE=new Date('2026-06-29T22:00:00+03:00').getTime();
+const CHAMP_GRACE_DEADLINE=new Date('2026-06-30T22:00:00+03:00').getTime();
 function champLocked(){return allGroupsDoneReal() && Date.now()>=CHAMP_GRACE_DEADLINE;}
 // الجواكر الصالحة تراكمياً (مجموعات + إقصائيات معاً): أول maxJokers() بالترتيب الزمني، لمنع أي تلاعب
 function validJokers(g,ko){
