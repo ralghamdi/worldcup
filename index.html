@@ -123,6 +123,7 @@ body.light{background:var(--bg);
 @keyframes celbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 .cel-title{font-family:'Cairo';font-weight:900;font-size:26px;color:var(--gold-bright);margin-bottom:16px}
 .cel-line{font-size:16px;line-height:1.7;color:var(--text);margin-bottom:8px}
+.cel-match{font-size:13px;color:var(--gold-bright);font-weight:700;margin-top:4px}
 .cel-line b{font-family:'Anton';color:var(--gold-bright);font-size:20px;margin:0 2px}
 .cel-btn{margin-top:20px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1405;border:none;border-radius:99px;padding:13px 30px;font-family:'Cairo';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(212,169,60,.4)}
 .cel-confetti{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
@@ -2186,26 +2187,36 @@ function computePointsForKO(ko,KO,g){
 /* ===== الاحتفال الشخصي بالإنجازات ===== */
 function checkCelebration(){
   const r=computePoints();
+  const exactIds=GM.filter(m=>r.per[m.id]===5).map(m=>m.id);
   // أول مرة: نسجّل الحالة بدون احتفال (ما نحتفل بالقديم)
   if(state.seenExact===undefined||state.seenStreak===undefined){
-    state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;queueSave();return false;
+    state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;queueSave();return false;
   }
+  const prevIds=state.seenExactIds||exactIds; // لو ما فيه قائمة سابقة نعتبر الكل مشاهَد
+  const newExactIds=exactIds.filter(id=>!prevIds.includes(id));
   const newExact=r.exact-(state.seenExact||0);
   const newStreak=(r.bestStreak>(state.seenStreak||0))?r.bestStreak:0;
   const newKoPerfect=(r.koPerfect||0)-(state.seenKoPerfect||0);
   const changed=(state.seenExact!==r.exact)||(state.seenStreak!==r.bestStreak)||(state.seenKoPerfect!==(r.koPerfect||0));
-  state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;
+  state.seenExact=r.exact;state.seenStreak=r.bestStreak;state.seenKoPerfect=r.koPerfect||0;state.seenExactIds=exactIds;
   if(changed)queueSave(); // نحفظ فقط لو تغيّر شي (نتجنّب «تم الحفظ» العشوائي)
-  if(newExact>0||newStreak>0||newKoPerfect>0){showCelebration(newExact,newStreak,newKoPerfect);return true;}
+  if(newExact>0||newStreak>0||newKoPerfect>0){showCelebration(newExact,newStreak,newKoPerfect,newExactIds);return true;}
   return false;
 }
-function showCelebration(newExact,newStreak,newKoPerfect){
+function showCelebration(newExact,newStreak,newKoPerfect,newExactIds){
   const ov=document.getElementById('celebrateOverlay');
   const nm2=esc(state.name||'بطل');
   let lines='';
   if(newKoPerfect>0)lines+=`<div class="cel-line">🏆 توقّعت <b>${newKoPerfect}</b> ${newKoPerfect===1?'مباراة إقصائية مثالية':'مباريات إقصائية مثالية'} (إضافي/ترجيح بالضبط)!</div>`;
   if(newStreak>0)lines+=`<div class="cel-line">🔥 وصلت سلسلة <b>${newStreak}</b> توقّعات مطابقة متتالية!</div>`;
-  if(newExact>0)lines+=`<div class="cel-line">🎯 جبت <b>${newExact}</b> ${newExact===1?'توقّع مطابق جديد':'توقّعات مطابقة جديدة'}!</div>`;
+  if(newExact>0){
+    let matchTxt='';
+    if(newExactIds&&newExactIds.length){
+      const labels=newExactIds.map(id=>{const m=GM.find(x=>x.id===id);return m?`${nm(m.A)} × ${nm(m.B)}`:null;}).filter(Boolean);
+      if(labels.length)matchTxt=`<div class="cel-match">⚽ ${labels.join('، ')}</div>`;
+    }
+    lines+=`<div class="cel-line">🎯 جبت <b>${newExact}</b> ${newExact===1?'توقّع مطابق جديد':'توقّعات مطابقة جديدة'}!${matchTxt}</div>`;
+  }
   ov.innerHTML=`<div class="cel-confetti" id="celConfetti"></div>
     <div class="cel-box">
       <div class="cel-emoji">${newKoPerfect>0?'🏆':newStreak>0?'🔥':'🎯'}</div>
