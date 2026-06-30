@@ -4022,16 +4022,6 @@ resetIdle();
 (async()=>{const {data}=await sb.auth.getSession();
   applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
-function applyLogo(){
-  if(!LOGO_URL)return;
-  document.querySelectorAll('.mini-emblem,.brand-emblem').forEach(el=>{
-    const cls=el.getAttribute('class');
-    const img=document.createElement('img');
-    img.src=LOGO_URL;img.alt='شعار';img.className=cls;
-    img.style.objectFit='contain';
-    el.replaceWith(img);
-  });
-}
 </script>
 </body>
 </html>
