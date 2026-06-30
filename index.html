@@ -4020,7 +4020,6 @@ function resetIdle(){
 resetIdle();
 
 (async()=>{const {data}=await sb.auth.getSession();
-  applyLogo();
   if(data&&data.session){user=data.session.user;await enterApp();}})();
 </script>
 </body>
