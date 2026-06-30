@@ -1101,9 +1101,15 @@ function computeKOReal(){
   // الثالث الصحيح من مباراة ESPN الفعلية للطرف المعروف (يلغي خطأ CLUS-backtracking)
   function findThirdFx(m,known){
     const cl=CLUS[m];if(!cl||!known)return null;
+    // نجمع كل الثوالث المرشّحين اللي لهم مباراة فعلية مع الطرف المعروف،
+    // ونختار الأقدم (أصغر espn_id) = مباراة الدور الحالي. هذا يتجاهل مباريات
+    // الأدوار الجاية المتسرّبة (espn_id أكبر) دون كسر مباريات الدور الحالي المجدولة.
+    let best=null,bestId=Infinity;
     for(const g of cl){const tx=realThirdTeam(g);if(!tx)continue;
-      const _fx=liveFor(known,tx); if(_fx&&_fx.status==='post')return tx;}   // مباراة دور 32 منتهية فقط → هو الثالث (يتجاهل مباريات الأدوار الجاية المجدولة)
-    return null;
+      const _fx=liveFor(known,tx); if(!_fx)continue;
+      const eid=Number(_fx.espn_id); const idv=isFinite(eid)?eid:Infinity;
+      if(best===null||idv<bestId){best=tx;bestId=idv;}}
+    return best;
   }
   const teamsOf={},winnerOf={},loserOf={},scoreOf={};
   function resolve(slot){
