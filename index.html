@@ -1862,7 +1862,7 @@ function koCard(m,KO){
     mid=`<span class="ko-sc${liveNow?' live':''}">${sc.a} <span class="ko-d">-</span> ${sc.b}</span>${penTxt}`;
   }else mid=`<span class="ko-vs">VS</span>`;
   const stt=koStatus(m,KO);
-  const liveMin=(rec&&rec.status_detail)?String(rec.status_detail):'';
+  const liveMin=(rec&&rec.status==='in')?liveStatusLabel(rec.status_detail):'';
   return `<div class="ko-card${win?' done':''}${sc&&sc.status==='in'?' livecard':''}">
     <div class="ko-cap"><span class="ko-stat ${stt.cls}">${stt.txt}${(stt.cls==='live'&&liveMin)?' '+esc(liveMin):''}</span><span class="ko-mn">م${m} · ${koDateLabel(m)}</span></div>
     <div class="ko-body">
@@ -2808,6 +2808,17 @@ function accBadgeKO(base,act,displayPts){
   if(base>=2)return '<span class="acc acc2">🟡 +'+showP+'</span>';
   return '<span class="acc acc0">🔴 +'+showP+'</span>';
 }
+// ترجمة حالة المباراة الجارية من ESPN لعربي. غير المعروف → «جارية» نظيفة بدون كود خام
+function liveStatusLabel(sd){
+  if(!sd)return 'جارية';
+  const M={
+    STATUS_FIRST_HALF:'الشوط الأول',STATUS_SECOND_HALF:'الشوط الثاني',
+    STATUS_HALFTIME:'بين الشوطين',STATUS_END_PERIOD:'نهاية الشوط',
+    STATUS_FIRST_EXTRA:'الشوط الإضافي الأول',STATUS_SECOND_EXTRA:'الشوط الإضافي الثاني',
+    STATUS_OVERTIME:'الوقت الإضافي',STATUS_SHOOTOUT:'ركلات الترجيح',STATUS_PENALTIES:'ركلات الترجيح'
+  };
+  return M[sd]||'جارية';
+}
 function koMatchCard(m,KO){
   const t=KO.teamsOf[m];const a=t.a,b=t.b;
   const sc=KO.scoreOf[m];const stt=koStatus(m,KO);
@@ -2826,7 +2837,7 @@ function koMatchCard(m,KO){
   const maj=koStarted2?majorityForKO(m,a,b):null;
   const jokTxt=(maj&&maj.jokers>0)?` · 🃏 ${maj.jokers} ${maj.jokers===1?'جوكر':'جواكر'}`:'';
   const majHtml=maj?`<div class="mt-majority">🤖 الأغلبية: <b>${maj.lbl} ${maj.pct}%</b> · أكثر نتيجة ${maj.ts} (${maj.tsPct}%) · ${maj.tot} لاعب${jokTxt}</div>`:'';
-  const liveMin=(rec&&rec.status_detail)?String(rec.status_detail):'';
+  const liveMin=(rec&&rec.status==='in')?liveStatusLabel(rec.status_detail):'';
   let penHtml='',pathHtml='';
   if(rec&&rec.shootout_home!=null&&rec.shootout_away!=null){
     const shA=(rec.home_code===a)?rec.shootout_home:rec.shootout_away;
@@ -2941,7 +2952,7 @@ function matchCard(m){
 
   // شارة الحالة
   let badge='';
-  if(status==='in'){const lm=(rec&&rec.status_detail)?String(rec.status_detail):'';badge='<span class="mt-status st-live">🔴 جارية'+(lm?' · '+esc(lm):'')+'</span>';}
+  if(status==='in'){const lm=(rec&&rec.status==='in')?liveStatusLabel(rec.status_detail):'';badge='<span class="mt-status st-live">🔴 جارية'+((lm&&lm!=='جارية')?' · '+esc(lm):'')+'</span>';}
   else if(status==='post')badge='<span class="mt-status st-post">انتهت</span>';
   else badge='<span class="mt-status st-pre">⏱ '+m.tm.t+'</span>';
 
