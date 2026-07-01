@@ -2158,8 +2158,9 @@ function computePointsForKO(ko,KO,g){
     const act=koActual(t.a,t.b);if(!act)continue;
     let base=scoreKO(pred,act);
     // تصنيف الدقّة على النقاط الأساسية (قبل الجوكر) — السقف 20
-    if(base>=11)koExact++;else if(base>=6)koGood++;else if(base>=2)koOk++;else koWrong++;
-    if(base>=koMaxForAct(act)){koPerfect++;perf[m]=true;} // إقصائية مثالية: نقاط كاملة لمسارها (12/16/20)
+    // مطابقة إقصائية = نقاط كاملة لمسارها (طابق كل المراحل بالضبط). أقل من ذلك = جيد/مقبول/خطأ
+    const _mx=koMaxForAct(act);
+    if(base>=_mx){koExact++;koPerfect++;perf[m]=true;}else if(base>=6)koGood++;else if(base>=2)koOk++;else koWrong++;
     if(act.decided==='pen'&&pred.pen&&pred.pen===act.pw)koPenRight++; // توقّع فائز الترجيح صح
     let pts=base;
     if(jok.has('ko'+m)){jokerBonus+=base;pts*=2;} // الجوكر يضاعف
@@ -2181,7 +2182,7 @@ function checkCelebration(){
   const newExactIds=exactIds.filter(id=>!prevIds.includes(id));
   const prevKoPerf=state.seenKoPerfIds||koPerfIds;
   const newKoPerfIds=koPerfIds.filter(m=>!prevKoPerf.includes(m));
-  const newExact=r.exact-(state.seenExact||0);
+  const newExact=newExactIds.length;  // المجموعات فقط (الإقصائيات المثالية تُعرض عبر newKoPerfect لتجنّب الازدواج)
   const newStreak=(r.bestStreak>(state.seenStreak||0))?r.bestStreak:0;
   const newKoPerfect=newKoPerfIds.length;
   const changed=(state.seenExact!==r.exact)||(state.seenStreak!==r.bestStreak)||(state.seenKoPerfect!==(r.koPerfect||0))||((state.seenKoPerfIds||[]).length!==koPerfIds.length);
